@@ -58,11 +58,20 @@ _INT_THOUSANDS_RE = re.compile(
 _INT_BARE_RE = re.compile(
     r"(?<![\d.,])(\d{4,})(?!\d)"
 )
+# Permissive integer (1+ digits) — only safe inside a known total field, not
+# free OCR text where any digit run could be an item count or page number.
+_INT_PERMISSIVE_RE = re.compile(r"(?<![\d.,])(\d+)(?!\d)")
 
 
-def _parse_cord_money(text: str) -> Optional[int]:
+def _parse_cord_money(text: str, permissive: bool = False) -> Optional[int]:
     """Parse a CORD price string. Returns integer in the receipt's natural
-    minor unit (centi-USD when decimal, whole-rupiah when integer)."""
+    minor unit (centi-USD when decimal, whole-rupiah when integer).
+
+    `permissive=True` is appropriate when caller knows the input is a
+    structured total field (and not raw OCR). It accepts 1- to 3-digit
+    bare integers like "500", which would otherwise be too ambiguous to
+    extract from free text.
+    """
     s = text.strip()
     if not s:
         return None
@@ -85,6 +94,13 @@ def _parse_cord_money(text: str) -> Optional[int]:
             return int(m.group(1))
         except ValueError:
             return None
+    if permissive:
+        m = _INT_PERMISSIVE_RE.search(s)
+        if m:
+            try:
+                return int(m.group(1))
+            except ValueError:
+                return None
     return None
 
 
@@ -153,7 +169,7 @@ def _extract_total(gt_parse: Dict[str, Any]) -> Optional[int]:
             if "total_price" in key or key == "total":
                 candidates.append(val)
     for raw in candidates:
-        cents = _parse_cord_money(raw)
+        cents = _parse_cord_money(raw, permissive=True)
         if cents is not None:
             return cents
     return None
