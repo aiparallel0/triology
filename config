@@ -1,0 +1,8 @@
+# Paper 3 experiment harness — runtime dependencies
+#
+# Lean by design: S1-S6 use only numpy. matplotlib is NOT required
+# (figures are hand-rolled SVG). The full set of optional adapters
+# (DONUT, LayoutLMv3) bring their own heavy dependencies — install
+# those separately when implementing kie_models/.
+
+numpy>=1.24
