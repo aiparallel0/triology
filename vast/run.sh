@@ -32,7 +32,15 @@ done
 run_script() {
   local mod="$1"; shift
   if [ -n "$ADAPTER" ]; then
-    python3 -c "import $PKG.adapters.$ADAPTER, runpy, sys; sys.argv[0]='$mod'; runpy.run_module('$PKG.scripts.$mod', run_name='__main__')" -- "$@"
+    # Don't use `--` as a separator: python's -c mode collects everything
+    # after the script into sys.argv[1:], and a literal `--` confuses
+    # argparse inside the target module. Just splice $mod in as argv[0].
+    python3 -c "
+import sys, runpy
+sys.argv = ['$mod'] + sys.argv[1:]
+import $PKG.adapters.$ADAPTER  # noqa: E402  # registers factory
+runpy.run_module('$PKG.scripts.$mod', run_name='__main__')
+" "$@"
   else
     python3 -m "$PKG.scripts.$mod" "$@"
   fi
