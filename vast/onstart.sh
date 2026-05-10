@@ -30,6 +30,10 @@ fi
 echo "[onstart] installing Python deps"
 python3 -m pip install --upgrade pip
 python3 -m pip install -r "$WORKDIR/requirements.txt"
+if [ "${INSTALL_GPU:-0}" = "1" ] && [ -f "$WORKDIR/requirements.gpu.txt" ]; then
+  echo "[onstart] INSTALL_GPU=1 -> installing GPU/model deps"
+  python3 -m pip install -r "$WORKDIR/requirements.gpu.txt"
+fi
 
 echo "[onstart] running synthetic smoke test"
 cd "$(dirname "$WORKDIR")"

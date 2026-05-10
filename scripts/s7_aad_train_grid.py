@@ -53,6 +53,13 @@ def parse_args():
     ap.add_argument("--lambdas", default=",".join(str(l) for l in LAMBDAS))
     ap.add_argument("--dry_run", action="store_true",
                     help="print configs that would run, then exit")
+    ap.add_argument("--train_fn", default="default",
+                    help="'default' -> paper3.training.donut_sroie.train_donut_sroie; "
+                         "'none' -> rely on adapter.train() to raise; "
+                         "or 'pkg.module:callable' to dotted-import a custom one")
+    ap.add_argument("--epochs", type=int, default=3)
+    ap.add_argument("--batch_size", type=int, default=2)
+    ap.add_argument("--lr", type=float, default=5e-5)
     return ap.parse_args()
 
 
@@ -72,15 +79,36 @@ def main():
     lambdas = [float(x) for x in args.lambdas.split(",")]
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 
+    train_fn = None
+    if args.train_fn == "default":
+        from ..training.donut_sroie import train_donut_sroie
+        train_fn = train_donut_sroie
+    elif args.train_fn == "none":
+        train_fn = None
+    elif ":" in args.train_fn:
+        import importlib
+        mod_name, attr = args.train_fn.split(":", 1)
+        train_fn = getattr(importlib.import_module(mod_name), attr)
+    else:
+        raise SystemExit(f"unrecognized --train_fn {args.train_fn!r}")
+
     grid_results: Dict[str, Dict] = {}
     for init in inits:
         for lam in lambdas:
+            extra = {
+                "sroie_root": args.sroie,
+                "epochs": args.epochs,
+                "batch_size": args.batch_size,
+                "lr": args.lr,
+            }
+            if train_fn is not None:
+                extra["train_fn"] = train_fn
             cfg = TrainConfig(
                 init=init,
                 lambda_struct=lam,
                 seed=args.seed,
                 output_dir=args.output_dir,
-                extra={"sroie_root": args.sroie},
+                extra=extra,
             )
             print(f"[s7] cell: {cfg.cell_name()}")
             if args.dry_run:
