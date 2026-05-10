@@ -113,8 +113,9 @@ def main():
     p_sroie.add_argument("--dest", required=True)
     p_sroie.add_argument("--src", default=None,
                          help="path to a local RRC zip (optional)")
-    p_sroie.add_argument("--prefer", choices=["git", "hf"], default="git",
-                         help="which mirror to try first (default: git)")
+    p_sroie.add_argument("--prefer", choices=["tar", "git", "hf"], default="tar",
+                         help="which mirror to try first (default: tar — "
+                              "single-GET tarball, usually fastest)")
     args = ap.parse_args()
     if args.corpus == "cord":
         download_cord(args.dest, args.splits.split(","), args.hf_id)
