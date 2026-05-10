@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.Python
+build/
+dist/
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Smoke-test / experiment outputs
+paper3/results/*.json
+paper3/results/*.svg
+paper3/results/*.txt
+paper3/results/checkpoints/
+
+# Local data — never commit corpora
+data/
+datasets/
+*.tar.gz
+*.zip
+*.parquet
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+runs/
+wandb/
