@@ -4,14 +4,15 @@ CORD-v2 is hosted on HuggingFace as `naver-clova-ix/cord-v2`; we use
 `datasets.load_dataset(..., split=...)` and persist with `save_to_disk`
 so the on-disk shape matches what `cord_loader.load_cord` expects.
 
-SROIE Task-3 has no clean public auto-download — the official ICDAR
-2019 Robust Reading challenge gates it behind a registration. The
-`download_sroie` function expects an already-downloaded zip and just
-does the unzip + sanity-check. The README documents where to get it.
+SROIE Task-3 — auto-fetched from a public git mirror
+(`zzzDavid/ICDAR-2019-SROIE`, ~50 MB, no auth) so the harness needs
+no manual upload and no ICDAR registration. A HuggingFace mirror
+(`Metric-AI/icdar_sroie`) acts as a fallback. The official RRC zip
+remains supported via --src for users who do have credentials.
 
 Usage:
     python -m <pkg>.data.download cord  --dest /workspace/datasets/cord-v2
-    python -m <pkg>.data.download sroie --src /downloads/SROIE.zip --dest /workspace/datasets/SROIE_Task3
+    python -m <pkg>.data.download sroie --dest /workspace/datasets/SROIE_Task3
 """
 from __future__ import annotations
 import argparse
@@ -51,42 +52,50 @@ def download_cord(dest: str, splits: Optional[List[str]] = None,
           f"first gold = {receipts[0].gold_total_cents if receipts else 'n/a'}")
 
 
-def download_sroie(src: str, dest: str) -> None:
-    """Unzip an already-downloaded SROIE Task-3 archive into `dest/`.
+def download_sroie(dest: str, src: Optional[str] = None,
+                   prefer: str = "git") -> None:
+    """Make `<dest>/test/{img,box,entities}/` exist.
 
-    The official archive bundles `0325updated.task1train(626p).zip` etc.
-    rather than the train/test split layout the loader expects. After
-    unzipping we look for {img,box,entities}/ directly; if missing we
-    print where the layout differs so the user can rearrange manually.
+    Three paths, in priority order:
+      1. If `--src` is passed, unzip the user-supplied RRC zip (the
+         original gated-but-canonical archive).
+      2. Otherwise auto-fetch from the public git mirror
+         (zzzDavid/ICDAR-2019-SROIE, ~50 MB).
+      3. Fall back to the HuggingFace mirror (Metric-AI/icdar_sroie,
+         JSON entities only — no box files, so reachability metrics
+         that need OCR text won't work).
     """
-    src_path = Path(src)
     dest_path = Path(dest)
-    if not src_path.exists():
-        raise FileNotFoundError(
-            f"SROIE archive not found at {src_path}. SROIE Task-3 is "
-            f"gated by registration at "
-            f"https://rrc.cvc.uab.es/?ch=13&com=downloads — once you've "
-            f"downloaded the archive, pass --src to this command."
-        )
-    dest_path.mkdir(parents=True, exist_ok=True)
-    print(f"[download] unzipping {src_path} -> {dest_path}")
-    with zipfile.ZipFile(src_path) as zf:
-        zf.extractall(dest_path)
-    needed = {"img", "box", "entities"}
-    have = {p.name for p in dest_path.iterdir() if p.is_dir()}
-    if not needed.issubset(have):
-        print(
-            f"[download] note: extracted dirs {sorted(have)} do not match "
-            f"{sorted(needed)}. SROIE archives sometimes ship as nested zips "
-            f"(`0325updated.task1train(626p).zip`, etc.); unzip those into "
-            f"a single root with img/box/entities/ subdirs and re-run.",
-            file=sys.stderr,
-        )
-        return
+    if src:
+        src_path = Path(src)
+        if not src_path.exists():
+            raise FileNotFoundError(
+                f"SROIE archive not found at {src_path}. Drop the --src "
+                f"flag to auto-download from the public mirror."
+            )
+        dest_path.mkdir(parents=True, exist_ok=True)
+        print(f"[download] unzipping {src_path} -> {dest_path}")
+        with zipfile.ZipFile(src_path) as zf:
+            zf.extractall(dest_path)
+    else:
+        from .sroie_download import download_sroie_auto
+        download_sroie_auto(str(dest_path), prefer=prefer)
+
+    # Sanity check via the loader.
     from .sroie_loader import load_sroie
-    receipts = load_sroie(str(dest_path), max_receipts=5)
+    test_root = dest_path / "test" if (dest_path / "test").exists() else dest_path
+    try:
+        receipts = load_sroie(str(test_root), max_receipts=5)
+    except FileNotFoundError as e:
+        print(f"[download] note: layout sanity-check skipped — {e}",
+              file=sys.stderr)
+        return
+    if not receipts:
+        print("[download] note: 0 receipts loaded; check layout under "
+              f"{test_root}", file=sys.stderr)
+        return
     print(f"[download] SROIE sanity check: loaded {len(receipts)} receipts; "
-          f"first gold = {receipts[0].gold_total_cents if receipts else 'n/a'}")
+          f"first gold = {receipts[0].gold_total_cents}")
 
 
 def main():
@@ -96,14 +105,21 @@ def main():
     p_cord.add_argument("--dest", required=True)
     p_cord.add_argument("--splits", default="train,validation,test")
     p_cord.add_argument("--hf_id", default="naver-clova-ix/cord-v2")
-    p_sroie = sub.add_parser("sroie", help="SROIE Task-3 (provide local zip)")
-    p_sroie.add_argument("--src", required=True, help="path to the SROIE zip")
+    p_sroie = sub.add_parser(
+        "sroie",
+        help="SROIE Task-3 — auto-fetches from a public mirror; "
+             "pass --src to unpack a local RRC zip instead.",
+    )
     p_sroie.add_argument("--dest", required=True)
+    p_sroie.add_argument("--src", default=None,
+                         help="path to a local RRC zip (optional)")
+    p_sroie.add_argument("--prefer", choices=["git", "hf"], default="git",
+                         help="which mirror to try first (default: git)")
     args = ap.parse_args()
     if args.corpus == "cord":
         download_cord(args.dest, args.splits.split(","), args.hf_id)
     else:
-        download_sroie(args.src, args.dest)
+        download_sroie(args.dest, src=args.src, prefer=args.prefer)
 
 
 if __name__ == "__main__":

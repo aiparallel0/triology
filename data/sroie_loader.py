@@ -42,6 +42,38 @@ def _parse_total_to_cents(s: str) -> Optional[int]:
     return int(whole) * 100 + int(m.group(2))
 
 
+def _parse_entities_text(text: str) -> dict:
+    """Parse a SROIE entities file. Accepts either:
+        * JSON object: '{"company": "...", "total": "12.50", ...}'
+        * KV-text:     'company: ...\\ndate: ...\\ntotal: 12.50'
+
+    Skips lines that look like Task-1 box-file rows
+    ('123,456,...,LABEL:VALUE'), which the public flat-layout mirror
+    sometimes mixes into the entities directory.
+    """
+    s = text.strip()
+    if s.startswith("{"):
+        try:
+            obj = json.loads(s)
+            if isinstance(obj, dict):
+                return {str(k).lower(): str(v) for k, v in obj.items()}
+        except json.JSONDecodeError:
+            pass
+    out: dict = {}
+    for line in s.splitlines():
+        if ":" not in line:
+            continue
+        k, _, v = line.partition(":")
+        head = k.split(",", 1)[0].strip()
+        if "," in k and head.isdigit():
+            # Task-1 box-file line ("x1,y1,...,LABEL:VALUE") — skip.
+            continue
+        key = k.strip().lower()
+        if key:
+            out[key] = v.strip()
+    return out
+
+
 def _read_box_file(path: Path) -> List[str]:
     """Collapse a SROIE box file into one OCR text per receipt line."""
     rows: List[tuple] = []  # (mid_y, x1, text)
@@ -89,13 +121,14 @@ def load_sroie(path: str, max_receipts: Optional[int] = None,
         )
 
     receipts: List[Receipt] = []
-    ent_files = sorted(ent_dir.glob("*.txt"))
+    ent_files = sorted(list(ent_dir.glob("*.txt")) + list(ent_dir.glob("*.json")))
     for ent_path in ent_files:
         if max_receipts is not None and len(receipts) >= max_receipts:
             break
-        try:
-            ent = json.loads(ent_path.read_text(encoding="utf-8", errors="replace"))
-        except json.JSONDecodeError:
+        ent = _parse_entities_text(
+            ent_path.read_text(encoding="utf-8", errors="replace")
+        )
+        if not ent:
             continue
         gold_cents = _parse_total_to_cents(ent.get("total", ""))
         if gold_cents is None:
