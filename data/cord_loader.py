@@ -46,40 +46,60 @@ except (ImportError, ValueError):
         return []
 
 
-# Decimal-style money: "DDD.DD", "1,250.00".
-_DEC_MONEY_RE = re.compile(
-    r"(?<![\d.])(\d{1,3}(?:,\d{3})*|\d+)\.(\d{2})(?!\d)"
+# Decimal money WITH thousands separator: "1,250.00" -> 125000 (centi-USD).
+_DEC_THOUSANDS_RE = re.compile(
+    r"(?<![\d.])(\d{1,3}(?:,\d{3})+)\.(\d{2})(?!\d)"
 )
-# Integer-style money with thousands separator: "12,500", "1,234,567".
+# Decimal money WITHOUT thousands separator, whole part must be 1-3 digits:
+# "12.50" -> 1250 (centi-USD). "200000.00" deliberately doesn't match here so
+# it doesn't get parsed as $200,000.00 = 20,000,000 cents on a CORD-v2
+# (Indonesian rupiah) receipt where the .00 is OCR noise on whole rupiah.
+_DEC_SHORT_RE = re.compile(
+    r"(?<![\d.])(\d{1,3})\.(\d{2})(?!\d)"
+)
+# Integer money with thousands separator: "12,500" -> 12500.
 _INT_THOUSANDS_RE = re.compile(
     r"(?<![\d.,])(\d{1,3}(?:,\d{3})+)(?![\d.,])"
 )
-# Integer-style money without separator (>=4 digits): "60000".
-_INT_BARE_RE = re.compile(
-    r"(?<![\d.,])(\d{4,})(?!\d)"
+# Integer money without separator (>=4 digits), optionally followed by a
+# spurious .DD that the receipt format dropped: "200000" or "200000.00" -> 200000.
+_INT_BARE_OR_DOTTED_RE = re.compile(
+    r"(?<![\d.,])(\d{4,})(?:\.\d{1,4})?(?!\d)"
 )
-# Permissive integer (1+ digits) — only safe inside a known total field, not
+# Permissive 1+ digit fallback — only safe inside a known total field, not
 # free OCR text where any digit run could be an item count or page number.
 _INT_PERMISSIVE_RE = re.compile(r"(?<![\d.,])(\d+)(?!\d)")
 
 
 def _parse_cord_money(text: str, permissive: bool = False) -> Optional[int]:
     """Parse a CORD price string. Returns integer in the receipt's natural
-    minor unit (centi-USD when decimal, whole-rupiah when integer).
+    minor unit (centi-USD when "DD.DD", whole-rupiah/won when integer).
+
+    The patterns are ordered so that "200000.00" (Indonesian receipt with
+    OCR-injected .00 noise) parses to 200000 (whole rupiah), not
+    20,000,000 (treating .00 as cents). The trade-off: a hypothetical
+    USD price like "1234.50" without thousands separator would also parse
+    as 1234, not 123450 — vanishingly rare in receipt corpora.
 
     `permissive=True` is appropriate when caller knows the input is a
-    structured total field (and not raw OCR). It accepts 1- to 3-digit
-    bare integers like "500", which would otherwise be too ambiguous to
-    extract from free text.
+    structured total field. It accepts 1- to 3-digit bare integers
+    like "500", too ambiguous to extract from free OCR text.
     """
     s = text.strip()
     if not s:
         return None
-    m = _DEC_MONEY_RE.search(s)
+    # Order matters: most specific first.
+    m = _DEC_THOUSANDS_RE.search(s)
     if m:
         whole = m.group(1).replace(",", "")
         try:
             return int(whole) * 100 + int(m.group(2))
+        except ValueError:
+            return None
+    m = _DEC_SHORT_RE.search(s)
+    if m:
+        try:
+            return int(m.group(1)) * 100 + int(m.group(2))
         except ValueError:
             return None
     m = _INT_THOUSANDS_RE.search(s)
@@ -88,7 +108,7 @@ def _parse_cord_money(text: str, permissive: bool = False) -> Optional[int]:
             return int(m.group(1).replace(",", ""))
         except ValueError:
             return None
-    m = _INT_BARE_RE.search(s)
+    m = _INT_BARE_OR_DOTTED_RE.search(s)
     if m:
         try:
             return int(m.group(1))
@@ -113,35 +133,38 @@ def _extract_money_lines_cord(raw_lines: List[str]) -> List[MoneyLine]:
     """
     out: List[MoneyLine] = []
     for idx, line in enumerate(raw_lines):
-        # Prefer decimal first, then integer-with-thousands, then bare int.
-        best = None
-        for pattern, is_decimal in (
-            (_DEC_MONEY_RE, True),
-            (_INT_THOUSANDS_RE, False),
-            (_INT_BARE_RE, False),
-        ):
-            matches = list(pattern.finditer(line))
-            if not matches:
-                continue
-            best = (matches[-1], is_decimal)
-            break
-        if best is None:
+        value = _parse_cord_money(line, permissive=False)
+        # _parse_cord_money returns the FIRST match. For multi-value lines
+        # (e.g. "ITEM 2 @ 5,000 = 10,000") we want the rightmost (line total
+        # convention), so re-run with rightmost-match fallback.
+        if value is None:
             continue
-        m, is_decimal = best
-        if is_decimal:
-            whole = m.group(1).replace(",", "")
-            try:
-                value = int(whole) * 100 + int(m.group(2))
-            except ValueError:
-                continue
-        else:
-            try:
-                value = int(m.group(1).replace(",", ""))
-            except ValueError:
-                continue
+        # Best-effort rightmost: try all candidate patterns and take the
+        # match with the largest end position.
+        best_end = -1
+        best_value = value
+        for pattern, decimal in (
+            (_DEC_THOUSANDS_RE, True),
+            (_DEC_SHORT_RE, True),
+            (_INT_THOUSANDS_RE, False),
+            (_INT_BARE_OR_DOTTED_RE, False),
+        ):
+            for m in pattern.finditer(line):
+                if m.end() <= best_end:
+                    continue
+                try:
+                    if decimal:
+                        whole = m.group(1).replace(",", "")
+                        v = int(whole) * 100 + int(m.group(2))
+                    else:
+                        v = int(m.group(1).replace(",", ""))
+                except ValueError:
+                    continue
+                best_end = m.end()
+                best_value = v
         out.append(MoneyLine(
             line_idx=idx,
-            value_cents=value,
+            value_cents=best_value,
             raw_text=line,
             tags=tag_line(line),
         ))

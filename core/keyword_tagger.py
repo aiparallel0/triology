@@ -33,7 +33,7 @@ LEX_CHANGE = (
     "change", "baki",
 )
 LEX_SUBTOTAL = (
-    "subtotal", "sub-total", "sub total", "sub.total",
+    "subtotal", "sub-total", "sub total", "sub.total", "sub_total",
 )
 # Tax-adjustment lexicon. Paper 1 collapses tax/service/discount into a
 # single "tau" offset at the verifier level but we keep the tags
