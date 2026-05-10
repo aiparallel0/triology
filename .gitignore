@@ -23,14 +23,14 @@ env/
 .DS_Store
 
 # Smoke-test / experiment outputs
-paper3/results/*.json
-paper3/results/*.svg
-paper3/results/*.txt
-paper3/results/checkpoints/
+results/
+paper3/results/
 
-# Local data — never commit corpora
-data/
+# Downloaded corpora — never commit. The /data/ directory in this repo
+# is the harness loader module and is committed; real corpora are
+# expected to live outside the repo and be passed via --path.
 datasets/
+corpora/
 *.tar.gz
 *.zip
 *.parquet

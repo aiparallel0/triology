@@ -17,13 +17,15 @@ import time
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+PKG_DIR = Path(__file__).resolve().parent.parent
+PKG_NAME = PKG_DIR.name           # 'paper3' when cloned into a paper3/ dir
+REPO_ROOT = PKG_DIR.parent
 RESULTS = REPO_ROOT / "results"
 
 
 def _run(script_name: str, *extra_args) -> dict:
     """Invoke a script as a module, return parsed JSON of its results file."""
-    cmd = [sys.executable, "-m", f"paper3.scripts.{script_name}",
+    cmd = [sys.executable, "-m", f"{PKG_NAME}.scripts.{script_name}",
            "--corpus", "synthetic", "--n", "100", "--seed", "0",
            *extra_args]
     t0 = time.perf_counter()

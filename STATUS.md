@@ -1,32 +1,38 @@
-# Status — what arrived in this transfer
+# Status
 
-This branch was reconstructed from a flat dump of the original
-`paper3` bundle (working tree + a copy of its `.git/objects/`,
-all flattened into one directory by the chat downloader). The
-bundle's last commit (`Initial commit: Paper 3 AAD experiment
-harness`) was recovered intact and is the source of truth for the
-file layout below.
+End-to-end synthetic experiments run, including the smoke test
+(`python -m <pkg>.tests.test_smoke`, ≈1s, 6/6 pass).
 
-## What's present (recovered from the bundle commit)
+## Layout
 
 ```
 .gitignore
 LICENSE
-MIGRATION.md            (empty in the bundle — placeholder)
+MIGRATION.md
 README.md
-__init__.py             (empty package marker)
+STATUS.md
+__init__.py
 push-to-github.sh
-requirements.txt
+requirements.txt          # numpy only (S1-S6 on synthetic)
+requirements.gpu.txt      # torch / transformers / pillow / etc. (DONUT adapter)
 core/
-  __init__.py
   aad_decoder.py
   identities.py
   keyword_tagger.py
   money_lines.py
   stats.py
   subset_sum.py
+data/
+  __init__.py             # load_corpus(name, path, n, seed, ...) dispatcher
+  types.py                # Receipt, MoneyLine
+  synthetic_loader.py     # smoke-test fixture
+  sroie_loader.py         # SROIE Task-3 (img/, box/, entities/)
+  cord_loader.py          # CORD-v2 (HF save_to_disk or *.json directory)
+  kie_model_io.py         # KIEModelInterface, StubKIEModel, registry
+adapters/
+  README.md
+  donut.py                # DONUT (naver-clova-ix/donut-base) adapter
 scripts/
-  __init__.py
   s1_T_distribution.py
   s2_I_coverage.py
   s3_cord_confusion.py
@@ -36,63 +42,47 @@ scripts/
   s7_aad_train_grid.py
   s8_4system_eval.py
 tests/
-  __init__.py
   test_smoke.py
 vast/
-  onstart.sh            (added in this transfer commit)
-  run.sh                (added in this transfer commit)
+  onstart.sh              # vast.ai on-start script
+  run.sh                  # one-call run-S1-through-S6
 ```
 
-## What's missing — `data/` module
+## What runs out of the box (numpy only)
 
-The README and every script under `scripts/` import from
-`paper3.data` (e.g. `from ..data import load_corpus`,
-`from ..data.kie_model_io import StubKIEModel`). **No `data/`
-directory was present in the bundle's commit**, so the scripts
-cannot run as-is. The README expects:
-
-```
-data/
-  __init__.py            # exposes load_corpus(name, path, n, seed, ...)
-  types.py               # Receipt, MoneyLine dataclasses
-  sroie_loader.py        # SROIE Task-3 reader
-  cord_loader.py         # CORD-v2 (HuggingFace) reader
-  synthetic_loader.py    # smoke-test fixture (no network, no GPU)
-  kie_model_io.py        # KIEModelInterface + register_kie_model_factory
-```
-
-These modules need to be implemented before the smoke test
-(`python -m paper3.tests.test_smoke`) or any individual script
-will succeed. Suggested order:
-
-1. `data/types.py` — `Receipt` and `MoneyLine` dataclasses (the
-   shape is implied by usage in `core/identities.py`,
-   `core/money_lines.py`, and `scripts/s2_I_coverage.py`).
-2. `data/synthetic_loader.py` — produces `Receipt` objects with
-   subtotal / tax / total / change consistent with I1-I5; this is
-   what unblocks the `--corpus synthetic` path that every script
-   defaults to.
-3. `data/__init__.py` — `load_corpus(name, path=None, n=500, seed=0)`
-   dispatcher that routes `synthetic` to step 2 and (eventually)
-   `sroie` / `cord` to their loaders.
-4. `data/kie_model_io.py` — `KIEModelInterface` Protocol plus
-   `register_kie_model_factory(...)`, `get_kie_model()`, and the
-   `StubKIEModel` referenced in S5 / S7 / S8.
-5. `data/sroie_loader.py` and `data/cord_loader.py` — only needed
-   once you have real corpora to evaluate against.
-
-## Running on vast.ai
+S1, S2, S3, S4, S5, S6 with `--corpus synthetic`. The smoke test
+covers all six and finishes in about a second.
 
 ```bash
-# In the on-start script field of a vast.ai instance template,
-# or after first SSH:
-curl -fsSL https://raw.githubusercontent.com/aiparallel0/triology/claude/transfer-to-github-MHAZT/vast/onstart.sh | bash
-
-# Then, once data/ is implemented:
-bash /workspace/paper3/vast/run.sh
+pip install -r requirements.txt
+bash vast/run.sh --n 500
 ```
 
-`onstart.sh` clones the repo into `/workspace/paper3`, installs
-`requirements.txt`, and attempts the smoke test (which will fail
-loudly until `data/` exists — that's expected). `run.sh` invokes
-S1-S6 in sequence on synthetic data once the loader is in place.
+## What needs corpora
+
+- `--corpus sroie --path /data/SROIE_Task3/test` (S1, S2, S4)
+- `--corpus cord  --path /data/cord-v2/test`     (S1, S2, S3)
+
+The CORD loader reads either a `datasets.save_to_disk` directory or a
+flat `*.json` directory. SROIE expects the canonical
+`{img,box,entities}/` triple.
+
+## What needs a model adapter
+
+S5 reports overhead in absolute milliseconds without an adapter. With
+one registered, it also reports the **% of base decoder latency**.
+
+S7 (training grid) and S8 (system comparison) require an adapter.
+
+The bundled `paper3.adapters.donut` wraps DONUT. Activate it by
+importing the module before invoking a script:
+
+```bash
+pip install -r requirements.gpu.txt
+bash vast/run.sh --adapter donut --n 500
+```
+
+S7's actual training loop is left to the user (pass it via
+`TrainConfig.extra["train_fn"]`) — the harness handles seed/init/λ
+sweeping and checkpoint-manifest writing, but does not bundle a
+DONUT trainer.

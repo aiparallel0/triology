@@ -1,0 +1,10 @@
+# Optional GPU/model dependencies — only needed for the DONUT adapter
+# (and S5 % overhead, S7 training grid, S8 system comparison). The base
+# experiments S1-S6 on synthetic data run with `requirements.txt` only.
+
+torch>=2.1
+transformers>=4.40
+pillow>=10.0
+sentencepiece>=0.2
+datasets>=2.18    # CORD-v2 loader (HuggingFace save_to_disk format)
+accelerate>=0.30  # multi-GPU and mixed-precision training
