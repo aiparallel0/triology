@@ -12,21 +12,22 @@ Init mapping:
     "warm_start"      : keep pretrained weights, fine-tune all params
     "freeze_partial"  : freeze the vision encoder, fine-tune decoder
 
-Lambda mapping:
-    Structural loss isn't a single line in HuggingFace's Seq2SeqTrainer,
-    so until we ship a proper masked-CE-with-T term we route
-    `lambda_struct` to label smoothing as a stand-in (higher lambda →
-    more probability mass spread to non-gold tokens, encouraging the
-    model not to over-commit). This is documented in S7's output.
+Lambda mapping (real masked-CE-with-T, not the previous label-smoothing
+stand-in):
+
+    L_total = L_CE + lambda_struct * mean_t[-log P(M_t | y_<t, x)]
+
+where M_t is the AAD reachability mask at decoder step t inside the
+`<s_total>...</s_total>` span. See `training.aad_loss` for the math.
+The `lambda_struct=0` case reduces to ordinary CE; large lambda pushes
+the unconstrained decoder toward never placing mass on infeasible
+tokens (so AAD's renormalization becomes a near-identity).
 
 The function expects a SROIE root directory (passed as
 `config.extra['sroie_root']`) with the canonical {img,box,entities}/
 layout. Targets are formatted as DONUT prompt tags:
 
-    "<s_cord-v2><s_total>36.23</s_total></s>"
-
-Returns a dict of training metrics; the adapter's `train()` writes a
-manifest.json with these alongside the saved checkpoint.
+    "<s_cord-v2><s_total>16.43</s_total></s>"
 
 This file's heavy imports (torch, transformers, PIL) are all done
 inside the function so that importing the module is free.
@@ -38,8 +39,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
+def _format_total(cents: int) -> str:
+    return f"{cents // 100}.{cents % 100:02d}"
+
+
 def train_donut_sroie(adapter, config) -> Dict[str, Any]:
-    """Fine-tune adapter._model on SROIE total extraction.
+    """Fine-tune adapter._model on SROIE with optional AAD structural loss.
 
     Side effects:
       * loads the model into adapter._model / ._processor (lazy)
@@ -51,6 +56,11 @@ def train_donut_sroie(adapter, config) -> Dict[str, Any]:
         Seq2SeqTrainer, Seq2SeqTrainingArguments,
     )
     from PIL import Image  # type: ignore
+
+    from ..data.sroie_loader import load_sroie
+    from .aad_loss import (
+        aad_structural_loss, build_digit_token_ids, find_total_span,
+    )
 
     sroie_root = (config.extra or {}).get("sroie_root")
     if not sroie_root:
@@ -68,72 +78,138 @@ def train_donut_sroie(adapter, config) -> Dict[str, Any]:
         )
 
     # ------------------------------------------------------------------
-    # Build (image, target) pairs
+    # Build (image, target, items_cents, tau_cents) tuples
     # ------------------------------------------------------------------
-    pairs: List[Dict[str, str]] = []
-    for ent in sorted(ent_dir.glob("*.txt")):
-        try:
-            obj = json.loads(ent.read_text(encoding="utf-8", errors="replace"))
-        except json.JSONDecodeError:
+    receipts = load_sroie(str(sroie_path))
+    samples: List[Dict[str, Any]] = []
+    for r in receipts:
+        img_path = r.meta.get("image")
+        if not img_path or not os.path.exists(img_path):
             continue
-        total = obj.get("total")
-        if not total:
-            continue
-        # Normalize to "DD.DD"
-        total = total.strip().replace(",", "")
-        img_path = img_dir / f"{ent.stem}.jpg"
-        if not img_path.exists():
-            img_path = img_dir / f"{ent.stem}.png"
-        if not img_path.exists():
-            continue
-        target = f"<s_cord-v2><s_total>{total}</s_total></s>"
-        pairs.append({"image": str(img_path), "target": target})
-    if not pairs:
+        target = f"<s_cord-v2><s_total>{_format_total(r.gold_total_cents)}</s_total></s>"
+        samples.append({
+            "image": img_path,
+            "target": target,
+            "items_cents": r.items_cents(),
+            "tau_cents": r.tau_cents(),
+        })
+    if not samples:
         raise RuntimeError(f"No usable receipts found under {sroie_path}")
 
     # ------------------------------------------------------------------
-    # Model + processor (warm_start / scratch / freeze_partial)
+    # Model + processor + init mode
     # ------------------------------------------------------------------
     adapter._ensure_loaded(None)
     model = adapter._model
     processor = adapter._processor
+    tokenizer = processor.tokenizer
+
+    # Add the special tags if missing. DONUT's base tokenizer doesn't
+    # necessarily know `<s_total>` / `</s_total>` etc. — extend.
+    special_tags = ["<s_cord-v2>", "<s_total>", "</s_total>"]
+    to_add = [t for t in special_tags
+              if tokenizer.convert_tokens_to_ids(t) == tokenizer.unk_token_id]
+    if to_add:
+        tokenizer.add_tokens(to_add, special_tokens=True)
+        model.decoder.resize_token_embeddings(len(tokenizer))
+
+    open_total_id = tokenizer.convert_tokens_to_ids("<s_total>")
+    close_total_id = tokenizer.convert_tokens_to_ids("</s_total>")
+    digit_token_ids, _ = build_digit_token_ids(tokenizer)
 
     if config.init == "scratch":
-        # Reset weights — leaves architecture and tokenizer intact.
         model.apply(lambda m: getattr(m, "reset_parameters", lambda: None)())
     elif config.init == "freeze_partial":
         for p in model.encoder.parameters():
             p.requires_grad = False
 
+    lambda_struct = float(config.lambda_struct)
+
     # ------------------------------------------------------------------
-    # Dataset
+    # Dataset: pre-tokenize labels + cache total_span + items/tau
     # ------------------------------------------------------------------
     class _SroieDataset(Dataset):
-        def __init__(self, pairs):
-            self.pairs = pairs
+        def __init__(self, samples):
+            self.samples = samples
+            self._cache = {}
 
         def __len__(self):
-            return len(self.pairs)
+            return len(self.samples)
+
+        def _encode(self, i):
+            if i in self._cache:
+                return self._cache[i]
+            ex = self.samples[i]
+            label_ids = tokenizer(
+                ex["target"], add_special_tokens=False,
+                padding="max_length", truncation=True,
+                max_length=adapter.max_length,
+                return_tensors="pt",
+            ).input_ids[0]
+            labels = label_ids.clone()
+            labels[labels == tokenizer.pad_token_id] = -100
+            start, end = find_total_span(labels, open_total_id, close_total_id)
+            self._cache[i] = (labels, start, end)
+            return self._cache[i]
 
         def __getitem__(self, idx):
-            ex = self.pairs[idx]
+            ex = self.samples[idx]
             img = Image.open(ex["image"]).convert("RGB")
             pixel = processor(img, return_tensors="pt").pixel_values[0]
-            labels = processor.tokenizer(
-                ex["target"], add_special_tokens=False, return_tensors="pt",
-                padding="max_length", truncation=True, max_length=adapter.max_length,
-            ).input_ids[0]
-            labels[labels == processor.tokenizer.pad_token_id] = -100
-            return {"pixel_values": pixel, "labels": labels}
+            labels, start, end = self._encode(idx)
+            return {
+                "pixel_values": pixel,
+                "labels": labels,
+                "items_cents": ex["items_cents"],
+                "tau_cents": ex["tau_cents"],
+                "total_span_start": start,
+                "total_span_end": end,
+            }
 
-    ds = _SroieDataset(pairs)
-    n_train = int(0.9 * len(ds))
+    ds = _SroieDataset(samples)
+    n_train = max(1, int(0.9 * len(ds)))
     train_ds = torch.utils.data.Subset(ds, range(n_train))
-    eval_ds = torch.utils.data.Subset(ds, range(n_train, len(ds)))
+    eval_ds = torch.utils.data.Subset(ds, range(n_train, len(ds))) if len(ds) > n_train else None
+
+    def collate(batch):
+        out = {
+            "pixel_values": torch.stack([b["pixel_values"] for b in batch]),
+            "labels": torch.stack([b["labels"] for b in batch]),
+            # Non-tensor fields the model.forward() must not see; we pop
+            # them out in compute_loss before forwarding.
+            "items_cents": [b["items_cents"] for b in batch],
+            "tau_cents": [b["tau_cents"] for b in batch],
+            "total_spans": [
+                (b["total_span_start"], b["total_span_end"]) for b in batch
+            ],
+        }
+        return out
+
+    # ------------------------------------------------------------------
+    # Custom Trainer: L = L_CE + lambda * L_struct
+    # ------------------------------------------------------------------
+    class _AADStructuralTrainer(Seq2SeqTrainer):
+        def compute_loss(self, model, inputs, return_outputs=False,
+                         num_items_in_batch=None):
+            items = inputs.pop("items_cents", None)
+            taus = inputs.pop("tau_cents", None)
+            spans = inputs.pop("total_spans", None)
+            outputs = model(**inputs)
+            loss_ce = outputs.loss
+            if lambda_struct > 0 and items is not None:
+                loss_struct = aad_structural_loss(
+                    outputs.logits, inputs["labels"],
+                    items, taus, spans,
+                    digit_token_ids,
+                    close_total_token_id=close_total_id,
+                )
+                loss = loss_ce + lambda_struct * loss_struct
+            else:
+                loss = loss_ce
+            return (loss, outputs) if return_outputs else loss
 
     out_dir = os.path.join(config.output_dir, config.cell_name())
     os.makedirs(out_dir, exist_ok=True)
-    smoothing = max(0.0, min(0.5, 0.1 * float(config.lambda_struct)))
 
     args = Seq2SeqTrainingArguments(
         output_dir=out_dir,
@@ -144,36 +220,39 @@ def train_donut_sroie(adapter, config) -> Dict[str, Any]:
         weight_decay=0.01,
         logging_steps=20,
         save_strategy="epoch",
-        eval_strategy="epoch",
+        eval_strategy="epoch" if eval_ds is not None else "no",
         seed=config.seed,
-        label_smoothing_factor=smoothing,
         predict_with_generate=False,
         report_to=[],
         dataloader_num_workers=0,
+        remove_unused_columns=False,  # keep items_cents etc. on the batch
     )
 
-    trainer = Seq2SeqTrainer(
+    trainer = _AADStructuralTrainer(
         model=model,
         args=args,
         train_dataset=train_ds,
         eval_dataset=eval_ds,
-        tokenizer=processor.tokenizer,
+        tokenizer=tokenizer,
+        data_collator=collate,
     )
 
     train_out = trainer.train()
-    eval_out = trainer.evaluate()
+    eval_out = trainer.evaluate() if eval_ds is not None else {}
 
-    # Save model + processor for later loading via Checkpoint(path=out_dir)
     trainer.save_model(out_dir)
     processor.save_pretrained(out_dir)
 
     return {
         "n_train": n_train,
-        "n_eval":  len(ds) - n_train,
+        "n_eval":  max(0, len(ds) - n_train),
         "train_loss": float(train_out.training_loss),
         "eval_loss":  float(eval_out.get("eval_loss", float("nan"))),
-        "label_smoothing_factor": smoothing,
+        "lambda_struct": lambda_struct,
+        "loss_term": (
+            "L_CE + lambda * L_struct(masked-CE-with-T)"
+            if lambda_struct > 0 else "L_CE (lambda=0)"
+        ),
         "init": config.init,
-        "lambda_struct": config.lambda_struct,
         "epochs": int(args.num_train_epochs),
     }
