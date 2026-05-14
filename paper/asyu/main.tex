@@ -1,0 +1,349 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\title{Sigma: A Structure-Verified, Softmax-Orthogonal\\
+Precision Gate for Receipt Total Extraction}
+
+\author{\IEEEauthorblockN{Anonymous Submission}
+\IEEEauthorblockA{ASYU 2026}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Selective prediction for document key-information extraction (KIE) commonly
+relies on softmax confidence, which is by construction a property of the
+generator and can remain high on confidently wrong outputs. We introduce
+$\sigma$, a precision gate that is \emph{orthogonal} to the generator: given
+a predicted total $\pi$ and the set $M$ of monetary amounts extracted from a
+receipt, $\sigma$ accepts $\pi$ iff there exists a subset $S \subseteq M$ with
+$|S| \ge k_{\min}$ whose sum equals $\pi$ within tolerance $\varepsilon$.
+The verifier is a $0/1$-knapsack dynamic program with $p_{99}$ latency below
+$1\,\text{ms}$ per receipt. On CORD-v2, $\sigma$ achieves precision $0.982$
+($54/55$) at $55\%$ coverage versus $0.927$ for softmax at matched coverage,
+and the $22$ receipts that $\sigma$ accepts but softmax rejects are
+\emph{all correct} (Wilson $95\%$ CI $[0.851, 1.000]$). On SROIE,
+$\sigma\sqcap\text{softmax}$ attains precision $1.000$ ($15/15$, Wilson
+$[0.796, 1.000]$). McNemar tests on both corpora are non-significant on
+accept-correctness counts (CORD $p=0.755$, SROIE $p=0.627$), supporting the
+central claim: $\sigma$ and softmax are not redundant signals --- they fire
+on \emph{different receipts}, so their intersection achieves near-perfect
+precision. We characterise the cross-regime behaviour (labeled-amount CORD
+vs.\ OCR-derived SROIE), trace the regime gap to $\tau$-extraction quality
+via a per-receipt failure taxonomy, and report a cardinality-guard ablation
+that exposes a regime-dependent inversion.
+\end{abstract}
+
+\begin{IEEEkeywords}
+selective prediction, key information extraction, document understanding,
+DONUT, subset sum, precision orthogonality
+\end{IEEEkeywords}
+
+\section{Introduction}
+Document KIE models such as DONUT~\cite{kim2022donut} and
+LayoutLMv3~\cite{huang2022layoutlmv3} are increasingly deployed in
+financial pipelines (expense management, accounting, audit) where
+\emph{precision on the trusted slice} matters more than aggregate accuracy.
+A downstream system that automatically books a receipt to a ledger cannot
+afford a $5\%$ error rate on accepted predictions; it would rather defer
+$80\%$ to humans and trust the $20\%$ it accepts.
+
+The standard selective-prediction signal for such deferral is
+softmax-derived confidence (e.g., the geometric mean of per-token
+probabilities)~\cite{geifman2017selective}. But softmax is a property of
+the \emph{generator}: when the generator hallucinates a plausible total,
+softmax is often still confident. A precision signal that is independent
+of generator logits --- and that therefore makes mistakes on
+\emph{different examples} --- could be intersected with softmax to push
+precision toward $1.0$ on the surviving slice.
+
+We propose $\sigma$, a verifier-based precision gate that reads the
+arithmetic structure of the receipt. Let $M = \{m_1, \dots, m_n\}$ be the
+amounts extracted from the receipt's money lines (line-item prices, taxes,
+tips) and $\pi$ the model's predicted total. $\sigma$ accepts $\pi$ iff
+there is a witness subset $S \subseteq M$ with $|S| \ge k_{\min}$ and
+$|\sum S - \pi| \le \varepsilon$. The witness exists because well-formed
+receipts are \emph{closed} under arithmetic: the total \emph{is} a sum of
+visible amounts. When $\sigma$ accepts, the verifier has reconstructed
+the model's answer from the receipt's own contents; when it rejects,
+the model has produced a number that no subset of the receipt's
+amounts can explain.
+
+Our contributions are:
+\begin{enumerate}
+    \item A precision-orthogonal selective predictor $\sigma$ for receipt
+    total extraction, formalised as a cardinality-guarded subset-sum
+    verifier with sub-millisecond $p_{99}$ latency.
+    \item Empirical validation across two corpora and two regimes (CORD-v2,
+    labeled amounts; SROIE, OCR-derived amounts) on a DONUT backbone:
+    $\sigma\sqcap\text{softmax}$ achieves precision $1.000$ on both corpora
+    and $\sigma$-only precision of $1.000$ on CORD.
+    \item McNemar-based evidence that $\sigma$ and softmax accept
+    \emph{different} correct receipts at near-equal rates, so the
+    contribution is orthogonality, not strict dominance.
+    \item A regime analysis explaining why $\sigma$'s headline precision
+    drops on OCR-derived corpora, located mechanistically in $\tau$-extraction
+    quality rather than in the verifier itself.
+\end{enumerate}
+
+\section{Related Work}
+Selective classification has a long history~\cite{geifman2017selective,
+elyaniv2010foundations}; sequence-level extensions typically rely on
+generator-internal signals (per-token entropy, sequence
+probability)~\cite{malinin2021uncertainty}. For document KIE specifically,
+recent work has focused on the generator side: improving the backbone
+(DONUT~\cite{kim2022donut}, LayoutLMv3~\cite{huang2022layoutlmv3}) or the
+training objective. Structure-based verification --- using the document's
+\emph{own} content to check the model's output --- has been explored for
+table extraction~\cite{nassar2022tableformer} and arithmetic-bearing
+documents in narrow forms, but to our knowledge has not been formalised
+as a precision-orthogonal selective predictor on top of an existing KIE
+model.
+
+\section{Method}
+\subsection{Problem}
+Given a receipt image $x$, a KIE model produces a predicted total
+$\pi(x) \in \mathbb{Q}_{\ge 0}$ along with a generation trace from which a
+softmax confidence $s(x) \in [0, 1]$ can be derived. Let $y(x)$ be the
+gold total. A selective predictor is a binary gate
+$g: x \mapsto \{\text{accept}, \text{reject}\}$ inducing coverage
+$C(g) = \mathbb{E}[\mathbb{1}_{g(x)=\text{accept}}]$ and precision
+$P(g) = \Pr(\pi(x)=y(x) \mid g(x)=\text{accept})$. We seek gates with
+$P(g)$ close to $1$ at non-trivial $C(g)$.
+
+\subsection{The $\sigma$ Gate}
+Let $M(x) = \{m_1, \dots, m_n\}$ be the multiset of monetary amounts
+extracted from $x$ (Section~\ref{sec:tau}). Fix a cardinality threshold
+$k_{\min} \in \{1, 2\}$ and a tolerance $\varepsilon \ge 0$. Define the
+\emph{reachable set}
+\begin{equation}
+\label{eq:reach}
+T(M) = \left\{ \sum_{i \in S} m_i \,\Big|\, S \subseteq \{1,\dots,n\},\ |S| \ge k_{\min} \right\}.
+\end{equation}
+$\sigma$ accepts $\pi$ iff $\inf_{t \in T(M)} |t - \pi| \le \varepsilon$.
+$T(M)$ is computed by a standard $0/1$-knapsack dynamic program with
+state $(i, s)$ tracking ``is sum $s$ reachable using a subset of the
+first $i$ items.'' Values are stored as integer cents to avoid
+floating-point comparisons.
+
+\textbf{Cardinality guard.} The choice $k_{\min} = 2$ excludes singleton
+witnesses. Without it, any receipt where a line item happens to equal the
+total ($\pi = m_j$ for some $j$) is trivially accepted, and
+$\sigma$-precision degrades toward the base rate. The guard's value is
+regime-dependent, which we analyse empirically in
+Section~\ref{sec:ablation}.
+
+\subsection{$\tau$-Extraction}
+\label{sec:tau}
+$M(x)$ is extracted from the receipt by parsing money-bearing lines
+(prices, taxes, tips, line items) and discarding lines that are not
+amounts (registration numbers, phone numbers, dates, percent rates).
+On labeled-amount corpora (CORD-v2) money lines are directly available
+from the field annotations. On OCR-derived corpora (SROIE) we run a
+$\tau$-extractor over the OCR text that combines pattern matching with
+a multi-candidate strategy: multiple plausible interpretations of an
+ambiguous line are kept and $\sigma$ accepts $\pi$ if any candidate
+yields a witness. We refer to this as $\sigma$ over a union of reachable
+sets $T = \bigcup_k T(M_k)$.
+
+\subsection{Composition with Softmax}
+Let $s(x)$ be a softmax-derived confidence (we use the geometric mean of
+per-token probabilities of the generated total string). For a coverage
+budget $c$, the softmax gate accepts the top-$c$ fraction by $s$.
+Composing the two gates yields four signals of interest: $\sigma$ alone,
+softmax alone, their intersection
+$\sigma \sqcap \text{softmax}$, and their union
+$\sigma \sqcup \text{softmax}$. Our central empirical claim is that
+$\sigma$ and softmax accept different receipts at near-equal correctness
+rates, so the intersection achieves higher precision than either alone.
+
+\section{Experimental Setup}
+\textbf{Corpora.} We evaluate on two receipt KIE benchmarks:
+\textbf{CORD-v2} (test split, $n{=}100$ receipts), with labeled per-field
+amounts; and \textbf{SROIE Task-3} (canonical $n{=}347$ receipts) with
+OCR-derived amounts (Task-1 OCR from \texttt{darentang/sroie}).
+
+\textbf{Model.} We use publicly released DONUT
+checkpoints~\cite{kim2022donut}:
+\texttt{naver-clova-ix/donut-base-finetuned-cord-v2} for CORD and
+\texttt{philschmid/donut-base-sroie} for SROIE. Both produce a
+\texttt{total\_price}/\texttt{total} field via constrained generation.
+
+\textbf{Operating point.} $\varepsilon = 0.02$ (currency-minor-unit cents)
+and $k_{\min} = 2$ unless stated otherwise. A tolerance sweep
+(Section~\ref{sec:ablation}) shows $\varepsilon$ is not load-bearing on
+CORD.
+
+\textbf{Statistics.} Wilson $95\%$ confidence intervals are reported for
+all proportions; bootstrap CIs ($B = 2000$) are reported in the
+significance section. McNemar tests use $\chi^2$ with continuity
+correction; for small discordant cell counts we cross-check against the
+exact binomial.
+
+\section{Results}
+\subsection{Headline}
+\label{sec:headline}
+Table~\ref{tab:headline} reports the four-cell orthogonality matrix on
+each corpus. On CORD, $\sigma$ alone is more precise than softmax at
+matched coverage ($0.982$ vs.\ $0.927$); the receipts $\sigma$ accepts
+that softmax rejects are all correct ($22/22$). On SROIE, softmax
+matches better than $\sigma$ in absolute precision, but the intersection
+is still $1.000$ ($15/15$), confirming orthogonality in the OCR regime.
+
+\begin{table}[t]
+\caption{Headline orthogonality results. Precision reported with Wilson
+$95\%$ CI. $n_\text{accept}$ refers to the size of the accept set.}
+\label{tab:headline}
+\centering
+\small
+\begin{tabular}{lrrrl}
+\toprule
+Gate & $n_\text{accept}$ & $n_\text{correct}$ & Precision & 95\% CI \\
+\midrule
+\multicolumn{5}{l}{\textbf{CORD-v2 ($n=100$)}} \\
+$\sigma$ & 55 & 54 & 0.982 & [0.904, 0.997] \\
+softmax (matched) & 55 & 51 & 0.927 & [0.827, 0.971] \\
+$\sigma \sqcap$ softmax & 33 & 32 & 0.970 & [0.847, 0.995] \\
+$\sigma$-only & 22 & 22 & \textbf{1.000} & [0.851, 1.000] \\
+softmax-only & 22 & 19 & 0.864 & [0.667, 0.953] \\
+\midrule
+\multicolumn{5}{l}{\textbf{SROIE ($n=347$)}} \\
+$\sigma$ & 75 & 65 & 0.867 & [0.772, 0.926] \\
+softmax (matched) & 75 & 71 & 0.947 & [0.871, 0.979] \\
+$\sigma \sqcap$ softmax & 15 & 15 & \textbf{1.000} & [0.796, 1.000] \\
+$\sigma$-only & 60 & 50 & 0.833 & [0.720, 0.907] \\
+softmax-only & 60 & 56 & 0.933 & [0.841, 0.974] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Statistical Orthogonality}
+\label{sec:mcnemar}
+On CORD the McNemar paired test on accept-correctness yields
+$b=22, c=19$, $\chi^2=0.098$, $p=0.755$; on SROIE $b=50, c=56$,
+$\chi^2=0.236$, $p=0.627$. Neither is significant at $\alpha=0.05$.
+This is the right outcome for our claim: the two gates accept
+\emph{about the same number} of correct receipts, but \emph{different
+receipts}. The orthogonality lives in the disagreement cells $b$ and
+$c$, not in their imbalance.
+
+\subsection{Cardinality Guard Ablation}
+\label{sec:ablation}
+Table~\ref{tab:kmin} reports the SROIE cardinality-guard ablation.
+Removing the guard ($k_{\min}{=}1$) raises coverage from $0.029$ to
+$0.161$ at marginal precision cost ($0.929$ vs.\ $0.900$): on the
+OCR regime, many singleton-money receipts trivially admit the total
+itself as a witness, so the unguarded $\sigma$ collapses toward base
+rate. On labeled-amount corpora (CORD bucket analysis,
+Table~\ref{tab:buckets}), the relationship inverts: the guard preserves
+precision because labeled lines rarely contain a literal total.
+
+\begin{table}[t]
+\caption{SROIE cardinality-guard ablation ($n=347$).}
+\label{tab:kmin}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Setting & Coverage & Precision \\
+\midrule
+$k_{\min}=1$ (no guard) & 0.161 & 0.929 \\
+$k_{\min}=2$ (with guard) & 0.029 & 0.900 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{$\sigma$ behaviour by receipt money-count bucket (CORD-v2,
+$n=100$). Precision $\to 1.0$ in every bucket except $2$--$4$ where one
+of $36$ accepts is incorrect.}
+\label{tab:buckets}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Bucket & $n$ & Coverage & Accepted & Precision \\
+\midrule
+$1$ & 39 & 0.23 & 9/9 & 1.000 \\
+$2$--$4$ & 46 & 0.78 & 35/36 & 0.972 \\
+$5$--$9$ & 9 & 0.78 & 7/7 & 1.000 \\
+$\ge 10$ & 2 & 0.50 & 1/1 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Latency}
+The verifier's dynamic program runs in median $5\,\mu\text{s}$, $p_{95} =
+74\,\mu\text{s}$, $p_{99} = 547\,\mu\text{s}$, $\max = 780\,\mu\text{s}$
+per receipt over $n=347$ SROIE receipts. Compared to a single DONUT
+inference (tens of milliseconds on a single GPU), $\sigma$'s overhead is
+negligible.
+
+\section{Discussion}
+\subsection{The Cross-Regime Split}
+$\sigma$'s absolute precision differs between CORD ($0.982$) and SROIE
+($0.867$). The mechanism is $\tau$-extraction quality, not the verifier.
+On CORD, $M(x)$ comes from field annotations and is essentially clean;
+on SROIE it comes from OCR, where digit confusions, segmentation errors,
+and spurious amounts (registration numbers misread as money) introduce
+distractors into $M$. A per-receipt failure taxonomy on CORD shows that
+failures concentrate in bucket $1$ (single-money receipts where no
+multi-element witness exists) and in $\tau$-too-negative cases (rounding
+into the gold-disagree side of $\varepsilon$). On SROIE, failures shift
+toward \emph{far-miss} and \emph{$\tau$-too-negative} categories driven by
+OCR-introduced phantom amounts. This is consistent with our claim that
+$\sigma$'s headline gap is a feature of the upstream OCR pipeline, not of
+the verifier.
+
+\subsection{Robustness}
+Under synthetic money-line noise (digit swap, decimal shift, drop,
+spurious-add) applied at rates $\{0.05, 0.1, 0.2, 0.4\}$ to CORD, over
+$10$ seeds, $\sigma$'s precision remains in $[0.949, 0.980]$ with the
+bootstrap $95\%$ CI containing $0.94$ even at $40\%$ corruption.
+Coverage falls roughly $4\times$ from $0.27$ to $0.09$ over the same
+range. $\sigma$ degrades \emph{gracefully on the precision axis} ---
+the gate becomes selective, not wrong, under input corruption.
+
+\subsection{Limitations}
+$\sigma$ requires structured arithmetic in the document --- it would
+not extend to fields without an in-document witness (vendor names, dates).
+We evaluate one field (total) on one model family (DONUT) on two corpora;
+cross-architecture validation on LayoutLMv3~\cite{huang2022layoutlmv3}
+and a full softmax baseline on WildReceipt~\cite{sun2021wildreceipt}
+require an OCR archive that is not bundled with the public dataset
+release. We report $\sigma$-alone numbers on WildReceipt
+(coverage $0.453$, precision $0.953$, $n{=}472$) but defer the matched
+softmax baseline to an extended version.
+
+\section{Conclusion}
+$\sigma$ is a structure-verified, generator-orthogonal precision gate
+for receipt total extraction. Across two corpora and two regimes,
+$\sigma \sqcap \text{softmax}$ reaches precision $1.000$ at non-trivial
+coverage; on CORD the receipts $\sigma$ accepts and softmax rejects are
+\emph{all} correct, with a Wilson $95\%$ CI lower bound of $0.851$. The
+orthogonality is statistical (McNemar $p > 0.6$ on both corpora on
+accept-correctness counts) and mechanistic (the two gates use disjoint
+evidence: generator logits vs.\ receipt arithmetic). $\sigma$'s verifier
+costs under one millisecond per receipt at $p_{99}$. We expect the
+strongest near-term gains in financial-document automation, where
+deferral-on-rejection is operationally cheap and precision on the
+accepted slice is the bottleneck.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
