@@ -13,13 +13,13 @@ if command -v apt-get >/dev/null 2>&1; then
 fi
 
 # Shelved (stable; not in base run):
-#   B, E, F  — headline 3-corpus numbers locked in their JSONs
-#   L        — failure-mode taxonomy; numbers stable across extractor versions
-#   K v4     — DocILE identity rate (60% sum=total) stable across versions
-#   N        — net-F1 / cost analysis; result locked (accept-all wins at lambda=0)
-#   P        — error-type taxonomy; sigma_only_precision = 1.0 on CORD is the locked claim
-#   S        — Pareto frontier; locked (sigma alone on CORD front, etc.)
-# Re-run any of these manually if needed; they read M/MB outputs which are still run live.
+#   B, E, F  — headline 3-corpus numbers locked
+#   L        — SROIE failure-mode taxonomy; stable
+#   K v4     — DocILE identity rate; stable
+#   N        — net-F1 / cost analysis; stable
+#   P        — error-type taxonomy; stable
+#   S        — Pareto frontier; stable
+# Re-run any of these manually if needed.
 
 echo
 echo "=== A v13: DONUT-SROIE + I3 multi-candidate tau (headline) ==="
@@ -32,6 +32,10 @@ python scripts/smoke/G_robustness.py
 echo
 echo "=== GB: sigma money-count bucket analysis on CORD (mirror of G's SROIE table) ==="
 python scripts/smoke/GB_cord_buckets.py
+
+echo
+echo "=== L_cord: sigma failure-mode taxonomy on CORD (mirror of L's SROIE) ==="
+python scripts/smoke/L_cord.py
 
 echo
 echo "=== M: softmax baseline on SROIE ==="
@@ -48,6 +52,10 @@ python scripts/smoke/MF_wildreceipt_baseline.py
 echo
 echo "=== Q v2: synthetic money-line noise sensitivity on CORD (10 seeds) ==="
 python scripts/smoke/Q_money_noise_cord.py
+
+echo
+echo "=== V: sigma epsilon-tolerance sweep on CORD (defends operating-point choice) ==="
+python scripts/smoke/V_tolerance_sweep_cord.py
 
 echo
 echo "=== T: statistical significance tests (McNemar + Wilson CIs + bootstrap) ==="
