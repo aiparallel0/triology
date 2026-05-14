@@ -12,36 +12,48 @@ if command -v apt-get >/dev/null 2>&1; then
   apt-get install -y -q tesseract-ocr 2>/dev/null || true
 fi
 
-# Shelved (stable; not in base run): B/E/F have locked headline numbers in their
-# JSONs. MB/MF re-run inference to get softmax scores and compare to sigma.
+# Shelved (stable; not in base run):
+#   B, E, F  — headline 3-corpus numbers locked in their JSONs
+#   L        — failure-mode counts shift across extractor versions but the
+#              dominant categories are now stable; rerun only when changing A
+#   K v4     — DocILE identity rate (~60% sum=total) is stable across extractor versions
+# Re-run any of these manually if needed.
 
 echo
-echo "=== A v13: DONUT-SROIE + I3 multi-candidate tau (in-dist, n=347) ==="
+echo "=== A v13: DONUT-SROIE + I3 multi-candidate tau (headline) ==="
 python scripts/smoke/A_donut_cord_on_sroie.py
 
 echo
-echo "=== G: cardinality-guard ablation + DP latency + money-count buckets (CPU) ==="
+echo "=== G: cardinality-guard ablation + DP latency + money-count buckets ==="
 python scripts/smoke/G_robustness.py
 
 echo
-echo "=== L: SROIE failure-mode diagnostic (CPU) ==="
-python scripts/smoke/L_sroie_failure_modes.py
-
-echo
-echo "=== M: softmax-threshold baseline vs sigma on SROIE (GPU, ~1 min) ==="
+echo "=== M: softmax baseline on SROIE ==="
 python scripts/smoke/M_baseline_softmax.py
 
 echo
-echo "=== MB: softmax-threshold baseline vs sigma on CORD (GPU, ~1 min) ==="
+echo "=== MB: softmax baseline on CORD ==="
 python scripts/smoke/MB_cord_baseline.py
 
 echo
-echo "=== MF: softmax-threshold baseline vs sigma on WildReceipt (GPU, ~30s) ==="
+echo "=== MF: softmax baseline on WildReceipt ==="
 python scripts/smoke/MF_wildreceipt_baseline.py
 
 echo
-echo "=== K v4: DocILE n=501 (bonus, in-dist labeled-amounts regime) ==="
-python scripts/smoke/K_docile.py || echo "  K returned non-zero; continuing (bonus only)"
+echo "=== N: net-F1 / cost-sensitive deployment analysis (defends: 'what's deployment value?') ==="
+python scripts/smoke/N_net_F1.py
+
+echo
+echo "=== P: error-type taxonomy for sigma vs softmax orthogonality (defends: 'is orthogonality principled?') ==="
+python scripts/smoke/P_error_taxonomy.py
+
+echo
+echo "=== Q: synthetic money-line noise sensitivity on CORD (defends: 'does sigma need clean labels?') ==="
+python scripts/smoke/Q_money_noise_cord.py
+
+echo
+echo "=== S: Pareto frontier of (precision, coverage) (defends: 'is sigma's operating point principled?') ==="
+python scripts/smoke/S_pareto.py
 
 echo
 echo "=== Done. Active results in runs/ ==="
