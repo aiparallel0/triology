@@ -1,7 +1,12 @@
-"""DONUT-CORD on CORD-test → I3 before/after F1 (in-distribution end-task).
+"""DONUT-CORD on CORD-test → I3 selective prediction (in-distribution) v3.
 
-Paper 1 in-distribution end-task validation. ~45 s on RTX 4090.
-Success: F1_sigma_strict - F1_bare ≥ +0.03.
+Reports SELECTIVE PREDICTION metrics, not 'net F1 lift':
+  - F1 at coverage 1.0 (no abstention)
+  - F1 at coverage = accept_rate (Σ-accepted only)
+  - Sigma recall on correct (was the verifier sound for correct preds?)
+  - Sigma precision (purity of accepted set)
+
+~45 s on RTX 4090.
 """
 import json, os, re, time, urllib.request
 from io import BytesIO
@@ -80,21 +85,18 @@ def main():
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
     ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
     print(f"CORD-v2 test size: {len(ds)}")
-    print(f"Schema keys: {list(ds[0].keys())[:10]}")
 
     results, t0 = [], time.time()
     for i, ex in enumerate(ds):
         try:
             img = load_img(ex["image"])
         except Exception as e:
-            print(f"  skip {i}: image load failed: {e}")
-            continue
+            print(f"  skip {i}: {e}"); continue
         px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
         dec = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
                                   return_tensors="pt").input_ids.to("cuda")
         with torch.inference_mode():
             out = model.generate(px, decoder_input_ids=dec, max_length=512, num_beams=1,
-                                  early_stopping=True,
                                   pad_token_id=processor.tokenizer.pad_token_id)
         text = processor.batch_decode(out, skip_special_tokens=False)[0]
         pred = parse_donut_total(text)
@@ -116,22 +118,25 @@ def main():
                    and abs(pred - gold_total) <= 0.02)
 
         if i == 0:
-            print(f"  [sanity] pred={pred}  gold={gold_total}  |money|={len(money)}  |T|={len(T)}  tau={tau}")
+            print(f"  [sanity] pred={pred} gold={gold_total} |money|={len(money)} |T|={len(T)} tau={tau:.2f}")
 
         results.append({"id": i, "pred": pred, "gold": gold_total,
                         "in_T": in_T, "correct": correct, "T_size": len(T)})
 
     n = max(1, len(results))
-    correct_bare = sum(r["correct"] for r in results)
     accepted = [r for r in results if r["in_T"]]
-    correct_strict = sum(r["correct"] for r in accepted)
+    correct_all = sum(r["correct"] for r in results)
+    correct_accepted = sum(r["correct"] for r in accepted)
     summary = {
         "n": len(results),
         "wall_sec": round(time.time() - t0, 1),
-        "F1_bare": correct_bare / n,
-        "accept_rate_sigma": len(accepted) / n,
-        "F1_sigma_strict_on_accepted": correct_strict / max(1, len(accepted)),
-        "delta_F1": (correct_strict / max(1, len(accepted))) - (correct_bare / n),
+        "coverage_1.0_F1": correct_all / n,
+        "coverage_sigma": len(accepted) / n,
+        "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),
+        "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"])
+                                    / max(1, correct_all)),
+        "sigma_precision": correct_accepted / max(1, len(accepted)),
+        "selective_prediction_note": "sigma is a precision gate, not a net F1 lift.",
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
     print(json.dumps(summary, indent=2))

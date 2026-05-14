@@ -1,31 +1,27 @@
-"""DONUT-CORD on SROIE → I3 before/after F1 (cross-corpus end-task).
+"""DONUT-CORD on SROIE → I3 selective prediction (cross-corpus end-task) v3.
 
-Paper 1 (FOCUS-Sigma) end-task validation. Cross-corpus regime.
-Runtime target: ~2.5 min on RTX 4090.
-Success: F1_sigma_strict_on_accepted - F1_bare ≥ +0.02.
+Uses git clone of zzzDavid/ICDAR-2019-SROIE to bypass HF parquet image-stripping.
+Layout: data/{img,key,box}/<stem>.{jpg,json,txt}.
 
-Mirror fallback: Theivaprakasham/sroie → mychen76/sroie_donut_v2 → darentang/sroie.
-First mirror whose first image actually loads wins. Override via SROIE_HF env var.
+Reports SELECTIVE PREDICTION metrics, not 'net F1 lift':
+  - F1 at coverage 1.0 (no abstention) = baseline DONUT-CORD
+  - F1 at coverage = accept_rate (Σ-accepted only) = high-precision gate
+  - Coverage at multiple accept thresholds
+
+Runtime: ~2.5 min on RTX 4090 + ~30s git clone (first run only).
 """
-import json, os, re, sys, time, urllib.request
-from io import BytesIO
+import json, os, re, subprocess, sys, time
 from pathlib import Path
 
 import torch
 from PIL import Image
-from datasets import load_dataset
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
 CKPT = "naver-clova-ix/donut-base-finetuned-cord-v2"
+SROIE_REPO = "https://github.com/zzzDavid/ICDAR-2019-SROIE.git"
+SROIE_DIR = Path(os.environ.get("SROIE_DIR", "data/sroie_clone"))
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
-
-MIRRORS = [m for m in [
-    os.environ.get("SROIE_HF"),
-    "Theivaprakasham/sroie",
-    "mychen76/sroie_donut_v2",
-    "darentang/sroie",
-] if m]
 
 
 def parse_money(s):
@@ -75,135 +71,72 @@ def I3_reachable(money_lines, tau, eps=0.02):
     return {(s + tau_c) / 100.0 for s, k in D.items() if k >= kmin}
 
 
-def load_img(img_field):
-    if hasattr(img_field, "convert"):
-        return img_field.convert("RGB")
-    if isinstance(img_field, dict):
-        if img_field.get("bytes"):
-            return Image.open(BytesIO(img_field["bytes"])).convert("RGB")
-        if img_field.get("path"):
-            return Image.open(img_field["path"]).convert("RGB")
-    if isinstance(img_field, str):
-        if img_field.startswith(("http://", "https://")):
-            with urllib.request.urlopen(img_field) as r:
-                return Image.open(BytesIO(r.read())).convert("RGB")
-        return Image.open(img_field).convert("RGB")
-    if isinstance(img_field, (bytes, bytearray)):
-        return Image.open(BytesIO(img_field)).convert("RGB")
-    raise ValueError(f"Cannot load image from type={type(img_field).__name__}")
+def ensure_sroie_clone():
+    if not SROIE_DIR.exists():
+        print(f"Cloning {SROIE_REPO} ...")
+        SROIE_DIR.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "clone", "--depth=1", SROIE_REPO, str(SROIE_DIR)], check=True)
+    # Detect layout: flat data/{img,key,box}/ or hierarchical data/test/{img,key,box}/
+    for img_dir in [SROIE_DIR / "data" / "img",
+                    SROIE_DIR / "data" / "test" / "img",
+                    SROIE_DIR / "img"]:
+        if img_dir.exists() and any(img_dir.glob("*.jpg")):
+            return img_dir, img_dir.parent
+    raise RuntimeError(f"No SROIE images found under {SROIE_DIR}")
 
 
-def y_center(b):
-    if isinstance(b, dict):
-        return (b.get("y_min", b.get("y0", 0)) + b.get("y_max", b.get("y1", 0))) / 2
-    if hasattr(b, "__len__"):
-        if len(b) == 4: return (b[1] + b[3]) / 2
-        if len(b) == 8: return (b[1] + b[3] + b[5] + b[7]) / 4
-    return 0.0
-
-
-def group_words_to_lines(words, bboxes, y_tol_frac=0.02):
-    if not words: return []
-    if not bboxes or len(bboxes) != len(words):
-        return list(words)
-    items = sorted(zip(words, bboxes), key=lambda wb: y_center(wb[1]))
-    ys = [y_center(b) for _, b in items]
-    yrange = (max(ys) - min(ys)) if len(ys) > 1 else 1.0
-    tol = max(8.0, y_tol_frac * yrange)
-    lines, cur, last_y = [], [], None
-    for (w, b), y in zip(items, ys):
-        if last_y is None or abs(y - last_y) < tol:
-            cur.append(w); last_y = y if last_y is None else 0.5 * (last_y + y)
-        else:
-            lines.append(" ".join(cur)); cur = [w]; last_y = y
-    if cur: lines.append(" ".join(cur))
-    return lines
-
-
-def get_ner_label_names(ds):
-    try:
-        feat = ds.features["ner_tags"]
-        if hasattr(feat, "feature") and hasattr(feat.feature, "names"):
-            return feat.feature.names
-    except Exception:
-        pass
+def load_gold_total(stem, data_root):
+    """Try data_root/key/<stem>.{json,txt}; parse JSON or colon-line format."""
+    for sub in ("key", "entities"):
+        for ext in ("json", "txt"):
+            path = data_root / sub / f"{stem}.{ext}"
+            if not path.exists(): continue
+            text = path.read_text(errors="ignore").strip()
+            if not text: continue
+            try:
+                data = json.loads(text)
+                if isinstance(data, dict) and "total" in data:
+                    return parse_money(data["total"])
+            except json.JSONDecodeError:
+                for line in text.splitlines():
+                    if ":" in line:
+                        k, v = line.split(":", 1)
+                        if k.strip().lower() == "total":
+                            return parse_money(v.strip())
     return None
 
 
-def get_gold_total(ex, ner_label_names):
-    tags = ex.get("ner_tags", [])
-    words = ex.get("words", [])
-    if tags and words:
-        total_text = []
-        for i, t in enumerate(tags):
-            if i >= len(words): break
-            if isinstance(t, int) and ner_label_names and 0 <= t < len(ner_label_names):
-                name = ner_label_names[t]
-            else:
-                name = str(t)
-            if "TOTAL" in name.upper():
-                total_text.append(words[i])
-        if total_text:
-            return parse_money("".join(total_text))
-    for k in ("total", "gold_total"):
-        v = ex.get(k)
-        if v is not None:
-            return parse_money(str(v) if not isinstance(v, dict) else str(v.get("total", "")))
-    label = ex.get("label")
-    if isinstance(label, dict) and "total" in label:
-        return parse_money(str(label["total"]))
-    gt = ex.get("ground_truth")
-    if isinstance(gt, str):
-        try:
-            parsed = json.loads(gt).get("gt_parse", {})
-            return parse_money((parsed.get("total") or {}).get("total_price"))
-        except Exception:
-            return None
-    return None
-
-
-def try_load_sroie():
-    """Iterate mirrors; return (ds, mirror_name) for the first one whose first image actually loads."""
-    for mirror in MIRRORS:
-        try:
-            print(f"Trying SROIE mirror: {mirror}")
-            ds = load_dataset(mirror, split="test", trust_remote_code=True)
-            sample = ds[0]
-            print(f"  Schema keys: {list(sample.keys())[:10]}")
-            img_field = sample.get("image") or sample.get("image_path")
-            img = load_img(img_field)
-            print(f"  First image loaded OK ({img.size})")
-            return ds, mirror
-        except Exception as e:
-            print(f"  Failed: {e}")
-            continue
-    return None, None
+def load_ocr_lines(stem, data_root):
+    """Parse box/<stem>.txt or .csv; Task-1 format: x1,y1,...,x8,y8,text."""
+    for ext in ("txt", "csv"):
+        path = data_root / "box" / f"{stem}.{ext}"
+        if not path.exists(): continue
+        lines = []
+        for line in path.read_text(errors="ignore").splitlines():
+            parts = line.split(",", 8)
+            if len(parts) >= 9:
+                lines.append(parts[8])
+        return lines
+    return []
 
 
 def main():
-    ds, mirror = try_load_sroie()
-    if ds is None:
-        print("\nALL SROIE mirrors failed. Skipping Script A. Paper 1 ships on Script B (CORD-v2 in-dist) result alone.")
-        OUT.write_text(json.dumps({"summary": {"status": "sroie_unavailable", "mirrors_tried": MIRRORS}}, indent=2))
-        sys.exit(0)
-    print(f"Using mirror: {mirror}  size={len(ds)}")
+    img_dir, data_root = ensure_sroie_clone()
+    images = sorted(img_dir.glob("*.jpg"))
+    print(f"SROIE images found: {len(images)}  (root={data_root})")
 
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
-    ner_label_names = get_ner_label_names(ds)
-    print(f"NER label names: {ner_label_names}")
 
     results, t0 = [], time.time()
-    img_load_errors = 0
-    for i, ex in enumerate(ds):
+    for i, img_path in enumerate(images):
+        stem = img_path.stem
         try:
-            img_field = ex.get("image") or ex.get("image_path")
-            img = load_img(img_field)
+            img = Image.open(img_path).convert("RGB")
         except Exception as e:
-            img_load_errors += 1
-            if img_load_errors <= 3:
-                print(f"  skip {i}: image load failed: {e}")
-            continue
+            print(f"  skip {stem}: {e}"); continue
+        gold_total = load_gold_total(stem, data_root)
+        text_lines = load_ocr_lines(stem, data_root)
 
         px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
         dec = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
@@ -214,8 +147,6 @@ def main():
         text = processor.batch_decode(out, skip_special_tokens=False)[0]
         pred = parse_donut_total(text)
 
-        gold_total = get_gold_total(ex, ner_label_names)
-        text_lines = group_words_to_lines(ex.get("words", []), ex.get("bboxes", []))
         money, tau = extract_money_lines(text_lines)
         T = I3_reachable(money, tau) if money else set()
         in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
@@ -223,31 +154,35 @@ def main():
                    and abs(pred - gold_total) <= 0.02)
 
         if i == 0:
-            print(f"  [sanity] pred={pred}  gold={gold_total}  |money|={len(money)}  |T|={len(T)}  tau={tau}")
+            print(f"  [sanity] stem={stem} pred={pred} gold={gold_total} "
+                  f"|money|={len(money)} |T|={len(T)} tau={tau:.2f} in_T={in_T}")
 
-        results.append({"id": ex.get("id", i), "pred": pred, "gold": gold_total,
+        results.append({"id": stem, "pred": pred, "gold": gold_total,
                         "in_T": in_T, "correct": correct, "T_size": len(T),
                         "money_count": len(money), "tau": tau})
         if (i + 1) % 50 == 0:
-            print(f"  {i+1}/{len(ds)}  elapsed={time.time()-t0:.0f}s")
+            print(f"  {i+1}/{len(images)}  elapsed={time.time()-t0:.0f}s")
 
     n = max(1, len(results))
-    correct_bare = sum(r["correct"] for r in results)
     accepted = [r for r in results if r["in_T"]]
-    correct_strict = sum(r["correct"] for r in accepted)
+    correct_all = sum(r["correct"] for r in results)
+    correct_accepted = sum(r["correct"] for r in accepted)
     parser_ok = sum(1 for r in results if r["pred"] is not None)
     gold_ok = sum(1 for r in results if r["gold"] is not None)
     summary = {
-        "mirror": mirror,
         "n": len(results),
-        "img_load_errors": img_load_errors,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n,
         "gold_ok_rate": gold_ok / n,
-        "F1_bare": correct_bare / n,
-        "accept_rate_sigma": len(accepted) / n,
-        "F1_sigma_strict_on_accepted": correct_strict / max(1, len(accepted)),
-        "delta_F1": (correct_strict / max(1, len(accepted))) - (correct_bare / n),
+        # Selective prediction framing: F1 at multiple coverages
+        "coverage_1.0_F1": correct_all / n,
+        "coverage_sigma": len(accepted) / n,
+        "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),
+        # Soundness check: of correct predictions, how many did sigma accept?
+        "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"])
+                                    / max(1, correct_all)),
+        # Precision: of sigma-accepted, how many were correct?
+        "sigma_precision": correct_accepted / max(1, len(accepted)),
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
     print(json.dumps(summary, indent=2))
