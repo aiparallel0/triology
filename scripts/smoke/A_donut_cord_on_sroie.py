@@ -1,26 +1,31 @@
-"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v11.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v12.
 
-v11 = v10 + one targeted filter informed by the v10 tau-cap diagnostic logs:
-  v11.add_1: reject bare integers >= 1000 (no currency prefix, no decimal point)
-             from tau candidates. These are OCR-misread GST/Invoice registration
-             numbers (e.g. '002017808384', '18032502170439', '656195584', '77853745')
-             that the v10 extractor wrongly accepted and that the cap then zeroed.
-             Legitimate Malaysian tax amounts are either RM-prefixed or contain
-             decimal cents (RM 12.54, 408.45, 0.69 etc), so this filter is
-             empirically safe.
+v12 = v11 + two changes informed by L's failure-mode breakdown (146 of 220
+applicable misses were tau_too_large, 70% theoretical recoverability):
 
-v10 fixes retained:
-  1. Percent-skip (rate vs amount)
-  2. Currency-prefix preference (RM/$ > bare)
-  3. Decimal preference (5.50 > 6)
-  4. Registration-pattern rejection (keyword + 'inv'/'reg'/'id'/'no')
-  5. |tau|>10000 cap zeroed-and-logged + post-extraction assert
-  6. Multi-line look-ahead
+  v12.fix_1  Total-line dominance.
+    Lines matching the total/subtotal/incl/inclusive/sales/grand/cash/change/
+    balance/paid family are dropped ENTIRELY — not consumed as tau contributors,
+    not added to money_lines. This prevents 'Total (Incl. GST) RM 7.20' from
+    being eaten as a tau=7.20 contribution (which was the dominant mechanism
+    behind tau ≈ 2π in v11).
 
-The I3 subset-sum, cardinality guard (|S|>=kmin), eps tolerance, and DP are
-UNCHANGED. Methodology is identical to v9/v10; v11 only tightens extractor.
+  v12.fix_2  Single tau per category, then sum across categories.
+    Old: tau += sign * amt for every keyword match — SROIE receipts mention 'GST'
+    on 2–3 lines so tau accumulated 2–3× the true tax.
+    New: collect candidates grouped by name (tax / service / discount). Within
+    each group take the LAST candidate (Malaysian receipts print the GST summary
+    table near the bottom). Then sum across distinct categories.
+
+All v9–v11 fixes retained: percent-skip, RM-prefix preference, decimal preference,
+registration-pattern rejection, |tau|>10000 cap, multi-line look-ahead, bare-int
+>=1000 rejection.
+
+The I3 subset-sum, cardinality guard, eps tolerance, and DP are UNCHANGED.
+Methodology is identical to v9/v10/v11; v12 only tightens tau extraction.
 """
 import gc, json, os, re, sys, time
+from collections import defaultdict
 from pathlib import Path
 
 import torch
@@ -77,14 +82,17 @@ REG_AFTER_KW_RE = re.compile(
 TAX_KW_RE  = re.compile(r"\b(tax|gst|sst|vat)\b", re.I)
 SERV_KW_RE = re.compile(r"\bservice(?:\s*charge)?\b", re.I)
 DISC_KW_RE = re.compile(r"\b(discount|rebate)\b", re.I)
-DROP_KW    = re.compile(r"\b(total|sub.?total|cash|change|paid|balance|tendered?|amount\s+due)\b", re.I)
+
+# v12: TOTAL_LIKE matches receipt totals/cash/change/subtotal/incl lines. These
+# are dropped entirely (not money, not tau). Applied BEFORE tax-keyword logic so
+# 'Total (Incl. GST) 7.20' doesn't get eaten as a tau=7.20 contribution.
+TOTAL_LIKE_RE = re.compile(
+    r"\b(total|sub.?total|grand|incl|inclusive|nett?|sales|paid|tendered?|cash|change|balance|amount\s+due)\b",
+    re.I,
+)
 
 
 def _scan_money_after(rest):
-    """Yield (value, has_currency, has_decimal, position) tuples from a line tail,
-    skipping (a) tokens immediately followed by '%' (rate, not amount), and
-    (b) v11: bare integers >= BARE_INT_REJECT_THRESHOLD (OCR-misread reg numbers).
-    """
     for tok in MONEY_TOKEN_RE.finditer(rest):
         num_s = tok.group("num")
         end = tok.end()
@@ -97,8 +105,6 @@ def _scan_money_after(rest):
             continue
         has_cur = bool(tok.group("cur"))
         has_dec = "." in num_s
-        # v11: reject bare integers >= 1000 — these are OCR-misread reg/invoice numbers,
-        # never legitimate Malaysian tax amounts (which have cents or currency prefix).
         if not has_cur and not has_dec and abs(v) >= BARE_INT_REJECT_THRESHOLD:
             continue
         yield v, has_cur, has_dec, end
@@ -133,13 +139,19 @@ def _extract_amount(line, kw_re, next_line=None):
 
 
 def extract_money_lines(text_lines):
-    """v11: precise tau extraction. Returns (money[], tau, capped_bool)."""
-    money, tau = [], 0.0
-    diag = []
+    """v12: total-line dominance + single-candidate-per-category tau pick."""
+    money = []
+    tax_candidates = []  # list of (sign, amt, name, line_text); grouped+picked below
     n = len(text_lines)
     for i, ln in enumerate(text_lines):
         nxt = text_lines[i + 1] if i + 1 < n else None
-        consumed = False
+
+        # v12.fix_1: drop total/incl/sales/cash/change/etc. lines ENTIRELY.
+        # These are receipt-summary lines, neither item amounts nor tax amounts.
+        if TOTAL_LIKE_RE.search(ln):
+            continue
+
+        consumed_as_tax = False
         for kw_re, sign, name in (
             (TAX_KW_RE,  +1, "tax"),
             (SERV_KW_RE, +1, "service"),
@@ -148,25 +160,36 @@ def extract_money_lines(text_lines):
             if kw_re.search(ln):
                 amt = _extract_amount(ln, kw_re, nxt)
                 if amt is not None:
-                    tau += sign * amt
-                    diag.append((name, ln.strip()[:60], amt))
-                consumed = True
+                    tax_candidates.append((sign, amt, name, ln.strip()[:60]))
+                consumed_as_tax = True
                 break
-        if consumed:
+        if consumed_as_tax:
             continue
+
         v = parse_money_strict(ln)
         if v is None: continue
-        if DROP_KW.search(ln): continue
         money.append(v)
+
+    # v12.fix_2: group candidates by category, pick LAST within each, sum across.
+    by_name = defaultdict(list)
+    for sign, amt, name, ln_str in tax_candidates:
+        by_name[name].append((sign, amt, ln_str))
+    tau = 0.0
+    diag = []
+    for name, cands in by_name.items():
+        sign, amt, ln_str = cands[-1]
+        tau += sign * amt
+        diag.append((name, ln_str, amt))
+
     capped = abs(tau) > TAU_CAP
     if capped:
-        print(f"  [tau-cap] dropping runaway tau={tau:.2f}; contributors={diag[:3]}")
+        print(f"  [tau-cap] dropping runaway tau={tau:.2f}; contributors={diag}")
         tau = 0.0
     return money[:MAX_MONEY], tau, capped
 
 
 def I3_reachable(money_lines, tau, eps=0.02):
-    """UNCHANGED from v9/v10: 0/1-knapsack DP, cardinality guard."""
+    """UNCHANGED from v9: 0/1-knapsack DP, cardinality guard |S|>=kmin."""
     kmin = 1 if abs(tau) > eps else 2
     cents = [int(round(v * 100)) for v in money_lines]
     tau_c = int(round(tau * 100))
@@ -257,7 +280,7 @@ def main():
         "checkpoint": CKPT, "corpus": "canonical SROIE Task-3", "mirror": mirror,
         "setup": "in-distribution",
         "ocr_source": "darentang/sroie Task-1",
-        "tau_extraction": "v11_bare_int_reject_pct_skip_rm_prefer_reg_reject_lookahead_cap_asserted",
+        "tau_extraction": "v12_total_line_dominance_single_tau_per_category",
         "n": len(results), "batch_size": BATCH,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n, "gold_ok_rate": gold_ok / n,
