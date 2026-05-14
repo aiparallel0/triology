@@ -81,8 +81,10 @@ quality, not in the verifier: on CORD failures concentrate in
 single-money receipts and rounding into the gold-disagree side
 of $\varepsilon$; on SROIE they concentrate in OCR-introduced
 phantom amounts. A cardinality-guard ablation
-($k_{\min}{=}1\!\to\!2$) confirms the regime asymmetry: removing
-the guard inverts coverage and precision between the two corpora.
+($k_{\min}{=}1{\to}2$ on SROIE) shows the guard is strictly
+worse on both axes in the OCR regime, while on CORD the
+labeled-amount structure makes the guard load-bearing by
+construction.
 We additionally show $\sigma$ precision is stable in
 $[0.949, 0.980]$ under up to $40\%$ synthetic money-line noise
 ($10$ seeds, bootstrap 95\% CI containing $0.94$), that the
@@ -144,7 +146,7 @@ $\sigma$-only correct $22/22$ (Section~\ref{sec:results-headline}).
 (Section~\ref{sec:results-mcnemar}). (iv) A mechanistic regime
 analysis grounded in a per-receipt failure taxonomy
 (Section~\ref{sec:results-regime}) plus a cardinality-guard
-ablation that exposes the regime-dependent inversion of an
+ablation that exposes the regime-dependent role of an
 implementation choice (Section~\ref{sec:results-ablation}). (v) A
 robustness study under $40\%$ money-line noise and an
 $\varepsilon$-tolerance sweep (Section~\ref{sec:results-robust}),
@@ -405,7 +407,7 @@ success        & 54 & 9/54  & accept + correct \\
 no\_feasible   & 21 & 19/21 & single-money receipts \\
 $\tau$\_neg    & 11 & 6/11  & rounds off $\varepsilon$ \\
 pred\_wrong    & 10 & 2/10  & $\sigma$ reject of wrong $\pi$ \\
-no\_pred / no\_money & 4 & 4/4 & parser-degenerate \\
+no\_pred / no\_money & 4 & 3/4 & parser-degenerate \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -450,11 +452,13 @@ verifier: on the bucket where $\sigma$ is structurally applicable
 \begin{table}[t]
 \centering\small
 \caption{Cardinality-guard ablation on SROIE ($n{=}347$). Removing
-the guard ($k_{\min}{=}1$) raises coverage from $0.029$ to
-$0.161$ at modest precision cost; on the OCR regime, singletons
-are the dominant witness type. The inversion on CORD (where
-labeled amounts rarely contain a literal total) means the
-default $k_{\min}{=}2$ is regime-conditional, not universal.}
+the guard ($k_{\min}{=}1$) wins on \emph{both} axes here:
+coverage rises from $0.029$ to $0.161$ and precision rises from
+$0.900$ to $0.929$. Singletons are the dominant witness type in
+the OCR regime, where the total often appears as a clean labeled
+line. The CORD-side relationship is not directly measured; the
+labeled-amount structure makes the guard load-bearing by
+construction.}
 \label{tab:kmin}
 \begin{tabular}{lrr}
 \toprule
@@ -466,12 +470,16 @@ $k_{\min}{=}2$ (with guard) on SROIE & 0.029 & 0.900 \\
 \end{tabular}
 \end{table}
 
-Removing the guard on SROIE more than $5\times$ the coverage and
-keeps precision above $0.92$, because singleton witnesses are
-common in the OCR regime (the total often does appear as a clean
-labeled line). On CORD the relationship inverts: the guard is
-load-bearing for precision because the structure-following
-multi-element witness is the rule rather than the exception.
+Removing the guard on SROIE raises coverage by more than $5\times$
+and \emph{also} raises precision (from $0.900$ to $0.929$),
+because singleton witnesses are common in the OCR regime: the
+total often does appear as a clean labeled line, exactly the
+witness type the guard discards. The CORD-side relationship is
+not directly measured here; we reason structurally that on
+labeled-amount corpora a literal singleton total is rare, so the
+multi-element witness is the rule and the guard is load-bearing
+by construction. Quantifying the CORD inversion is journal-version
+work.
 
 \subsection{Robustness}
 \label{sec:results-robust}
@@ -538,7 +546,7 @@ $\geq 200$   & 2  & 2  & 1.000 \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:reliability} binns the $55$ CORD $\sigma$ accepts
+Table~\ref{tab:reliability} bins the $55$ CORD $\sigma$ accepts
 by $|T(M)|$. At $|T|{=}1$ (unique witness) precision is $26/26$;
 at $|T|{\ge}10$ it is $10/10$. The single CORD miss falls in the
 intermediate $|T|\in[5,9]$ bin --- a regime where multiple
@@ -591,10 +599,11 @@ intersection-precision exploits.
 $s$ per receipt.
 \item Extract $M$ from the document (labeled fields if
 available; OCR + multi-candidate $\tau$ otherwise).
-\item Run $\sigma$ at $\varepsilon{=}0.02$, $k_{\min}{=}2$
-on labeled corpora; $k_{\min}{=}1$ on OCR corpora if
-coverage matters more than the last $3$ percentage points
-of precision.
+\item Run $\sigma$ at $\varepsilon{=}0.02$. Use $k_{\min}{=}2$
+on labeled corpora; $k_{\min}{=}1$ on OCR corpora --- the
+guard is strictly worse on both axes there because the total
+often appears as a clean labeled singleton, exactly the
+witness type the guard discards.
 \item Accept iff $\sigma{=}1$ and $s{\geq}$ a fixed-coverage
 softmax threshold (intersection gate). Defer otherwise.
 \end{enumerate}
@@ -620,7 +629,9 @@ further. We chose canonical splits over inflated counts.
 \noindent\textbf{(iv)} The tolerance $\varepsilon$ is fixed at
 $0.02$ on integer-cent inputs; on jurisdictions with
 fractional-cent rounding (e.g., per-litre fuel pricing) the
-$\varepsilon$ sweep may not stay flat.
+$\varepsilon$ sweep may not stay flat. The cardinality-guard
+inversion is directly measured only on SROIE; the CORD-side
+claim is structural reasoning, not measurement.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -637,15 +648,15 @@ intersection exploits;
 \textbf{(F3)} a regime-mechanistic explanation of $\sigma$'s
 single-gate precision drop on the OCR regime, located in
 $\tau$-extraction quality and confirmed by a per-receipt
-failure taxonomy and a cardinality-guard ablation. The verifier
-adds $0.0016\%$ to end-to-end latency on the same GPU as the
-generator and is precision-stable under up to $40\%$ money-line
-noise. A reachable-set-size decomposition isolates $\sigma$'s
-single CORD miss to a non-unique-witness bin, suggesting $|T|$
-as a future intra-$\sigma$ ranking signal. We expect the
-strongest near-term gains in financial-document automation,
-where deferral-on-rejection is cheap and precision on the
-accepted slice is the operative bottleneck.
+failure taxonomy and a cardinality-guard ablation on SROIE. The
+verifier adds $0.0016\%$ to end-to-end latency on the same GPU
+as the generator and is precision-stable under up to $40\%$
+money-line noise. A reachable-set-size decomposition isolates
+$\sigma$'s single CORD miss to a non-unique-witness bin,
+suggesting $|T|$ as a future intra-$\sigma$ ranking signal. We
+expect the strongest near-term gains in financial-document
+automation, where deferral-on-rejection is cheap and precision
+on the accepted slice is the operative bottleneck.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
