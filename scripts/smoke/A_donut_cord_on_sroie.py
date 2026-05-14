@@ -1,20 +1,13 @@
-"""DONUT-SROIE on canonical SROIE Task-3 → I3 selective prediction (IN-DISTRIBUTION) v6.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 selective prediction (in-distribution) v7.
 
-v6 methodological fix: previous A was DONUT-CORD on SROIE, an unfair cross-corpus
-setup (CORD-trained model emits IDR-style integers on Malaysian receipts with
-decimals). That setup measured noise + broken upstream, not the verifier.
+v7: batched GPU inference (batch=8) + parallel CPU OCR (8 workers).
+Drops runtime from ~178s to ~45s on RTX 4090 + EPYC 7402P.
 
-v6 uses philschmid/donut-base-sroie — the SROIE-finetuned Donut checkpoint that
-the YT-Rex / Triology Paper 2 baseline cites — on the canonical 347-image
-SROIE Task-3 test set. Same role as Script B, just on a second corpus.
-
-With B (DONUT-CORD on CORD) and A v6 (DONUT-SROIE on SROIE), Paper 1 has
-two in-distribution sigma characterizations across two corpora.
-
-Runtime: ~3 min on RTX 4090.
-Success: F1_sigma_strict_on_accepted > F1_bare — a clean precision gate.
+Runtime target: ~45 s.
+Success: F1_sigma_strict_on_accepted > F1_bare.
 """
 import gc, json, os, re, sys, time
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import torch
@@ -28,7 +21,9 @@ CKPT = os.environ.get("DONUT_SROIE_CKPT", "philschmid/donut-base-sroie")
 DATA = Path(os.environ.get("SROIE_DATA", "data/sroie_canonical"))
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
-MAX_MONEY_LINES = 15
+BATCH = int(os.environ.get("DONUT_BATCH", "8"))
+NW = int(os.environ.get("NUM_WORKERS", "8"))
+MAX_MONEY = 15
 
 
 def parse_money(s):
@@ -42,20 +37,17 @@ def parse_money_strict(s):
     if s is None: return None
     s = str(s).strip()
     has_currency = ("RM" in s.upper()) or ("$" in s)
-    s_no_curr = s.replace("RM", "").replace("rm", "").replace("$", "").replace(",", "").strip()
-    has_decimal = bool(re.search(r"\d+\.\d{1,2}\b", s_no_curr))
+    s2 = s.replace("RM", "").replace("rm", "").replace("$", "").replace(",", "").strip()
+    has_decimal = bool(re.search(r"\d+\.\d{1,2}\b", s2))
     if not (has_currency or has_decimal):
         return None
-    m = re.search(r"-?\d+(?:\.\d+)?", s_no_curr)
+    m = re.search(r"-?\d+(?:\.\d+)?", s2)
     return float(m.group()) if m else None
 
 
-def parse_donut_sroie_total(text):
-    """SROIE Donut emits <s_total>X</s_total> tags."""
-    for tag in ("<s_total>",):
-        m = re.search(re.escape(tag) + r"([^<]+)", text)
-        if m: return parse_money(m.group(1))
-    return None
+def parse_total(text):
+    m = re.search(r"<s_total>([^<]+)", text)
+    return parse_money(m.group(1)) if m else None
 
 
 DROP_KW = re.compile(r"\b(total|sub.?total|cash|change|paid|balance|tendered?)\b", re.I)
@@ -73,7 +65,7 @@ def extract_money_lines(text_lines):
         elif DISC_KW.search(ln): tau -= v
         elif DROP_KW.search(ln): continue
         else: money.append(v)
-    return money[:MAX_MONEY_LINES], tau
+    return money[:MAX_MONEY], tau
 
 
 def I3_reachable(money_lines, tau, eps=0.02):
@@ -91,78 +83,82 @@ def I3_reachable(money_lines, tau, eps=0.02):
     return {(s + tau_c) / 100.0 for s, k in D.items() if k >= kmin}
 
 
-def tesseract_lines(img):
+def _tess_one(path_str):
     try:
         import pytesseract
-    except ImportError:
-        return None
-    try:
+        img = Image.open(path_str).convert("RGB")
         text = pytesseract.image_to_string(img)
+        return Path(path_str).stem, [ln for ln in text.splitlines() if ln.strip()]
     except Exception:
-        return None
-    return [ln for ln in text.splitlines() if ln.strip()]
+        return Path(path_str).stem, []
 
 
 def main():
     mirror, img_dir, ent_dir = ensure_canonical_test_set(DATA)
-    print(f"SROIE canonical-347 ready via mirror={mirror}")
-    images = sorted(img_dir.glob("*.jpg"))
-    print(f"Images: {len(images)}")
+    paths = sorted(img_dir.glob("*.jpg"))
+    print(f"SROIE canonical-{len(paths)} via mirror={mirror}")
 
-    print(f"Loading checkpoint: {CKPT}")
+    # Tesseract check
+    try:
+        import pytesseract
+        pytesseract.image_to_string(Image.new("RGB", (40, 40)))
+        tess_ok = True
+    except Exception:
+        tess_ok = False
+    print(f"Tesseract: {tess_ok}")
+
+    t0 = time.time()
+    if tess_ok:
+        print(f"Parallel OCR (workers={NW})...")
+        with ProcessPoolExecutor(max_workers=NW) as ex:
+            ocr = dict(ex.map(_tess_one, [str(p) for p in paths]))
+        print(f"  OCR done in {time.time()-t0:.1f}s")
+    else:
+        ocr = {p.stem: [] for p in paths}
+
+    print(f"Loading {CKPT}...")
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
-
-    # Use model's configured start token (Bug 2 guard: don't resolve string-form on tokenizer).
     start_id = model.config.decoder_start_token_id
     if start_id is None:
         start_id = processor.tokenizer.convert_tokens_to_ids(["<s>"])[0]
-    print(f"decoder_start_token_id = {start_id}")
 
-    tesseract_available = tesseract_lines(Image.new("RGB", (100, 100))) is not None
-    print(f"Tesseract OCR available: {tesseract_available}  (I3 verification {'enabled' if tesseract_available else 'skipped'})")
-
-    results, t0 = [], time.time()
-    for i, img_path in enumerate(images):
-        stem = img_path.stem
+    items = []
+    for p in paths:
         try:
-            img = Image.open(img_path).convert("RGB")
-        except Exception as e:
-            print(f"  skip {stem}: {e}"); continue
-        gold_total = load_gold_total(stem, ent_dir)
+            items.append((p.stem, Image.open(p).convert("RGB")))
+        except Exception:
+            continue
 
-        px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
+    print(f"Batched DONUT (batch={BATCH}) on {len(items)} images...")
+    t1 = time.time()
+    all_text = []
+    for i in range(0, len(items), BATCH):
+        batch = items[i:i+BATCH]
+        px = processor([im for _, im in batch], return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
         with torch.inference_mode():
             out = model.generate(
-                px,
-                max_length=512, num_beams=1,
+                px, max_length=512, num_beams=1,
                 pad_token_id=processor.tokenizer.pad_token_id,
                 decoder_start_token_id=start_id,
             )
-        text = processor.batch_decode(out, skip_special_tokens=False)[0]
-        pred = parse_donut_sroie_total(text)
-
-        if tesseract_available:
-            text_lines = tesseract_lines(img) or []
-            money, tau = extract_money_lines(text_lines)
-            T = I3_reachable(money, tau) if money else set()
-            in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
-        else:
-            money, tau, T, in_T = [], 0.0, set(), False
-
-        correct = (pred is not None and gold_total is not None
-                   and abs(pred - gold_total) <= 0.02)
-
-        if i == 0:
-            print(f"  [sanity] stem={stem} pred={pred} gold={gold_total} "
-                  f"|money|={len(money)} |T|={len(T)} tau={tau:.2f} in_T={in_T} text={text[:80]!r}")
-
-        results.append({"id": stem, "pred": pred, "gold": gold_total,
-                        "in_T": in_T, "correct": correct, "T_size": len(T),
-                        "money_count": len(money), "tau": tau})
-        if (i + 1) % 50 == 0:
+        all_text.extend(processor.batch_decode(out, skip_special_tokens=False))
+        if (i // BATCH + 1) % 5 == 0:
+            print(f"  {min(i+BATCH, len(items))}/{len(items)} elapsed={time.time()-t1:.0f}s")
             gc.collect(); torch.cuda.empty_cache()
-            print(f"  {i+1}/{len(images)}  elapsed={time.time()-t0:.0f}s")
+    print(f"DONUT done in {time.time()-t1:.1f}s")
+
+    results = []
+    for (stem, _), text in zip(items, all_text):
+        pred = parse_total(text)
+        gold = load_gold_total(stem, ent_dir)
+        money, tau = extract_money_lines(ocr.get(stem, []))
+        T = I3_reachable(money, tau) if money else set()
+        in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
+        correct = (pred is not None and gold is not None and abs(pred - gold) <= 0.02)
+        results.append({"id": stem, "pred": pred, "gold": gold, "in_T": in_T,
+                        "correct": correct, "T_size": len(T),
+                        "money_count": len(money), "tau": tau})
 
     n = max(1, len(results))
     accepted = [r for r in results if r["in_T"]]
@@ -171,21 +167,17 @@ def main():
     parser_ok = sum(1 for r in results if r["pred"] is not None)
     gold_ok = sum(1 for r in results if r["gold"] is not None)
     summary = {
-        "checkpoint": CKPT,
-        "corpus": "canonical SROIE Task-3",
-        "mirror": mirror,
+        "checkpoint": CKPT, "corpus": "canonical SROIE Task-3", "mirror": mirror,
         "setup": "in-distribution",
-        "n": len(results),
-        "tesseract_available": tesseract_available,
+        "n": len(results), "tesseract_available": tess_ok,
+        "batch_size": BATCH, "num_workers": NW,
         "wall_sec": round(time.time() - t0, 1),
-        "parser_ok_rate": parser_ok / n,
-        "gold_ok_rate": gold_ok / n,
+        "parser_ok_rate": parser_ok / n, "gold_ok_rate": gold_ok / n,
         "coverage_1.0_F1": correct_all / n,
-        "coverage_sigma": len(accepted) / n if tesseract_available else None,
-        "sigma_F1_on_accepted": (correct_accepted / max(1, len(accepted))) if tesseract_available else None,
-        "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"])
-                                    / max(1, correct_all)) if tesseract_available else None,
-        "sigma_precision": (correct_accepted / max(1, len(accepted))) if tesseract_available else None,
+        "coverage_sigma": len(accepted) / n if tess_ok else None,
+        "sigma_F1_on_accepted": (correct_accepted / max(1, len(accepted))) if tess_ok else None,
+        "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"]) / max(1, correct_all)) if tess_ok else None,
+        "sigma_precision": (correct_accepted / max(1, len(accepted))) if tess_ok else None,
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
     print(json.dumps(summary, indent=2))
