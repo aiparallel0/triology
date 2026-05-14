@@ -1,13 +1,16 @@
-"""DONUT-SROIE on canonical SROIE Task-3 → I3 selective prediction (in-distribution) v7.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PROPER per-line OCR v8.
 
-v7: batched GPU inference (batch=8) + parallel CPU OCR (8 workers).
-Drops runtime from ~178s to ~45s on RTX 4090 + EPYC 7402P.
+v8 methodology fix: replaces Tesseract OCR (noisy on Malaysian thermal-print
+receipts) with **labeled Task-1 OCR words+bboxes from darentang/sroie**,
+grouped by y-coordinate into lines. Same image set (canonical-347), but
+the verifier now sees clean OCR instead of Tesseract approximations.
 
-Runtime target: ~45 s.
-Success: F1_sigma_strict_on_accepted > F1_bare.
+Expected: sigma_coverage jumps from 2.6% (v7) to 40-55% range, comparable
+to B (CORD) and F (WildReceipt) which use labeled annotations directly.
+
+Runtime target: ~3 min on RTX 4090 + ~10s darentang download (first run).
 """
 import gc, json, os, re, sys, time
-from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import torch
@@ -15,14 +18,13 @@ from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
 sys.path.insert(0, str(Path(__file__).parent))
-from sroie_canonical import ensure_canonical_test_set, load_gold_total  # noqa
+from sroie_canonical import ensure_canonical_test_set, load_gold_total, load_sroie_ocr_lines  # noqa
 
 CKPT = os.environ.get("DONUT_SROIE_CKPT", "philschmid/donut-base-sroie")
 DATA = Path(os.environ.get("SROIE_DATA", "data/sroie_canonical"))
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 BATCH = int(os.environ.get("DONUT_BATCH", "8"))
-NW = int(os.environ.get("NUM_WORKERS", "8"))
 MAX_MONEY = 15
 
 
@@ -39,8 +41,7 @@ def parse_money_strict(s):
     has_currency = ("RM" in s.upper()) or ("$" in s)
     s2 = s.replace("RM", "").replace("rm", "").replace("$", "").replace(",", "").strip()
     has_decimal = bool(re.search(r"\d+\.\d{1,2}\b", s2))
-    if not (has_currency or has_decimal):
-        return None
+    if not (has_currency or has_decimal): return None
     m = re.search(r"-?\d+(?:\.\d+)?", s2)
     return float(m.group()) if m else None
 
@@ -77,20 +78,9 @@ def I3_reachable(money_lines, tau, eps=0.02):
         new = dict(D)
         for s, k in D.items():
             ns = s + v
-            if ns not in new or new[ns] > k + 1:
-                new[ns] = k + 1
+            if ns not in new or new[ns] > k + 1: new[ns] = k + 1
         D = new
     return {(s + tau_c) / 100.0 for s, k in D.items() if k >= kmin}
-
-
-def _tess_one(path_str):
-    try:
-        import pytesseract
-        img = Image.open(path_str).convert("RGB")
-        text = pytesseract.image_to_string(img)
-        return Path(path_str).stem, [ln for ln in text.splitlines() if ln.strip()]
-    except Exception:
-        return Path(path_str).stem, []
 
 
 def main():
@@ -98,23 +88,30 @@ def main():
     paths = sorted(img_dir.glob("*.jpg"))
     print(f"SROIE canonical-{len(paths)} via mirror={mirror}")
 
-    # Tesseract check
-    try:
-        import pytesseract
-        pytesseract.image_to_string(Image.new("RGB", (40, 40)))
-        tess_ok = True
-    except Exception:
-        tess_ok = False
-    print(f"Tesseract: {tess_ok}")
-
     t0 = time.time()
-    if tess_ok:
-        print(f"Parallel OCR (workers={NW})...")
-        with ProcessPoolExecutor(max_workers=NW) as ex:
-            ocr = dict(ex.map(_tess_one, [str(p) for p in paths]))
-        print(f"  OCR done in {time.time()-t0:.1f}s")
-    else:
-        ocr = {p.stem: [] for p in paths}
+    print("Loading Task-1 OCR from darentang/sroie...")
+    stems_needed = {p.stem for p in paths}
+    sroie_ocr = load_sroie_ocr_lines(stems_needed)
+    print(f"  matched {len(sroie_ocr)}/{len(paths)} stems with Task-1 OCR")
+    if not sroie_ocr:
+        print("  WARN: no Task-1 OCR; falling back to Tesseract")
+        # Tesseract fallback
+        try:
+            import pytesseract
+            from concurrent.futures import ProcessPoolExecutor
+            def _tess_one(path_str):
+                try:
+                    img = Image.open(path_str).convert("RGB")
+                    text = pytesseract.image_to_string(img)
+                    return Path(path_str).stem, [ln for ln in text.splitlines() if ln.strip()]
+                except Exception:
+                    return Path(path_str).stem, []
+            with ProcessPoolExecutor(max_workers=8) as ex:
+                sroie_ocr = dict(ex.map(_tess_one, [str(p) for p in paths]))
+            print(f"  Tesseract OCR done in {time.time()-t0:.1f}s")
+        except Exception as e:
+            print(f"  Tesseract fallback failed: {e}")
+            sroie_ocr = {p.stem: [] for p in paths}
 
     print(f"Loading {CKPT}...")
     processor = DonutProcessor.from_pretrained(CKPT)
@@ -127,8 +124,7 @@ def main():
     for p in paths:
         try:
             items.append((p.stem, Image.open(p).convert("RGB")))
-        except Exception:
-            continue
+        except Exception: continue
 
     print(f"Batched DONUT (batch={BATCH}) on {len(items)} images...")
     t1 = time.time()
@@ -144,21 +140,23 @@ def main():
             )
         all_text.extend(processor.batch_decode(out, skip_special_tokens=False))
         if (i // BATCH + 1) % 5 == 0:
-            print(f"  {min(i+BATCH, len(items))}/{len(items)} elapsed={time.time()-t1:.0f}s")
             gc.collect(); torch.cuda.empty_cache()
+            print(f"  {min(i+BATCH, len(items))}/{len(items)} elapsed={time.time()-t1:.0f}s")
     print(f"DONUT done in {time.time()-t1:.1f}s")
 
     results = []
     for (stem, _), text in zip(items, all_text):
         pred = parse_total(text)
         gold = load_gold_total(stem, ent_dir)
-        money, tau = extract_money_lines(ocr.get(stem, []))
+        ocr_lines = sroie_ocr.get(stem, [])
+        money, tau = extract_money_lines(ocr_lines)
         T = I3_reachable(money, tau) if money else set()
         in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
         correct = (pred is not None and gold is not None and abs(pred - gold) <= 0.02)
         results.append({"id": stem, "pred": pred, "gold": gold, "in_T": in_T,
                         "correct": correct, "T_size": len(T),
-                        "money_count": len(money), "tau": tau})
+                        "money_count": len(money), "tau": tau,
+                        "ocr_lines": len(ocr_lines)})
 
     n = max(1, len(results))
     accepted = [r for r in results if r["in_T"]]
@@ -166,18 +164,22 @@ def main():
     correct_accepted = sum(r["correct"] for r in accepted)
     parser_ok = sum(1 for r in results if r["pred"] is not None)
     gold_ok = sum(1 for r in results if r["gold"] is not None)
+    ocr_lines_mean = sum(r["ocr_lines"] for r in results) / n
+    money_count_mean = sum(r["money_count"] for r in results) / n
     summary = {
         "checkpoint": CKPT, "corpus": "canonical SROIE Task-3", "mirror": mirror,
         "setup": "in-distribution",
-        "n": len(results), "tesseract_available": tess_ok,
-        "batch_size": BATCH, "num_workers": NW,
+        "ocr_source": "darentang/sroie Task-1" if sroie_ocr and len(sroie_ocr) > 100 else "tesseract_fallback",
+        "n": len(results), "batch_size": BATCH,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n, "gold_ok_rate": gold_ok / n,
+        "ocr_lines_per_receipt_mean": ocr_lines_mean,
+        "money_lines_per_receipt_mean": money_count_mean,
         "coverage_1.0_F1": correct_all / n,
-        "coverage_sigma": len(accepted) / n if tess_ok else None,
-        "sigma_F1_on_accepted": (correct_accepted / max(1, len(accepted))) if tess_ok else None,
-        "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"]) / max(1, correct_all)) if tess_ok else None,
-        "sigma_precision": (correct_accepted / max(1, len(accepted))) if tess_ok else None,
+        "coverage_sigma": len(accepted) / n,
+        "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),
+        "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"]) / max(1, correct_all)),
+        "sigma_precision": correct_accepted / max(1, len(accepted)),
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
     print(json.dumps(summary, indent=2))
