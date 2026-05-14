@@ -39,7 +39,6 @@ for Generative and Encoder-Only Document Total Extraction}
 \begin{figure*}[!t]
 \centering
 \begin{tikzpicture}[scale=0.95,every node/.style={font=\footnotesize},>=Stealth,thick]
-% Phone scanning receipt
 \draw[fill=grey!15,rounded corners=4pt] (-0.6,-1.6) rectangle (0.6,1.6);
 \draw[fill=white] (-0.45,-1.3) rectangle (0.45,1.4);
 \node at (0,1.1) [font=\tiny\bfseries] {RECEIPT};
@@ -47,38 +46,30 @@ for Generative and Encoder-Only Document Total Extraction}
 \node at (0,-1.45) [font=\tiny]{$\bullet$};
 \node at (0,-2.0) [font=\scriptsize\bfseries] {scan};
 
-% Arrow to AI
 \draw[->,very thick] (0.8,0) -- (2.0,0);
 
-% AI box
 \node[draw,rounded corners=4pt,fill=sig!20,minimum width=1.8cm,minimum height=1.4cm,thick] (ai) at (3.0,0) {\large\textbf{AI}};
 \node at (3.0,-1.0) [font=\scriptsize] {Donut / LayoutLMv3};
 
-% Arrow to output
 \draw[->,very thick] (4.0,0) -- (5.2,0);
 
-% Output total
 \node at (6.5,0.3) [font=\Large,text=sig]{\textbf{\$58.40}};
 \node at (6.5,-0.4) [font=\scriptsize]{predicted total};
 
-% Mid-arrow with question mark
 \draw[->,very thick] (7.5,0) -- (8.7,0);
 \node at (8.1,0.4) [font=\large,text=bad]{\textbf{?}};
 \node at (8.1,-0.4) [font=\tiny]{trust it?};
 
-% Two paths: just softmax (top) vs sigma+softmax (bottom)
 \node[draw,rounded corners=4pt,fill=smx!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (old) at (11.0,1.0) {\textbf{30+ years (today):}\\softmax only\\\textcolor{bad}{can be confidently wrong}};
 \node[draw,rounded corners=4pt,fill=ok!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (new) at (11.0,-1.4) {\textbf{This paper:}\\$\sigma$ math check\\\textcolor{ok}{independent second opinion}};
 \draw[->] (8.7,0.3) -- (old.west);
 \draw[->] (8.7,-0.3) -- (new.west);
 
-% Result arrows
 \node at (15.0,1.0) [font=\Large]{$\boldsymbol{<\,0.92}$};
 \node at (15.0,-1.4) [font=\Large,text=ok]{$\boldsymbol{0.988}$};
 \draw[->,thick] (old.east) -- (14.0,1.0);
 \draw[->,thick] (new.east) -- (14.0,-1.4);
 
-% Legend at the very bottom -- wrapped via text width so it does not overflow
 \node at (8.0,-2.8) [font=\small,align=center,text width=14cm]{\emph{Pooled $n{=}919$ receipts $\cdot$ CORD + SROIE + WildReceipt $\cdot$ Donut + LayoutLMv3. Intersection precision $0.988$ (Wilson lower bound $0.956$); either signal alone, below $0.92$.}};
 \end{tikzpicture}
 \caption{\textbf{The contribution in one figure.} An AI reads a
@@ -185,7 +176,6 @@ program (DP), with sub-millisecond $p_{99}$ latency.
 \begin{figure*}[t]
 \centering
 \begin{tikzpicture}[scale=0.92,every node/.style={font=\footnotesize},>=Stealth,thick]
-% Top row: softmax-only flow (decades-old standard)
 \node[draw,rounded corners=3pt,fill=smx!10,minimum width=1.4cm,minimum height=0.7cm] (r1) at (0,1.8) {receipt};
 \node[draw,rounded corners=3pt,fill=sig!15,minimum width=1.4cm,minimum height=0.7cm] (m1) at (2.2,1.8) {AI};
 \node[draw,rounded corners=3pt,fill=smx!15,minimum width=2.1cm,minimum height=0.7cm] (s1) at (4.9,1.8) {softmax};
@@ -195,7 +185,6 @@ program (DP), with sub-millisecond $p_{99}$ latency.
 \draw[->] (s1) -- (a1);
 \node at (-1.6,1.8) [text=smx,font=\bfseries] {Before};
 
-% Bottom row: sigma + softmax flow (this paper)
 \node[draw,rounded corners=3pt,fill=smx!10,minimum width=1.4cm,minimum height=0.7cm] (r2) at (0,0.0) {receipt};
 \node[draw,rounded corners=3pt,fill=sig!15,minimum width=1.4cm,minimum height=0.7cm] (m2) at (2.2,0.0) {AI};
 \node[draw,rounded corners=3pt,fill=smx!15,minimum width=2.1cm,minimum height=0.7cm] (s2) at (4.9,0.0) {softmax};
@@ -208,7 +197,6 @@ program (DP), with sub-millisecond $p_{99}$ latency.
 \draw[->] (sig.east) -- ++(0.4,0) |- (a2.west);
 \node at (-1.6,-0.6) [text=ok,font=\bfseries] {This paper};
 
-% Labels
 \node at (10.5,1.8) [text=smx,font=\small,align=left,text width=4cm] {one signal\\ (can be confidently wrong)};
 \node at (10.5,-0.6) [text=ok,font=\small,align=left,text width=4cm] {two independent signals};
 \end{tikzpicture}
@@ -311,7 +299,6 @@ surprises. Empirically $p_{99}{=}0.55\,\text{ms}$ per receipt
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.78,every node/.style={font=\footnotesize}]
-% Receipt
 \draw[fill=white,thick,rounded corners=2pt] (0,0) rectangle (3.6,4.5);
 \draw (0.25,4.05) -- (3.35,4.05);
 \node at (1.8,4.25) {\scriptsize\bfseries RECEIPT};
@@ -324,7 +311,6 @@ surprises. Empirically $p_{99}{=}0.55\,\text{ms}$ per receipt
 \draw[thick] (0.25,1.0) -- (3.35,1.0);
 \node[anchor=west] at (0.25,0.55) {\bfseries TOTAL \hfill \$58.40};
 
-% Arrow + math
 \draw[->,very thick,sig] (3.9,2.3) -- (4.8,2.3);
 
 \node at (8.5,3.4) [text=sig] {$3.20 + 8.50 + 6.00$};
@@ -334,7 +320,6 @@ surprises. Empirically $p_{99}{=}0.55\,\text{ms}$ per receipt
 \node at (8.5,1.4) [text=ok,font=\Large] {\textbf{= \$58.40}};
 \node at (8.5,0.6) [text=ok] {\textbf{accept}\,\checkmark};
 
-% Sketch of DP table
 \draw[grey,thin] (10.5,3.2) rectangle (12.0,0.8);
 \foreach \y in {0.8,1.2,1.6,2.0,2.4,2.8} \draw[grey,thin] (10.5,\y) -- (12.0,\y);
 \foreach \x in {10.5,10.875,11.25,11.625,12.0} \draw[grey,thin] (\x,3.2) -- (\x,0.8);
@@ -451,30 +436,23 @@ softmax fail on \emph{different} inputs.}
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.85,every node/.style={font=\footnotesize}]
-% Bar 1: sigma alone
 \draw[fill=sig!40,draw=sig!80,thick] (0,0) rectangle (1.4,3.0);
 \node at (0.7,-0.35) {\textbf{$\sigma$}};
 \node at (0.7,3.3) [text=sig,font=\bfseries] {0.953};
 
-% +
 \node at (2.0,1.4) [font=\Large] {\textbf{+}};
 
-% Bar 2: softmax alone
 \draw[fill=smx!40,draw=smx!80,thick] (2.6,0) rectangle (4.0,3.0);
 \node at (3.3,-0.35) {\textbf{softmax}};
 \node at (3.3,3.3) [text=smx,font=\bfseries] {0.953};
 
-% =
 \node at (4.6,1.4) [font=\Large] {\textbf{=}};
 
-% Bar 3: intersection (taller)
 \draw[fill=ok!50,draw=ok!80,thick,pattern=north east lines,pattern color=ok!90] (5.2,0) rectangle (6.6,3.30);
 \node at (5.9,-0.35) {\textbf{both}};
 \node at (5.9,3.6) [text=ok,font=\Large\bfseries] {0.991};
 
-% Annotation line
-\node at (10.0,2.0) [text=ok,font=\bfseries,align=left]{\textbf{113 / 114}\\correct in\\the joint slice};
-\draw[->,thick,ok] (8.0,2.0) -- (6.7,1.8);
+\node at (5.9,-1.0) [text=ok,font=\bfseries,align=center]{113 / 114 correct in the joint slice};
 \end{tikzpicture}
 \caption{\textbf{The striking case: WildReceipt.} $\sigma$ and softmax
 achieve identical $0.953$ single-gate precision yet fail on
@@ -593,17 +571,14 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.78,every node/.style={font=\footnotesize}]
-% Big bar: Donut
 \draw[fill=smx!50,draw=smx!80,thick] (0,0.4) rectangle (10.5,1.4);
 \node at (5.25,1.7) {Donut generate};
 \node at (5.25,0.9) {\large $\sim$\,175\,ms};
 
-% Tiny dot: sigma (proportional)
 \draw[fill=ok!60,draw=ok!80,thick] (0,-1.0) rectangle (0.0009,-0.4);
 \draw[->,thick] (1.0,-0.7) -- (0.05,-0.7);
 \node[anchor=west] at (1.05,-0.7) {$\sigma$ verifier $\sim$\,1.5\,$\mu$s};
 
-% Hero number
 \node at (5.25,-1.9) [font=\Large,text=ok]{\textbf{0.0016\%}};
 \node at (5.25,-2.4) [font=\small]{of total inference time --- $\sigma$ is operationally free};
 \end{tikzpicture}
