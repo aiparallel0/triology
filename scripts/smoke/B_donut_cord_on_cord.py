@@ -3,10 +3,12 @@
 Paper 1 in-distribution end-task validation. ~45 s on RTX 4090.
 Success: F1_sigma_strict - F1_bare ≥ +0.03.
 """
-import json, os, re, time
+import json, os, re, time, urllib.request
+from io import BytesIO
 from pathlib import Path
 
 import torch
+from PIL import Image
 from datasets import load_dataset
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
@@ -30,15 +32,13 @@ def parse_donut_total(text):
 
 
 def cord_money_lines(menu):
-    """CORD-v2 stores items under 'menu' with .price per item."""
     money = []
     if isinstance(menu, dict): menu = [menu]
     for item in menu or []:
         for k in ("price", "unitprice"):
             v = parse_money(item.get(k))
             if v is not None:
-                money.append(v)
-                break
+                money.append(v); break
     return money
 
 
@@ -57,15 +57,38 @@ def I3_reachable(money_lines, tau, eps=0.02):
     return {(s + tau_c) / 100.0 for s, k in D.items() if k >= kmin}
 
 
+def load_img(img_field):
+    if hasattr(img_field, "convert"):
+        return img_field.convert("RGB")
+    if isinstance(img_field, dict):
+        if img_field.get("bytes"):
+            return Image.open(BytesIO(img_field["bytes"])).convert("RGB")
+        if img_field.get("path"):
+            return Image.open(img_field["path"]).convert("RGB")
+    if isinstance(img_field, str):
+        if img_field.startswith(("http://", "https://")):
+            with urllib.request.urlopen(img_field) as r:
+                return Image.open(BytesIO(r.read())).convert("RGB")
+        return Image.open(img_field).convert("RGB")
+    if isinstance(img_field, (bytes, bytearray)):
+        return Image.open(BytesIO(img_field)).convert("RGB")
+    raise ValueError(f"Cannot load image from type={type(img_field).__name__}")
+
+
 def main():
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
     ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
     print(f"CORD-v2 test size: {len(ds)}")
+    print(f"Schema keys: {list(ds[0].keys())[:10]}")
 
     results, t0 = [], time.time()
     for i, ex in enumerate(ds):
-        img = ex["image"].convert("RGB") if hasattr(ex["image"], "convert") else ex["image"]
+        try:
+            img = load_img(ex["image"])
+        except Exception as e:
+            print(f"  skip {i}: image load failed: {e}")
+            continue
         px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
         dec = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
                                   return_tensors="pt").input_ids.to("cuda")
@@ -76,7 +99,10 @@ def main():
         text = processor.batch_decode(out, skip_special_tokens=False)[0]
         pred = parse_donut_total(text)
 
-        gt = json.loads(ex["ground_truth"]).get("gt_parse", {})
+        try:
+            gt = json.loads(ex["ground_truth"]).get("gt_parse", {})
+        except Exception:
+            gt = {}
         gold_total = parse_money((gt.get("total") or {}).get("total_price"))
         money = cord_money_lines(gt.get("menu"))
         sub = gt.get("sub_total") or {}
@@ -88,15 +114,19 @@ def main():
         in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
         correct = (pred is not None and gold_total is not None
                    and abs(pred - gold_total) <= 0.02)
+
+        if i == 0:
+            print(f"  [sanity] pred={pred}  gold={gold_total}  |money|={len(money)}  |T|={len(T)}  tau={tau}")
+
         results.append({"id": i, "pred": pred, "gold": gold_total,
                         "in_T": in_T, "correct": correct, "T_size": len(T)})
 
-    n = len(results)
+    n = max(1, len(results))
     correct_bare = sum(r["correct"] for r in results)
     accepted = [r for r in results if r["in_T"]]
     correct_strict = sum(r["correct"] for r in accepted)
     summary = {
-        "n": n,
+        "n": len(results),
         "wall_sec": round(time.time() - t0, 1),
         "F1_bare": correct_bare / n,
         "accept_rate_sigma": len(accepted) / n,
