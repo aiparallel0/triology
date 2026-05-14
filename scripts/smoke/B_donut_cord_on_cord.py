@@ -14,16 +14,13 @@ CKPT = "naver-clova-ix/donut-base-finetuned-cord-v2"
 OUT = Path("runs/B_donut_cord_on_cord.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
-from A_donut_cord_on_sroie import (  # reuse helpers when run as script in same dir
-    parse_money, parse_donut_total, extract_money_lines, I3_reachable,
-) if False else (None,)  # noqa
 
-# Inline copies (avoid same-dir import gotchas):
 def parse_money(s):
     if s is None: return None
     s = str(s).replace(",", "").replace("RM", "").replace("$", "").strip()
     m = re.search(r"-?\d+(?:\.\d+)?", s)
     return float(m.group()) if m else None
+
 
 def parse_donut_total(text):
     for tag in ("<s_total.total_price>", "<s_total_price>", "<s_total>"):
@@ -33,8 +30,8 @@ def parse_donut_total(text):
 
 
 def cord_money_lines(menu):
-    """CORD-v2 stores items under 'menu' with .price per item plus .sub_total.* fields."""
-    money, tau = [], 0.0
+    """CORD-v2 stores items under 'menu' with .price per item."""
+    money = []
     if isinstance(menu, dict): menu = [menu]
     for item in menu or []:
         for k in ("price", "unitprice"):
@@ -42,7 +39,7 @@ def cord_money_lines(menu):
             if v is not None:
                 money.append(v)
                 break
-    return money, tau  # tau filled below from sub_total
+    return money
 
 
 def I3_reachable(money_lines, tau, eps=0.02):
@@ -63,7 +60,7 @@ def I3_reachable(money_lines, tau, eps=0.02):
 def main():
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
-    ds = load_dataset("naver-clova-ix/cord-v2", split="test")
+    ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
     print(f"CORD-v2 test size: {len(ds)}")
 
     results, t0 = [], time.time()
@@ -81,11 +78,11 @@ def main():
 
         gt = json.loads(ex["ground_truth"]).get("gt_parse", {})
         gold_total = parse_money((gt.get("total") or {}).get("total_price"))
-        money, _ = cord_money_lines(gt.get("menu"))
+        money = cord_money_lines(gt.get("menu"))
         sub = gt.get("sub_total") or {}
-        tau = (parse_money(sub.get("tax_price")) or 0.0) + \
-              (parse_money(sub.get("service_price")) or 0.0) - \
-              (parse_money(sub.get("discount_price")) or 0.0)
+        tau = ((parse_money(sub.get("tax_price")) or 0.0)
+               + (parse_money(sub.get("service_price")) or 0.0)
+               - (parse_money(sub.get("discount_price")) or 0.0))
 
         T = I3_reachable(money, tau) if money else set()
         in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)

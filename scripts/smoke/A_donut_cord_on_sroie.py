@@ -77,7 +77,7 @@ def main():
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
 
-    ds = load_dataset(SROIE_HF, split="test")
+    ds = load_dataset(SROIE_HF, split="test", trust_remote_code=True)
     print(f"SROIE test size: {len(ds)}")
     sample = ds[0]
     print(f"Schema keys: {list(sample.keys())[:10]}")
