@@ -1,17 +1,24 @@
-"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v10.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v11.
 
-v10 fixes (extractor-only; I3 formulation UNCHANGED from v9):
-  1. Percent-skip: when a money token is followed by '%' the matched value is the
-     RATE not the AMOUNT. Skip and continue scanning the line.
-  2. Currency-prefix preference: prefer RM/$-prefixed tokens over bare numerics.
-  3. Decimal preference: prefer values containing a decimal point (e.g., 5.50 over 6).
-  4. Registration-pattern rejection: reject 'Tax Inv No:', 'GST Reg No:', 'Tax ID:',
-     and similar header strings before the keyword can produce a tau contribution.
-  5. Cap with assert+log: |tau|>10000 zeroed and logged, asserted post-extraction.
-  6. Multi-line look-ahead: if keyword line has no valid money, scan next line.
+v11 = v10 + one targeted filter informed by the v10 tau-cap diagnostic logs:
+  v11.add_1: reject bare integers >= 1000 (no currency prefix, no decimal point)
+             from tau candidates. These are OCR-misread GST/Invoice registration
+             numbers (e.g. '002017808384', '18032502170439', '656195584', '77853745')
+             that the v10 extractor wrongly accepted and that the cap then zeroed.
+             Legitimate Malaysian tax amounts are either RM-prefixed or contain
+             decimal cents (RM 12.54, 408.45, 0.69 etc), so this filter is
+             empirically safe.
 
-The I3 subset-sum, cardinality guard (|S|>=2), eps tolerance, and DP are UNCHANGED.
-This is bug fixing in extract_money_lines, not a methodology change.
+v10 fixes retained:
+  1. Percent-skip (rate vs amount)
+  2. Currency-prefix preference (RM/$ > bare)
+  3. Decimal preference (5.50 > 6)
+  4. Registration-pattern rejection (keyword + 'inv'/'reg'/'id'/'no')
+  5. |tau|>10000 cap zeroed-and-logged + post-extraction assert
+  6. Multi-line look-ahead
+
+The I3 subset-sum, cardinality guard (|S|>=kmin), eps tolerance, and DP are
+UNCHANGED. Methodology is identical to v9/v10; v11 only tightens extractor.
 """
 import gc, json, os, re, sys, time
 from pathlib import Path
@@ -30,6 +37,7 @@ OUT.parent.mkdir(parents=True, exist_ok=True)
 BATCH = int(os.environ.get("DONUT_BATCH", "8"))
 MAX_MONEY = 15
 TAU_CAP = 10000.0
+BARE_INT_REJECT_THRESHOLD = 1000.0
 
 
 def parse_money(s):
@@ -55,14 +63,11 @@ def parse_total(text):
     return parse_money(m.group(1)) if m else None
 
 
-# v10: tokenizer for all money candidates on a line, preserving currency-prefix info.
 MONEY_TOKEN_RE = re.compile(
     r"(?P<cur>RM\s*|rm\s*|\$\s*)?(?P<num>-?\d+(?:\.\d{1,2})?)",
     re.I,
 )
 
-# v10: registration/ID patterns that immediately follow a tax keyword.
-# 'Tax Inv No', 'GST Reg', 'Tax ID', 'SST Reference', etc.
 REG_AFTER_KW_RE = re.compile(
     r"\b(?:tax|gst|sst|vat|service|discount|rebate)\b\W{0,3}"
     r"(?:invoice|inv|no\.?|number|num|reg(?:istration)?|id|ref(?:erence)?|code)\b",
@@ -77,7 +82,9 @@ DROP_KW    = re.compile(r"\b(total|sub.?total|cash|change|paid|balance|tendered?
 
 def _scan_money_after(rest):
     """Yield (value, has_currency, has_decimal, position) tuples from a line tail,
-    skipping any token immediately followed by '%' (those are rates, not amounts)."""
+    skipping (a) tokens immediately followed by '%' (rate, not amount), and
+    (b) v11: bare integers >= BARE_INT_REJECT_THRESHOLD (OCR-misread reg numbers).
+    """
     for tok in MONEY_TOKEN_RE.finditer(rest):
         num_s = tok.group("num")
         end = tok.end()
@@ -90,12 +97,14 @@ def _scan_money_after(rest):
             continue
         has_cur = bool(tok.group("cur"))
         has_dec = "." in num_s
+        # v11: reject bare integers >= 1000 — these are OCR-misread reg/invoice numbers,
+        # never legitimate Malaysian tax amounts (which have cents or currency prefix).
+        if not has_cur and not has_dec and abs(v) >= BARE_INT_REJECT_THRESHOLD:
+            continue
         yield v, has_cur, has_dec, end
 
 
 def _pick_amount(rest):
-    """Pick the best money candidate from the line tail after a keyword.
-    Priority: currency-prefixed > decimal-bearing > last numeric."""
     cands = list(_scan_money_after(rest))
     if not cands:
         return None
@@ -109,15 +118,6 @@ def _pick_amount(rest):
 
 
 def _extract_amount(line, kw_re, next_line=None):
-    """v10: extract a tau contribution from a keyword-bearing line.
-
-    Rules:
-      • If the line matches a registration/ID pattern (Tax Inv No, GST Reg, ...),
-        return None — this is a header, not an amount line.
-      • Otherwise scan money tokens AFTER the keyword. Apply percent-skip,
-        currency-prefix preference, decimal preference.
-      • If no usable candidate, optionally fall through to next_line.
-    """
     if REG_AFTER_KW_RE.search(line):
         return None
     m = kw_re.search(line)
@@ -129,18 +129,11 @@ def _extract_amount(line, kw_re, next_line=None):
         return val
     if next_line is None:
         return None
-    # Look-ahead: amount column sometimes wraps to the next OCR line.
-    val_nxt = _pick_amount(next_line)
-    return val_nxt
+    return _pick_amount(next_line)
 
 
 def extract_money_lines(text_lines):
-    """v10: precise tau extraction. Returns (money[], tau, capped_bool).
-
-    money[]: per-line money values, excluding lines whose keyword consumed them for tau.
-    tau: signed sum of tax + service - discount contributions.
-    capped: True iff |tau| exceeded TAU_CAP and was zeroed.
-    """
+    """v11: precise tau extraction. Returns (money[], tau, capped_bool)."""
     money, tau = [], 0.0
     diag = []
     n = len(text_lines)
@@ -173,7 +166,7 @@ def extract_money_lines(text_lines):
 
 
 def I3_reachable(money_lines, tau, eps=0.02):
-    """UNCHANGED from v9: 0/1-knapsack DP, cardinality guard |S|>=2 when tau~0."""
+    """UNCHANGED from v9/v10: 0/1-knapsack DP, cardinality guard."""
     kmin = 1 if abs(tau) > eps else 2
     cents = [int(round(v * 100)) for v in money_lines]
     tau_c = int(round(tau * 100))
@@ -246,7 +239,6 @@ def main():
                         "money_count": len(money), "tau": tau,
                         "ocr_lines": len(ocr_lines)})
 
-    # v10 invariant: after extract_money_lines, every tau must satisfy |tau| <= TAU_CAP.
     for r in results:
         assert abs(r["tau"]) <= TAU_CAP, f"tau cap failed on {r['id']}: tau={r['tau']}"
 
@@ -265,7 +257,7 @@ def main():
         "checkpoint": CKPT, "corpus": "canonical SROIE Task-3", "mirror": mirror,
         "setup": "in-distribution",
         "ocr_source": "darentang/sroie Task-1",
-        "tau_extraction": "v10_pct_skip_rm_prefer_reg_reject_lookahead_cap_asserted",
+        "tau_extraction": "v11_bare_int_reject_pct_skip_rm_prefer_reg_reject_lookahead_cap_asserted",
         "n": len(results), "batch_size": BATCH,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n, "gold_ok_rate": gold_ok / n,

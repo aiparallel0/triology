@@ -13,19 +13,23 @@ if command -v apt-get >/dev/null 2>&1; then
 fi
 
 # Shelved (stable; not in base run): B_donut_cord_on_cord, E_wildreceipt_preflight,
-# F_layoutlmv3_on_wildreceipt. Their result JSONs are locked from prior runs and are
-# the headline numbers in the 3-corpus story. Re-run manually if needed.
+# F_layoutlmv3_on_wildreceipt. Result JSONs from prior runs are the headline numbers
+# for the 3-corpus story. Re-run manually if needed.
 
 echo
-echo "=== A v10: DONUT-SROIE on canonical SROIE Task-3 (in-dist, n=347, precise tau) ==="
+echo "=== A v11: DONUT-SROIE on canonical SROIE Task-3 (in-dist, n=347, bare-int filtered tau) ==="
 python scripts/smoke/A_donut_cord_on_sroie.py
 
 echo
-echo "=== G v10: cardinality-guard ablation + DP latency + money-count buckets (CPU) ==="
+echo "=== G v10/v11: cardinality-guard ablation + DP latency + money-count buckets (CPU) ==="
 python scripts/smoke/G_robustness.py
 
 echo
-echo "=== K: DocILE 4th corpus (bonus, in-dist labeled-amounts regime) ==="
+echo "=== L: SROIE failure-mode diagnostic (CPU, reads A's output) ==="
+python scripts/smoke/L_sroie_failure_modes.py
+
+echo
+echo "=== K v2: DocILE-like 4th corpus (bonus, in-dist labeled-amounts regime) ==="
 python scripts/smoke/K_docile.py || echo "  K returned non-zero; continuing (bonus only)"
 
 echo
