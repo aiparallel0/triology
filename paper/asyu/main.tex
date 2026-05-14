@@ -52,8 +52,9 @@ own arithmetic structure as evidence. Given a predicted total
 $\pi$ and the multiset $M$ of monetary amounts on the receipt,
 $\sigma$ accepts $\pi$ iff some subset $S\subseteq M$ with
 $|S|\geq k_{\min}$ sums to $\pi$ within tolerance $\varepsilon$,
-decided by a $0/1$-knapsack DP whose $p_{99}$ latency per receipt
-is $0.55\,\text{ms}$. On Donut~\cite{kim2022donut} fine-tuned for
+decided by a $0/1$-knapsack DP whose per-receipt overhead is
+$0.0016\%$ of Donut generate latency on the same GPU. On
+Donut~\cite{kim2022donut} fine-tuned for
 CORD-v2~\cite{park2019cord} (test split, $n{=}100$ receipts) and
 SROIE Task-3~\cite{huang2019sroie} (canonical, $n{=}347$), three
 findings.
@@ -84,9 +85,12 @@ phantom amounts. A cardinality-guard ablation
 the guard inverts coverage and precision between the two corpora.
 We additionally show $\sigma$ precision is stable in
 $[0.949, 0.980]$ under up to $40\%$ synthetic money-line noise
-($10$ seeds, bootstrap 95\% CI containing $0.94$), and that the
+($10$ seeds, bootstrap 95\% CI containing $0.94$), that the
 tolerance $\varepsilon$ is not load-bearing on CORD (precision
-flat over $\varepsilon\in[0.01, 5.0]$).
+flat over $\varepsilon\in[0.01, 5.0]$), and that the single
+CORD $\sigma$ miss localises to the $|T|\in[5,9]$ reachable-set
+bin while $|T|{=}1$ and $|T|{\ge}10$ are perfect ($26/26$ and
+$10/10$).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -143,7 +147,10 @@ analysis grounded in a per-receipt failure taxonomy
 ablation that exposes the regime-dependent inversion of an
 implementation choice (Section~\ref{sec:results-ablation}). (v) A
 robustness study under $40\%$ money-line noise and an
-$\varepsilon$-tolerance sweep (Section~\ref{sec:results-robust}).
+$\varepsilon$-tolerance sweep (Section~\ref{sec:results-robust}),
+and a $\sigma$-reliability decomposition by reachable-set size
+that suggests $|T|$ as a future intra-$\sigma$ ranking signal
+(Section~\ref{sec:results-reliability}).
 
 \section{Related Work}
 \label{sec:related}
@@ -506,15 +513,54 @@ load-bearing in the integer-cent regime that
 labeled-amount corpora produce. We retain $\varepsilon{=}0.02$ as
 the default for cross-corpus consistency.
 
+\subsection{$\sigma$ reliability by reachable-set size}
+\label{sec:results-reliability}
+
+\begin{table}[t]
+\centering\small
+\caption{$\sigma$ accept precision on CORD-v2 binned by the size
+of the reachable set $|T(M)|$. The single CORD miss localises to
+$|T|\in[5,9]$ ($5/6$); $|T|{=}1$ (unique witness) and $|T|{\ge}10$
+are both perfect. Witness uniqueness correlates with precision,
+suggesting $|T|$ as a future intra-$\sigma$ ranking signal.}
+\label{tab:reliability}
+\begin{tabular}{lrrr}
+\toprule
+$|T|$ bin & $n_\text{acc}$ & $n_\text{corr}$ & Precision \\
+\midrule
+$1$          & 26 & 26 & 1.000 \\
+$2$--$4$     & 13 & 13 & 1.000 \\
+$5$--$9$     & 6  & 5  & 0.833 \\
+$10$--$49$   & 7  & 7  & 1.000 \\
+$50$--$199$  & 1  & 1  & 1.000 \\
+$\geq 200$   & 2  & 2  & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:reliability} binns the $55$ CORD $\sigma$ accepts
+by $|T(M)|$. At $|T|{=}1$ (unique witness) precision is $26/26$;
+at $|T|{\ge}10$ it is $10/10$. The single CORD miss falls in the
+intermediate $|T|\in[5,9]$ bin --- a regime where multiple
+subsets reach $\pi$, so the witness is non-unique and the gate
+admits ambiguity the cardinality guard does not catch. This
+suggests $|T|$ could serve as an \emph{intra-$\sigma$ ranking
+signal} in a future graded gate: accept-strongly when $|T|{=}1$,
+defer-on-rejection when $|T|$ is large. We leave the calibration
+of that grading to journal-version work.
+
 \subsection{Latency}
 \label{sec:results-latency}
 
 Per-receipt DP latency over $n{=}347$ SROIE receipts: median
 $5\,\mu\text{s}$, $p_{95}{=}74\,\mu\text{s}$,
-$p_{99}{=}547\,\mu\text{s}$, $\max{=}780\,\mu\text{s}$. Compared
-to a single Donut inference (tens of milliseconds on a single
-GPU), $\sigma$ contributes $< 1\%$ end-to-end overhead. The
-$\sigma$ gate is operationally free.
+$p_{99}{=}547\,\mu\text{s}$, $\max{=}791\,\mu\text{s}$. Paired
+against Donut generate latency on the same GPU (CORD-v2,
+$n{=}20$ receipts with $100$ DP repeats each): Donut median
+$175\,\text{ms}$, $p_{95}{=}406\,\text{ms}$; $\sigma$ DP median
+$1.5\,\mu\text{s}$, $p_{95}{=}18\,\mu\text{s}$. End-to-end
+overhead is $0.0016\%$ of inference: the $\sigma$ gate is
+operationally free.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -592,9 +638,12 @@ intersection exploits;
 single-gate precision drop on the OCR regime, located in
 $\tau$-extraction quality and confirmed by a per-receipt
 failure taxonomy and a cardinality-guard ablation. The verifier
-is operationally free ($p_{99}{=}0.55\,\text{ms}$) and
-precision-stable under up to $40\%$ money-line noise. We expect
-the strongest near-term gains in financial-document automation,
+adds $0.0016\%$ to end-to-end latency on the same GPU as the
+generator and is precision-stable under up to $40\%$ money-line
+noise. A reachable-set-size decomposition isolates $\sigma$'s
+single CORD miss to a non-unique-witness bin, suggesting $|T|$
+as a future intra-$\sigma$ ranking signal. We expect the
+strongest near-term gains in financial-document automation,
 where deferral-on-rejection is cheap and precision on the
 accepted slice is the operative bottleneck.
 
