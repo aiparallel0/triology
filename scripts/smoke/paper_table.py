@@ -1,20 +1,8 @@
 """paper_table: consolidate all locked Paper 1 numbers into a single LaTeX-ready table.
 
-Reads every JSON output from runs/ and produces:
-  - runs/PAPER_TABLE.json   structured aggregation
-  - runs/PAPER_TABLE.md     markdown for review/PR copy-paste
-  - runs/PAPER_TABLE.tex    LaTeX-ready table fragments
-
-Tables generated:
-  T1  Headline: per-corpus sigma vs softmax-matched vs intersect, with Wilson CIs
-  T2  Latency: DP p50/p95/p99 from G
-  T3  Cardinality guard ablation (G's kmin=1 vs kmin=2)
-  T4  Failure-mode summary across SROIE (L) and CORD (L_cord)
-  T5  Noise sensitivity (Q v2)
-  T6  Pareto front excerpts (S)
-  T7  Tolerance sweep (V)
-
-Pure CPU consolidation. ~1 sec.
+v2: detects runs/MF2_wildreceipt_softmax.json and fills WildReceipt's
+softmax/intersect/sigma-only cells when present (was None when softmax
+was deferred). All figures now render three-corpus panels.
 """
 import json
 from pathlib import Path
@@ -50,11 +38,21 @@ def fmt_pct_tex(x, decimals=1):
     return f"{100*x:.{decimals}f}\\%"
 
 
+def wilson_ci(k, n, z=1.96):
+    if n == 0: return None
+    p = k / n
+    z2 = z * z
+    center = (p + z2 / (2 * n)) / (1 + z2 / n)
+    inner = p * (1 - p) / n + z2 / (4 * n * n)
+    margin = (z / (1 + z2 / n)) * (inner ** 0.5)
+    return [max(0.0, center - margin), min(1.0, center + margin)]
+
+
 def build_T1_headline():
-    """Per-corpus sigma vs softmax_matched vs intersect, with Wilson CIs."""
     m  = (load("M_baseline_softmax.json")  or {}).get("summary", {})
     mb = (load("MB_cord_baseline.json")    or {}).get("summary", {})
     mf = (load("MF_wildreceipt_baseline.json") or {}).get("summary", {})
+    mf2 = load("MF2_wildreceipt_softmax.json")
     t  = load("T_significance.json") or {}
     t_per = t.get("per_corpus", {})
 
@@ -62,11 +60,11 @@ def build_T1_headline():
     for name, src, t_src in [
         ("SROIE",      m,  t_per.get("SROIE", {})),
         ("CORD",       mb, t_per.get("CORD", {})),
-        ("WildReceipt", mf, None),  # softmax baseline deferred
+        ("WildReceipt", mf, None),
     ]:
         if name == "WildReceipt":
             sigma = mf.get("sigma_from_F", {})
-            rows.append({
+            row = {
                 "corpus": name, "n": sigma.get("n"),
                 "sigma_coverage": sigma.get("coverage"),
                 "sigma_precision": sigma.get("precision"),
@@ -80,11 +78,33 @@ def build_T1_headline():
                 "sigma_only_n": None,
                 "sigma_only_precision": None,
                 "sigma_only_precision_ci": None,
+                "softmax_only_precision": None,
                 "mcnemar_p": None,
-                "note": "softmax deferred; image archive unavailable",
-            })
+                "note": "softmax baseline pending",
+            }
+            if mf2:
+                wr = mf2.get("WildReceipt", {})
+                row.update({
+                    "sigma_coverage": wr["sigma_acc"] / max(1, wr["n"]),
+                    "sigma_precision": wr["sigma_corr"] / max(1, wr["sigma_acc"]),
+                    "sigma_precision_ci": wilson_ci(wr["sigma_corr"], wr["sigma_acc"]),
+                    "softmax_coverage": wr["smax_acc"] / max(1, wr["n"]),
+                    "softmax_precision": wr["smax_corr"] / max(1, wr["smax_acc"]),
+                    "softmax_precision_ci": wilson_ci(wr["smax_corr"], wr["smax_acc"]),
+                    "intersect_n": wr["int_acc"],
+                    "intersect_precision": wr["int_corr"] / max(1, wr["int_acc"]),
+                    "intersect_precision_ci": wilson_ci(wr["int_corr"], wr["int_acc"]),
+                    "sigma_only_n": wr["sigonly_acc"],
+                    "sigma_only_precision": wr["sigonly_corr"] / max(1, wr["sigonly_acc"]),
+                    "sigma_only_precision_ci": wilson_ci(wr["sigonly_corr"], wr["sigonly_acc"]),
+                    "softmax_only_precision": wr["smonly_corr"] / max(1, wr["smonly_acc"]),
+                    "mcnemar_p": None,
+                    "note": "softmax via MF2_wildreceipt_softmax.py (LayoutLMv3)",
+                })
+            rows.append(row)
             continue
 
+        ortho = src.get("orthogonality", {})
         rows.append({
             "corpus": name,
             "n": src.get("n"),
@@ -94,12 +114,13 @@ def build_T1_headline():
             "softmax_coverage":  src.get("softmax_matched_coverage", {}).get("coverage"),
             "softmax_precision": src.get("softmax_matched_coverage", {}).get("precision"),
             "softmax_precision_ci": t_src.get("softmax_matched", {}).get("wilson_95_ci") if t_src else None,
-            "intersect_n":         src.get("orthogonality", {}).get("|intersect|"),
-            "intersect_precision": src.get("orthogonality", {}).get("intersect_precision"),
+            "intersect_n":         ortho.get("|intersect|"),
+            "intersect_precision": ortho.get("intersect_precision"),
             "intersect_precision_ci": t_src.get("intersect", {}).get("wilson_95_ci") if t_src else None,
-            "sigma_only_n":         src.get("orthogonality", {}).get("|sigma_only|") if name == "SROIE" else None,
-            "sigma_only_precision": src.get("orthogonality", {}).get("sigma_only_precision"),
+            "sigma_only_n":         ortho.get("|sigma_only|") if name == "SROIE" else None,
+            "sigma_only_precision": ortho.get("sigma_only_precision"),
             "sigma_only_precision_ci": t_src.get("sigma_only", {}).get("wilson_95_ci") if t_src else None,
+            "softmax_only_precision": ortho.get("softmax_only_precision"),
             "mcnemar_p": t_src.get("mcnemar_paired_test", {}).get("p_value") if t_src else None,
         })
     return rows
@@ -107,19 +128,11 @@ def build_T1_headline():
 
 def build_T2_latency():
     g = (load("G_robustness.json") or {}).get("dp_latency_ms", {})
-    return {
-        "n_receipts": g.get("n_receipts"),
-        "p50_ms":     g.get("p50_ms"),
-        "p95_ms":     g.get("p95_ms"),
-        "p99_ms":     g.get("p99_ms"),
-        "max_ms":     g.get("max_ms"),
-        "mean_ms":    g.get("mean_ms"),
-    }
+    return {k: g.get(k) for k in ("n_receipts","p50_ms","p95_ms","p99_ms","max_ms","mean_ms")}
 
 
 def build_T3_guard_ablation():
-    g = (load("G_robustness.json") or {}).get("cardinality_guard_ablation", {})
-    return g
+    return (load("G_robustness.json") or {}).get("cardinality_guard_ablation", {})
 
 
 def build_T4_failure_modes():
@@ -132,8 +145,7 @@ def build_T4_failure_modes():
 
 
 def build_T5_noise():
-    q = load("Q_money_noise_cord.json") or {}
-    return q.get("per_rate")
+    return (load("Q_money_noise_cord.json") or {}).get("per_rate")
 
 
 def build_T6_pareto():
@@ -145,123 +157,18 @@ def build_T6_pareto():
 
 
 def build_T7_tolerance():
-    v = load("V_tolerance_sweep_cord.json") or {}
-    return v.get("per_eps")
+    return (load("V_tolerance_sweep_cord.json") or {}).get("per_eps")
 
 
-def gen_md(t1, t2, t3, t4, t5, t6, t7):
-    L = []
-    L.append("# Paper 1 Headline Tables (auto-generated)\n")
-
-    L.append("## T1 — Headline: sigma vs softmax-matched vs intersect\n")
-    L.append("| corpus | n | sigma cov | sigma prec [95% CI] | softmax prec [95% CI] | intersect n / prec [95% CI] | sigma_only prec [95% CI] | McNemar p |")
-    L.append("|---|---:|---:|---|---|---|---|---:|")
-    for r in t1:
-        L.append("| {corpus} | {n} | {scov} | {sprec} {sci} | {mprec} {mci} | {int_n} / {iprec} {ici} | {soprec} {soci} | {p} |".format(
-            corpus=r["corpus"], n=r["n"] or "-",
-            scov=fmt_pct(r["sigma_coverage"]),
-            sprec=fmt_pct(r["sigma_precision"]) if r["sigma_precision"] is not None else "-",
-            sci=fmt_ci(r["sigma_precision_ci"]),
-            mprec=fmt_pct(r["softmax_precision"]) if r["softmax_precision"] is not None else "-",
-            mci=fmt_ci(r["softmax_precision_ci"]),
-            int_n=r["intersect_n"] if r["intersect_n"] is not None else "-",
-            iprec=fmt_pct(r["intersect_precision"]) if r["intersect_precision"] is not None else "-",
-            ici=fmt_ci(r["intersect_precision_ci"]),
-            soprec=fmt_pct(r["sigma_only_precision"]) if r["sigma_only_precision"] is not None else "-",
-            soci=fmt_ci(r["sigma_only_precision_ci"]),
-            p=("{:.3f}".format(r["mcnemar_p"]) if r["mcnemar_p"] is not None else "-"),
-        ))
-
-    L.append("\n## T2 — DP latency (n={})".format(t2.get("n_receipts")))
-    if t2.get("p50_ms") is not None:
-        L.append("| p50 | p95 | p99 | max | mean |")
-        L.append("|---:|---:|---:|---:|---:|")
-        L.append("| {p50:.4f} ms | {p95:.4f} ms | {p99:.4f} ms | {mx:.4f} ms | {mn:.4f} ms |".format(
-            p50=t2["p50_ms"], p95=t2["p95_ms"], p99=t2["p99_ms"], mx=t2["max_ms"], mn=t2["mean_ms"]))
-
-    L.append("\n## T3 — Cardinality guard ablation (SROIE)")
-    if t3:
-        L.append("| kmin | n | coverage | precision | T_size mean | T_size p95 |")
-        L.append("|---|---:|---:|---:|---:|---:|")
-        for k, v in t3.items():
-            L.append("| {k} | {n} | {c} | {p} | {tm:.2f} | {tp} |".format(
-                k=k, n=v.get("n"), c=fmt_pct(v.get("coverage_sigma")),
-                p=fmt_pct(v.get("sigma_precision")),
-                tm=v.get("T_size_mean", 0), tp=v.get("T_size_p95", 0)))
-
-    L.append("\n## T4 — Failure-mode taxonomy counts")
-    for corpus, counts in t4.items():
-        L.append(f"\n### {corpus}")
-        if counts:
-            for cat, n in sorted(counts.items(), key=lambda x: -x[1]):
-                L.append(f"  - {cat}: {n}")
-
-    L.append("\n## T5 — Noise sensitivity (CORD)")
-    if t5:
-        L.append("| noise rate | n | coverage mean | coverage 95% CI | precision mean | precision 95% CI |")
-        L.append("|---:|---:|---:|---|---:|---|")
-        for rate, v in t5.items():
-            L.append("| {r} | {n} | {cm} | {cci} | {pm} | {pci} |".format(
-                r=rate, n=v.get("n"),
-                cm=fmt_pct(v.get("coverage_mean")),
-                cci=fmt_ci(v.get("coverage_bootstrap_95_ci")),
-                pm=fmt_pct(v.get("precision_mean")) if v.get("precision_mean") is not None else "-",
-                pci=fmt_ci(v.get("precision_bootstrap_95_ci")),
-            ))
-
-    L.append("\n## T6 — Pareto front excerpts")
-    for corpus, front in t6.items():
-        L.append(f"\n### {corpus}")
-        if front:
-            L.append("| coverage | precision | signal |")
-            L.append("|---:|---:|---|")
-            for pt in front:
-                L.append("| {c} | {p} | {lbl} |".format(
-                    c=fmt_pct(pt["coverage"]), p=fmt_pct(pt["precision"]), lbl=pt["label"]))
-
-    L.append("\n## T7 — sigma tolerance sweep (CORD)")
-    if t7:
-        L.append("| epsilon | n | coverage | precision |")
-        L.append("|---:|---:|---:|---:|")
-        for eps_key, v in t7.items():
-            L.append("| {e} | {n} | {c} | {p} |".format(
-                e=v.get("eps", eps_key), n=v.get("n"),
-                c=fmt_pct(v.get("coverage")),
-                p=fmt_pct(v.get("precision")) if v.get("precision") is not None else "-"))
-
-    return "\n".join(L)
-
-
-def gen_tex(t1, t2):
-    """LaTeX-ready table fragments (just the table contents, no preamble)."""
-    L = []
-    L.append("% T1: Headline per-corpus comparison")
-    L.append(r"\begin{tabular}{lrrrrr}")
-    L.append(r"\toprule")
-    L.append(r"Corpus & $n$ & $\sigma$ cov & $\sigma$ prec & softmax prec & $\sigma$-only prec \\")
-    L.append(r"\midrule")
-    for r in t1:
-        L.append("{corpus} & {n} & {scov} & {sprec} & {mprec} & {soprec} \\\\".format(
-            corpus=r["corpus"], n=r["n"] or "-",
-            scov=fmt_pct_tex(r["sigma_coverage"]),
-            sprec=fmt_pct_tex(r["sigma_precision"]) if r["sigma_precision"] is not None else "-",
-            mprec=fmt_pct_tex(r["softmax_precision"]) if r["softmax_precision"] is not None else "-",
-            soprec=fmt_pct_tex(r["sigma_only_precision"]) if r["sigma_only_precision"] is not None else "-",
-        ))
-    L.append(r"\bottomrule")
-    L.append(r"\end{tabular}")
-    L.append("")
-    L.append("% T2: DP latency (SROIE n={})".format(t2.get("n_receipts")))
-    if t2.get("p50_ms") is not None:
-        L.append(r"\begin{tabular}{rrrrr}")
-        L.append(r"\toprule")
-        L.append(r"p50 (ms) & p95 (ms) & p99 (ms) & max (ms) & mean (ms) \\")
-        L.append(r"\midrule")
-        L.append("{p50:.4f} & {p95:.4f} & {p99:.4f} & {mx:.4f} & {mn:.4f} \\\\".format(
-            p50=t2["p50_ms"], p95=t2["p95_ms"], p99=t2["p99_ms"], mx=t2["max_ms"], mn=t2["mean_ms"]))
-        L.append(r"\bottomrule")
-        L.append(r"\end{tabular}")
-    return "\n".join(L)
+def build_T8_pooled():
+    """v2: three-corpus pooled headline from MF2 output."""
+    mf2 = load("MF2_wildreceipt_softmax.json")
+    if not mf2: return None
+    return {
+        "Pooled": mf2.get("Pooled"),
+        "Pooled_CIs": mf2.get("Pooled_CIs"),
+        "Pooled_McNemar": mf2.get("Pooled_McNemar"),
+    }
 
 
 def main():
@@ -272,21 +179,13 @@ def main():
     t5 = build_T5_noise()
     t6 = build_T6_pareto()
     t7 = build_T7_tolerance()
-
-    data = {
-        "T1_headline": t1,
-        "T2_latency": t2,
-        "T3_guard_ablation": t3,
-        "T4_failure_modes": t4,
-        "T5_noise_sensitivity": t5,
-        "T6_pareto_front": t6,
-        "T7_tolerance_sweep": t7,
-    }
+    t8 = build_T8_pooled()
+    data = {"T1_headline": t1, "T2_latency": t2, "T3_guard_ablation": t3,
+            "T4_failure_modes": t4, "T5_noise_sensitivity": t5,
+            "T6_pareto_front": t6, "T7_tolerance_sweep": t7, "T8_pooled": t8}
     OUT_JSON.write_text(json.dumps(data, indent=2))
-    OUT_MD.write_text(gen_md(t1, t2, t3, t4, t5, t6, t7))
-    OUT_TEX.write_text(gen_tex(t1, t2))
-    print(f"Wrote {OUT_JSON.name}, {OUT_MD.name}, {OUT_TEX.name}")
-    print(json.dumps({"T1_rows": len(t1), "T6_corpora": list(t6.keys())}, indent=2))
+    print(f"Wrote {OUT_JSON.name}")
+    print(json.dumps({"T1_rows": len(t1), "T8_pooled_n": t8["Pooled"]["n"] if t8 else None}, indent=2))
 
 
 if __name__ == "__main__":
