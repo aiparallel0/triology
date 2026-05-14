@@ -54,7 +54,6 @@ def softmax_score(tok_ids, scores, pad_id):
 
 def main():
     t0 = time.time()
-    # Load B's results
     b_in_T, b_correct = {}, {}
     if B_OUT.exists():
         b = json.loads(B_OUT.read_text())
@@ -67,7 +66,8 @@ def main():
 
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
-    start_id = model.config.decoder_start_token_id
+    # DONUT-CORD uses <s_cord-v2> as the task-prompting decoder start token (same pattern as C/J scripts).
+    dec_one = processor.tokenizer("<s_cord-v2>", add_special_tokens=False, return_tensors="pt").input_ids
     pad_id = processor.tokenizer.pad_token_id
 
     ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
@@ -86,16 +86,19 @@ def main():
         if not valid: continue
         idxs, vimgs = zip(*valid)
         px = processor(list(vimgs), return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
+        dec = dec_one.repeat(len(vimgs), 1).to("cuda")
         with torch.inference_mode():
             out = model.generate(
-                px, max_length=512, num_beams=1,
+                px, decoder_input_ids=dec,
+                max_length=512, num_beams=1,
                 pad_token_id=pad_id,
-                decoder_start_token_id=start_id,
                 output_scores=True, return_dict_in_generate=True,
             )
         seqs = out.sequences
+        # Skip the prompt tokens (dec.size(1)) when extracting generated tokens for scoring
+        prompt_len = dec.size(1)
         for b, ex_idx in enumerate(idxs):
-            tok_ids = seqs[b, 1:].tolist()
+            tok_ids = seqs[b, prompt_len:].tolist()
             score_per_step = [s[b].clone() for s in out.scores]
             sm = softmax_score(tok_ids, score_per_step, pad_id)
             text = processor.tokenizer.decode(seqs[b], skip_special_tokens=False)
