@@ -74,13 +74,15 @@ the two gates accept similar numbers of correct receipts on
 exploits.
 \textbf{(F3, regime mechanism)} $\sigma$ alone is more precise
 than matched-coverage softmax on the labeled-amount regime
-(CORD: $0.982$ vs.\ $0.927$); less precise on the OCR regime
-(SROIE: $0.867$ vs.\ $0.947$); equally precise on the
-encoder-only regime (WildReceipt: $0.953$ vs.\ $0.953$). A
-per-receipt failure taxonomy locates the gap mechanistically in
-$\tau$-extraction quality and on WildReceipt shows that even
-\emph{equal} single-gate precision yields a strictly better
-intersection.
+(CORD: $0.982$ vs.\ $0.927$); equally precise on the encoder-only
+regime (WildReceipt: $0.953$ vs.\ $0.953$); less precise only on
+the OCR regime (SROIE: $0.867$ vs.\ $0.947$). SROIE is the sole
+inversion regime, and we localise the cause to OCR-derived $M$:
+digit confusions and phantom amounts grow the reachable set
+$T(M)$ in directions that admit wrong totals as witnesses.
+On the two non-OCR regimes, $\sigma$ either dominates or ties
+softmax single-gate, and the intersection rises strictly above
+both on every corpus.
 We additionally show $\sigma$ precision is stable in
 $[0.949, 0.980]$ under up to $40\%$ synthetic money-line noise,
 the tolerance $\varepsilon$ is not load-bearing on CORD, and the
@@ -431,8 +433,14 @@ no\_pred / no\_money & 4 & 3/4 & parser-degenerate \\
 \end{table}
 
 Single-gate $\sigma$ precision differs across regimes: CORD
-$0.982$, SROIE $0.867$, WildReceipt $0.953$. On CORD, $79\%$
-of $\sigma$ failures (the $19$ \texttt{no\_feasible} cases in
+$0.982$, SROIE $0.867$, WildReceipt $0.953$. \textbf{SROIE is
+the sole regime where $\sigma$ underperforms matched-coverage
+softmax}; on CORD $\sigma$ beats softmax by $5.5$~percentage
+points ($0.982$ vs.\ $0.927$) and on WildReceipt the two
+single gates tie exactly at $0.953$. The SROIE drop is not a
+verifier failure --- it is an OCR-quality failure transmitted
+through $M$ (Section~\ref{sec:discussion}). On CORD, $79\%$ of
+$\sigma$ failures (the $19$ \texttt{no\_feasible} cases in
 bucket~1) are single-money receipts where no $|S|{\geq}2$
 witness can exist by construction
 (Table~\ref{tab:failure-cord}). On SROIE, the analogous
@@ -441,7 +449,7 @@ driven by OCR-introduced phantom amounts. On WildReceipt,
 where $\sigma$ and softmax achieve \emph{equal} single-gate
 precision (both $0.953$), the intersection still rises to
 $0.991$ --- showing that the value of $\sigma$ is not ``beats
-softmax'' but ``fails on different inputs''.
+softmax everywhere'' but ``fails on different inputs''.
 
 \subsection{Cardinality-guard ablation}
 \label{sec:results-ablation}
@@ -541,12 +549,20 @@ gate is operationally free.
 \section{Discussion}
 \label{sec:discussion}
 
-\noindent\textbf{Why $\sigma$ wins on CORD and loses on SROIE
-in isolation.} CORD's $M$ is annotated and complete; SROIE's
-$M$ is OCR-derived and \emph{noisy}: digit confusions and
-phantom amounts grow $T(M)$ in directions that admit wrong
-totals as witnesses. $\sigma$'s precision drop is an OCR
-artefact, not a verifier failure.
+\noindent\textbf{SROIE is the only inversion regime, and the
+cause is OCR not the verifier.} On the two corpora where $M$
+is given by reliable annotations --- CORD's per-field JSON
+and WildReceipt's per-token labels --- $\sigma$ either beats
+matched-coverage softmax outright (CORD: $0.982$ vs.\ $0.927$)
+or ties it exactly (WildReceipt: $0.953$ vs.\ $0.953$). SROIE
+is the sole corpus where $\sigma$ underperforms softmax
+in isolation, and $M$ on SROIE is OCR-derived. Digit
+confusions and phantom amounts grow the reachable set $T(M)$
+in directions that admit wrong totals as witnesses. $\sigma$'s
+precision drop on SROIE is therefore an upstream-OCR artefact
+transmitted through $M$, not a failure mode of the
+subset-sum verifier itself --- and on every corpus the
+intersection still rises strictly above both single gates.
 
 \noindent\textbf{Why the intersection wins even when $\sigma$
 and softmax are equally precise.} On WildReceipt the two
@@ -617,11 +633,13 @@ regimes;
 ($\chi^2{=}0.012$, $p{=}0.912$, $b{=}163, c{=}166$), with
 WildReceipt $b{=}c{=}91$ exactly --- the orthogonality the
 intersection exploits;
-\textbf{(F3)} a regime-mechanistic explanation including the
-encoder-only WildReceipt case where $\sigma$ and softmax are
-equally precise alone but their intersection rises to
-$113/114$. The verifier adds $0.0016\%$ to end-to-end latency
-and is precision-stable under up to $40\%$ money-line noise.
+\textbf{(F3)} a regime-mechanistic explanation in which SROIE
+is the sole single-gate inversion (and its cause localised to
+OCR-derived $M$, not the verifier), CORD is a $\sigma$-win,
+WildReceipt is a $\sigma$/softmax tie that still yields
+$113/114$ on the intersection. The verifier adds $0.0016\%$
+to end-to-end latency and is precision-stable under up to
+$40\%$ money-line noise.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
