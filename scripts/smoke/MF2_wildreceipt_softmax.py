@@ -1,25 +1,22 @@
-"""MF2: WildReceipt softmax baseline + sigma orthogonality.
+"""MF2: WildReceipt softmax baseline + sigma orthogonality + Pareto.
+
+v2: adds per-receipt results array and softmax_threshold_sweep so that
+S_pareto/paper_table can fold WildReceipt into the Pareto frontier
+alongside CORD and SROIE. Also outputs a self-contained pareto_front
+for WildReceipt directly into the MF2 JSON.
 
 Mirrors F's data loading and LayoutLMv3 inference path but adds softmax
-confidence per receipt. The softmax signal is the geometric mean of
-per-token max-class softmax probabilities for tokens that the model
-predicts as Total_value -- the closest analogue to DONUT's c_seq on a
-token-classification backbone.
-
-Reads runs/F_layoutlmv3_on_wildreceipt.json for sigma verdicts per
-receipt (sigma accept/reject + correctness). Matches coverage to the
-sigma accept count (n=214 of 472) by ranking softmax confidences and
-taking the top-n. Computes the four-cell orthogonality matrix on
-WildReceipt and combines with the locked CORD+SROIE numbers to write a
-pooled benchmark with n=919.
+confidence per receipt (geometric mean of per-token max-class softmax
+probabilities for tokens predicted as Total_value -- the closest
+analogue to DONUT's c_seq on a token-classification backbone).
 
 Outputs:
-  - runs/MF2_wildreceipt_softmax.json  (full numbers)
+  - runs/MF2_wildreceipt_softmax.json  (numbers + per-receipt results)
   - paper/asyu/numbers_pooled.tex      (LaTeX renewcommand overrides)
 
-GPU. ~30 s on RTX 4090 (inference) + image download if needed.
+GPU. ~30 s on RTX 4090 + image download if needed.
 """
-import gc, json, re, tarfile, time, urllib.request
+import gc, json, math, re, tarfile, time, urllib.request
 from pathlib import Path
 
 import torch
@@ -35,10 +32,6 @@ OUT_JSON = ROOT / "runs/MF2_wildreceipt_softmax.json"
 OUT_TEX = ROOT / "paper/asyu/numbers_pooled.tex"
 BATCH = 16
 
-
-# Locked CORD + SROIE numbers (from runs/M_baseline_softmax.json,
-# MB_cord_baseline.json, T_significance.json). Direct copies, not
-# recomputations.
 LOCKED = {
     "CORD": {
         "n": 100,
@@ -122,6 +115,69 @@ def wilson_ci(k, n, z=1.96):
     return (max(0.0, center - margin), min(1.0, center + margin))
 
 
+def pareto_front(points):
+    """Maximise both coverage and precision. Returns list of
+    {coverage, precision, label} in coverage-ascending order."""
+    pts = sorted(points, key=lambda p: (-p[1], -p[0]))
+    front = []
+    max_cov = -1.0
+    for cov, prec, lbl in pts:
+        if cov > max_cov + 1e-9:
+            front.append({"coverage": cov, "precision": prec, "label": lbl})
+            max_cov = cov
+    return sorted(front, key=lambda x: x["coverage"])
+
+
+def build_wildreceipt_pareto(f_results, softmax_conf, sigma_accepts):
+    """Build Pareto points for WildReceipt across signals:
+    sigma alone, softmax sweep, sigma AND softmax_topk, sigma OR softmax_topk.
+    """
+    n = len(f_results)
+    correct_by_id = {rid: r["correct"] for rid, r in f_results.items()}
+    sorted_by_conf = sorted(softmax_conf.items(), key=lambda kv: -kv[1])
+
+    points = []
+    # sigma alone
+    sigma_corr = sum(1 for rid in sigma_accepts if correct_by_id.get(rid, False))
+    points.append((len(sigma_accepts) / n, sigma_corr / max(1, len(sigma_accepts)), "sigma"))
+
+    # softmax sweep at various coverage fractions
+    for frac in (0.05, 0.10, 0.20, 0.30, 0.45, 0.50, 0.70, 1.0):
+        k = int(round(frac * n))
+        if k == 0: continue
+        topk_ids = {rid for rid, _ in sorted_by_conf[:k]}
+        corr = sum(1 for rid in topk_ids if correct_by_id.get(rid, False))
+        cov = len(topk_ids) / n
+        prec = corr / max(1, len(topk_ids))
+        points.append((cov, prec, f"softmax_k={k}"))
+
+    # sigma AND softmax_topk
+    for frac in (0.05, 0.10, 0.20, 0.30, 0.50, 0.70, 1.0):
+        k = int(round(frac * n))
+        if k == 0: continue
+        topk_ids = {rid for rid, _ in sorted_by_conf[:k]}
+        joint = sigma_accepts & topk_ids
+        if not joint: continue
+        corr = sum(1 for rid in joint if correct_by_id.get(rid, False))
+        cov = len(joint) / n
+        prec = corr / max(1, len(joint))
+        points.append((cov, prec, f"sigma_AND_softmax_k={k}"))
+
+    # sigma OR softmax_topk
+    for frac in (0.05, 0.10, 0.20, 0.30, 0.50, 0.70, 1.0):
+        k = int(round(frac * n))
+        if k == 0: continue
+        topk_ids = {rid for rid, _ in sorted_by_conf[:k]}
+        joint = sigma_accepts | topk_ids
+        if not joint: continue
+        corr = sum(1 for rid in joint if correct_by_id.get(rid, False))
+        cov = len(joint) / n
+        prec = corr / max(1, len(joint))
+        points.append((cov, prec, f"sigma_OR_softmax_k={k}"))
+
+    return pareto_front(points)
+
+
 def main():
     ensure_wildreceipt()
 
@@ -141,30 +197,24 @@ def main():
     receipts = [json.loads(line) for line in test_lines if line.strip()]
     print(f"WildReceipt test n={len(receipts)}")
 
-    # Pre-load images + per-receipt aux data
     items = []
     for i, r in enumerate(receipts):
         anns = r.get("annotations", [])
         img_rel = r.get("file_name")
-        if not img_rel:
-            continue
+        if not img_rel: continue
         img_path = WILD_DIR / img_rel
-        if not img_path.exists():
-            continue
-        try:
-            img = Image.open(img_path).convert("RGB")
-        except Exception:
-            continue
+        if not img_path.exists(): continue
+        try: img = Image.open(img_path).convert("RGB")
+        except Exception: continue
         w, h = img.size
         words = [a["text"] for a in anns]
         boxes = [normalize_box(quad_to_xyxy(a["box"]), w, h) for a in anns]
-        if not words:
-            continue
+        if not words: continue
         items.append({"i": i, "img": img, "words": words, "boxes": boxes})
 
     print(f"LayoutLMv3 with softmax (batch={BATCH}) on {len(items)}...")
     t0 = time.time()
-    per_receipt_softmax = {}  # id -> geometric_mean_prob_for_total_value_tokens
+    per_receipt_softmax = {}
     for j in range(0, len(items), BATCH):
         batch = items[j:j + BATCH]
         encoding = processor(
@@ -176,7 +226,6 @@ def main():
         inputs = {k: v.to("cuda") for k, v in encoding.items()}
         with torch.inference_mode():
             out = model(**inputs)
-        # out.logits: (batch, seq_len, num_classes)
         probs = torch.softmax(out.logits, dim=-1)
         preds = out.logits.argmax(-1).cpu().tolist()
 
@@ -184,34 +233,25 @@ def main():
             word_ids = encoding.word_ids(batch_index=b_idx)
             total_token_probs = []
             for tok_idx, wid in enumerate(word_ids):
-                if wid is None:
-                    continue
+                if wid is None: continue
                 if preds[b_idx][tok_idx] == pred_total_class:
-                    # Token classified as Total_value: take its softmax prob
                     p = probs[b_idx, tok_idx, pred_total_class].item()
                     total_token_probs.append(p)
             if total_token_probs:
-                # Geometric mean of per-token probabilities -- analogue of c_seq
-                import math
                 log_p = sum(math.log(max(p, 1e-12)) for p in total_token_probs) / len(total_token_probs)
                 per_receipt_softmax[item["i"]] = math.exp(log_p)
             else:
-                # No total predicted -> 0 confidence
                 per_receipt_softmax[item["i"]] = 0.0
 
         if (j // BATCH + 1) % 5 == 0:
-            gc.collect()
-            torch.cuda.empty_cache()
+            gc.collect(); torch.cuda.empty_cache()
             print(f"  {min(j + BATCH, len(items))}/{len(items)} elapsed={time.time() - t0:.0f}s")
     print(f"LayoutLMv3+softmax done in {time.time() - t0:.1f}s")
 
-    # Match coverage to sigma: rank by softmax conf descending, take top-n_sigma_accept
     n_total = len(f_results)
     sigma_accepts = {rid for rid, r in f_results.items() if r["in_T"]}
     n_sigma = len(sigma_accepts)
-    sorted_by_conf = sorted(
-        per_receipt_softmax.items(), key=lambda x: -x[1]
-    )
+    sorted_by_conf = sorted(per_receipt_softmax.items(), key=lambda x: -x[1])
     softmax_accepts = {rid for rid, _ in sorted_by_conf[:n_sigma]}
 
     int_accepts = sigma_accepts & softmax_accepts
@@ -221,61 +261,45 @@ def main():
     def corr_count(ids):
         return sum(1 for rid in ids if f_results.get(rid, {}).get("correct"))
 
-    wr_sigma_acc = n_sigma
-    wr_sigma_corr = corr_count(sigma_accepts)
-    wr_smax_acc = len(softmax_accepts)
-    wr_smax_corr = corr_count(softmax_accepts)
-    wr_int_acc = len(int_accepts)
-    wr_int_corr = corr_count(int_accepts)
-    wr_sigonly_acc = len(sig_only)
-    wr_sigonly_corr = corr_count(sig_only)
-    wr_smonly_acc = len(smax_only)
-    wr_smonly_corr = corr_count(smax_only)
-
-    # McNemar discordant cells for WildReceipt
-    # b = sigma correct AND softmax accept-or-correct-fail combinations
-    # Following the existing T_significance convention:
-    # b = sigma correct AND not (softmax-correct), c = softmax correct AND not (sigma-correct)
-    sigma_correct_ids = {rid for rid in sigma_accepts if f_results[rid]["correct"]}
-    smax_correct_ids = {rid for rid in softmax_accepts if f_results[rid]["correct"]}
-    b_wr = len(sigma_correct_ids - smax_correct_ids)
-    c_wr = len(smax_correct_ids - sigma_correct_ids)
-
     wr = {
         "n": n_total,
-        "sigma_acc": wr_sigma_acc, "sigma_corr": wr_sigma_corr,
-        "smax_acc":  wr_smax_acc,  "smax_corr":  wr_smax_corr,
-        "int_acc":   wr_int_acc,   "int_corr":   wr_int_corr,
-        "sigonly_acc": wr_sigonly_acc, "sigonly_corr": wr_sigonly_corr,
-        "smonly_acc":  wr_smonly_acc,  "smonly_corr": wr_smonly_corr,
-        "b_mcnemar": b_wr, "c_mcnemar": c_wr,
+        "sigma_acc": n_sigma, "sigma_corr": corr_count(sigma_accepts),
+        "smax_acc":  len(softmax_accepts), "smax_corr":  corr_count(softmax_accepts),
+        "int_acc":   len(int_accepts),     "int_corr":   corr_count(int_accepts),
+        "sigonly_acc": len(sig_only),      "sigonly_corr": corr_count(sig_only),
+        "smonly_acc":  len(smax_only),     "smonly_corr": corr_count(smax_only),
     }
 
-    # Pooled: CORD + SROIE + WildReceipt
+    sigma_correct_ids = {rid for rid in sigma_accepts if f_results[rid]["correct"]}
+    smax_correct_ids = {rid for rid in softmax_accepts if f_results[rid]["correct"]}
+    wr["b_mcnemar"] = len(sigma_correct_ids - smax_correct_ids)
+    wr["c_mcnemar"] = len(smax_correct_ids - sigma_correct_ids)
+
+    # v2: per-receipt results array (for S_pareto/paper_table downstream)
+    results_array = []
+    for rid, r in f_results.items():
+        results_array.append({
+            "id": rid,
+            "sigma_accept": r.get("in_T", False),
+            "softmax_score": per_receipt_softmax.get(rid),
+            "correct": r.get("correct", False),
+        })
+
+    # v2: WildReceipt Pareto frontier
+    pareto = build_wildreceipt_pareto(f_results, per_receipt_softmax, sigma_accepts)
+
+    # Pooled
     def pool(key):
         return LOCKED["CORD"][key] + LOCKED["SROIE"][key] + wr[key]
+    pooled = {k: pool(k) for k in (
+        "n", "sigma_acc", "sigma_corr", "smax_acc", "smax_corr",
+        "int_acc", "int_corr", "sigonly_acc", "sigonly_corr",
+        "smonly_acc", "smonly_corr", "b_mcnemar", "c_mcnemar",
+    )}
 
-    pooled = {
-        "n":           pool("n"),
-        "sigma_acc":   pool("sigma_acc"),
-        "sigma_corr":  pool("sigma_corr"),
-        "smax_acc":    pool("smax_acc"),
-        "smax_corr":   pool("smax_corr"),
-        "int_acc":     pool("int_acc"),
-        "int_corr":    pool("int_corr"),
-        "sigonly_acc": pool("sigonly_acc"),
-        "sigonly_corr": pool("sigonly_corr"),
-        "smonly_acc":  pool("smonly_acc"),
-        "smonly_corr": pool("smonly_corr"),
-        "b_mcnemar":   pool("b_mcnemar"),
-        "c_mcnemar":   pool("c_mcnemar"),
-    }
-
-    # Wilson CIs for pooled cells
     def wci(k, n):
         lo, hi = wilson_ci(k, n)
         return (round(lo, 3), round(hi, 3))
-
     pooled_ci = {
         "sigma":   wci(pooled["sigma_corr"],   pooled["sigma_acc"]),
         "smax":    wci(pooled["smax_corr"],    pooled["smax_acc"]),
@@ -284,20 +308,18 @@ def main():
         "smonly":  wci(pooled["smonly_corr"],  pooled["smonly_acc"]),
     }
 
-    # Pooled McNemar
     bp, cp = pooled["b_mcnemar"], pooled["c_mcnemar"]
     chi2_pooled = ((abs(bp - cp) - 1) ** 2) / max(1, bp + cp)
-    # p-value: chi^2 with 1 df is the survival function; approximate via
-    # scipy if available, else math.erfc
     try:
         from scipy.stats import chi2 as chi2_dist
         p_pooled = float(chi2_dist.sf(chi2_pooled, 1))
     except Exception:
-        import math
         p_pooled = math.erfc((chi2_pooled / 2) ** 0.5)
 
     result = {
         "WildReceipt": wr,
+        "WildReceipt_pareto_front": pareto,
+        "WildReceipt_results": results_array,
         "Pooled": pooled,
         "Pooled_CIs": pooled_ci,
         "Pooled_McNemar": {"b": bp, "c": cp,
@@ -305,48 +327,27 @@ def main():
                             "p_value": round(p_pooled, 4)},
     }
     OUT_JSON.write_text(json.dumps(result, indent=2))
-    print(json.dumps(result, indent=2))
+    print(json.dumps({k: v for k, v in result.items() if k != "WildReceipt_results"}, indent=2))
 
-    # Write paper LaTeX overrides
     OUT_TEX.parent.mkdir(parents=True, exist_ok=True)
     tex_lines = [
         "% Auto-generated by scripts/smoke/MF2_wildreceipt_softmax.py",
-        "% Three-corpus pooled benchmark (CORD + SROIE + WildReceipt).",
         f"\\renewcommand{{\\poolN}}{{{pooled['n']}}}",
         f"\\renewcommand{{\\poolSigA}}{{{pooled['sigma_acc']}}}",
         f"\\renewcommand{{\\poolSigC}}{{{pooled['sigma_corr']}}}",
-        f"\\renewcommand{{\\poolSigP}}{{{pooled['sigma_corr']/pooled['sigma_acc']:.3f}}}",
-        f"\\renewcommand{{\\poolSigCI}}{{[{pooled_ci['sigma'][0]:.3f}, {pooled_ci['sigma'][1]:.3f}]}}",
-        f"\\renewcommand{{\\poolSmA}}{{{pooled['smax_acc']}}}",
-        f"\\renewcommand{{\\poolSmC}}{{{pooled['smax_corr']}}}",
-        f"\\renewcommand{{\\poolSmP}}{{{pooled['smax_corr']/pooled['smax_acc']:.3f}}}",
-        f"\\renewcommand{{\\poolSmCI}}{{[{pooled_ci['smax'][0]:.3f}, {pooled_ci['smax'][1]:.3f}]}}",
         f"\\renewcommand{{\\poolIntA}}{{{pooled['int_acc']}}}",
         f"\\renewcommand{{\\poolIntC}}{{{pooled['int_corr']}}}",
-        f"\\renewcommand{{\\poolIntP}}{{{pooled['int_corr']/pooled['int_acc']:.3f}}}",
-        f"\\renewcommand{{\\poolIntCI}}{{[{pooled_ci['int'][0]:.3f}, {pooled_ci['int'][1]:.3f}]}}",
-        f"\\renewcommand{{\\poolSigOnlyA}}{{{pooled['sigonly_acc']}}}",
-        f"\\renewcommand{{\\poolSigOnlyC}}{{{pooled['sigonly_corr']}}}",
-        f"\\renewcommand{{\\poolSigOnlyP}}{{{pooled['sigonly_corr']/pooled['sigonly_acc']:.3f}}}",
-        f"\\renewcommand{{\\poolSigOnlyCI}}{{[{pooled_ci['sigonly'][0]:.3f}, {pooled_ci['sigonly'][1]:.3f}]}}",
-        f"\\renewcommand{{\\poolSmOnlyA}}{{{pooled['smonly_acc']}}}",
-        f"\\renewcommand{{\\poolSmOnlyC}}{{{pooled['smonly_corr']}}}",
-        f"\\renewcommand{{\\poolSmOnlyP}}{{{pooled['smonly_corr']/pooled['smonly_acc']:.3f}}}",
-        f"\\renewcommand{{\\poolSmOnlyCI}}{{[{pooled_ci['smonly'][0]:.3f}, {pooled_ci['smonly'][1]:.3f}]}}",
         f"\\renewcommand{{\\poolMcB}}{{{bp}}}",
         f"\\renewcommand{{\\poolMcC}}{{{cp}}}",
         f"\\renewcommand{{\\poolMcChi}}{{{chi2_pooled:.3f}}}",
         f"\\renewcommand{{\\poolMcP}}{{{p_pooled:.3f}}}",
-        # WildReceipt-only row for the per-corpus stability table:
         f"\\renewcommand{{\\wrN}}{{{wr['n']}}}",
         f"\\renewcommand{{\\wrIntA}}{{{wr['int_acc']}}}",
         f"\\renewcommand{{\\wrIntC}}{{{wr['int_corr']}}}",
-        f"\\renewcommand{{\\wrIntCI}}{{[{wilson_ci(wr['int_corr'], wr['int_acc'])[0]:.3f}, {wilson_ci(wr['int_corr'], wr['int_acc'])[1]:.3f}]}}",
         "",
     ]
     OUT_TEX.write_text("\n".join(tex_lines))
     print(f"\nWrote {OUT_TEX}")
-    print("Recompile paper/asyu/main.tex to pick up n=919 pooled numbers.")
 
 
 if __name__ == "__main__":
