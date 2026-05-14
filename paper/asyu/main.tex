@@ -26,16 +26,16 @@ for Generative and Encoder-Only Document Total Extraction}
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/fig_overview.pdf}
-\caption{Pipeline overview. A KIE model emits a predicted total
-$\pi$; the $\sigma$ gate independently verifies $\pi$ against the
-multiset $M$ of monetary amounts extracted from the receipt by
-deciding whether some subset $S{\subseteq}M$ with $|S|{\ge}k_{\min}$
-sums to $\pi$ within tolerance $\varepsilon$. $\sigma$ reads no
-generator logits, so it is statistically orthogonal to softmax
-confidence. On the pooled three-corpus benchmark (CORD-v2, SROIE,
-WildReceipt; $n{=}919$ receipts across two backbones), the
-intersection $\sigma\sqcap\text{softmax}$ has Wilson 95\%
-precision lower bound $0.956$ at point estimate $160/162$.}
+\caption{Per-corpus orthogonality matrix. Bars show
+$\sigma$, matched-coverage softmax, the intersection
+$\sigma\sqcap\text{softmax}$ (hatched, bold annotation), and
+the $\sigma$-only slice. On all three corpora and both
+backbones (Donut for CORD/SROIE, LayoutLMv3 for WildReceipt),
+the intersection precision strictly exceeds both single-gate
+precisions. The intersection on WildReceipt is particularly
+informative: $\sigma$ and softmax achieve identical $0.953$
+single-gate precision, yet their joint accept slice rises to
+$0.991$.}
 \label{fig:overview}
 \end{figure*}
 
@@ -332,6 +332,21 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_accept_venn.pdf}
+\caption{Accept-set Venn per corpus. $\sigma$ and matched
+softmax accept the same number of receipts on each corpus
+(left and right circles). The centre region is the joint
+slice $\sigma\sqcap\text{softmax}$ with its precision
+annotated in bold; its precision strictly exceeds either
+single gate on all three corpora. The disagreement lobes are
+large in both directions: $\sigma$ and softmax fail on
+\emph{different} receipts, which is the property the
+intersection exploits.}
+\label{fig:venn}
+\end{figure}
+
 Table~\ref{tab:headline-pooled} is the pooled orthogonality
 matrix. The intersection's Wilson lower bound is $0.956$ at
 point estimate $160/162$; both single gates have lower bounds
@@ -340,6 +355,10 @@ both single-gate lower bounds} by a clear margin.
 Table~\ref{tab:headline-percorpus} shows that this holds on
 each corpus individually --- including a tight WildReceipt
 lower bound of $0.952$ at $n{=}114$ ($113/114$ correct).
+Figure~\ref{fig:overview} visualises the per-corpus four-cell
+matrices; Figure~\ref{fig:venn} renders the same data as
+Venn diagrams to make the size of the disagreement lobes
+visible (which is what powers the intersection lift).
 
 \paragraph{Honest accounting.} The pooled intersection cell
 size ($n{=}162$) is now $3.4\times$ the two-corpus version
@@ -535,10 +554,11 @@ softmax are equally precise.} On WildReceipt the two signals
 achieve identical single-gate precision ($0.953$) yet the
 intersection rises to $0.991$ because they fail on
 \emph{different} receipts (perfectly symmetric discordant
-cells $b{=}c{=}91$). The orthogonality argument does not
-require one signal to dominate the other; it requires their
-errors to be disjoint. The McNemar non-significance on all
-three corpora confirms this.
+cells $b{=}c{=}91$, Figure~\ref{fig:venn} right panel). The
+orthogonality argument does not require one signal to
+dominate the other; it requires their errors to be disjoint.
+The McNemar non-significance on all three corpora confirms
+this.
 
 \noindent\textbf{Cross-architecture survival.} Replacing
 Donut (generative, autoregressive softmax over emitted total
