@@ -14,18 +14,24 @@ fi
 
 # Shelved (stable; not in base run):
 #   B, E, F  — headline 3-corpus numbers locked in their JSONs
-#   L        — failure-mode counts shift across extractor versions but the
-#              dominant categories are now stable; rerun only when changing A
-#   K v4     — DocILE identity rate (~60% sum=total) is stable across extractor versions
-# Re-run any of these manually if needed.
+#   L        — failure-mode taxonomy; numbers stable across extractor versions
+#   K v4     — DocILE identity rate (60% sum=total) stable across versions
+#   N        — net-F1 / cost analysis; result locked (accept-all wins at lambda=0)
+#   P        — error-type taxonomy; sigma_only_precision = 1.0 on CORD is the locked claim
+#   S        — Pareto frontier; locked (sigma alone on CORD front, etc.)
+# Re-run any of these manually if needed; they read M/MB outputs which are still run live.
 
 echo
 echo "=== A v13: DONUT-SROIE + I3 multi-candidate tau (headline) ==="
 python scripts/smoke/A_donut_cord_on_sroie.py
 
 echo
-echo "=== G: cardinality-guard ablation + DP latency + money-count buckets ==="
+echo "=== G: cardinality-guard ablation + DP latency + SROIE money-count buckets ==="
 python scripts/smoke/G_robustness.py
+
+echo
+echo "=== GB: sigma money-count bucket analysis on CORD (mirror of G's SROIE table) ==="
+python scripts/smoke/GB_cord_buckets.py
 
 echo
 echo "=== M: softmax baseline on SROIE ==="
@@ -36,24 +42,16 @@ echo "=== MB: softmax baseline on CORD ==="
 python scripts/smoke/MB_cord_baseline.py
 
 echo
-echo "=== MF: softmax baseline on WildReceipt ==="
+echo "=== MF: WildReceipt (deferred to journal — reports sigma-from-F) ==="
 python scripts/smoke/MF_wildreceipt_baseline.py
 
 echo
-echo "=== N: net-F1 / cost-sensitive deployment analysis (defends: 'what's deployment value?') ==="
-python scripts/smoke/N_net_F1.py
-
-echo
-echo "=== P: error-type taxonomy for sigma vs softmax orthogonality (defends: 'is orthogonality principled?') ==="
-python scripts/smoke/P_error_taxonomy.py
-
-echo
-echo "=== Q: synthetic money-line noise sensitivity on CORD (defends: 'does sigma need clean labels?') ==="
+echo "=== Q v2: synthetic money-line noise sensitivity on CORD (10 seeds) ==="
 python scripts/smoke/Q_money_noise_cord.py
 
 echo
-echo "=== S: Pareto frontier of (precision, coverage) (defends: 'is sigma's operating point principled?') ==="
-python scripts/smoke/S_pareto.py
+echo "=== T: statistical significance tests (McNemar + Wilson CIs + bootstrap) ==="
+python scripts/smoke/T_significance.py
 
 echo
 echo "=== Done. Active results in runs/ ==="
