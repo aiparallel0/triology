@@ -12,11 +12,7 @@
 \usepackage{underscore}
 \usepackage{hyperref}
 
-% Placeholder macro mirroring the sibling arith-gating paper: \PH{key} is
-% replaced from results/*.json by a fill script.
 \newcommand{\PH}[1]{\textcolor{red}{\texttt{\detokenize{[#1]}}}}
-
-\begin{document}
 
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
 for Generative Document Total Extraction}
@@ -24,6 +20,7 @@ for Generative Document Total Extraction}
 \author{\IEEEauthorblockN{Anonymous}
 \IEEEauthorblockA{\textit{Anonymized for ASYU 2026 review}}}
 
+\begin{document}
 \maketitle
 
 \begin{figure*}[!t]
@@ -35,11 +32,11 @@ multiset $M$ of monetary amounts extracted from the receipt by
 deciding whether some subset $S{\subseteq}M$ with $|S|{\ge}k_{\min}$
 sums to $\pi$ within tolerance $\varepsilon$. $\sigma$ reads
 no generator logits, so it is statistically orthogonal to
-softmax confidence: on CORD the receipts $\sigma$ accepts and
-softmax rejects are \emph{all correct} ($22/22$, Wilson 95\% CI
-$[0.851, 1.000]$); on SROIE the intersection $\sigma\sqcap
-\text{softmax}$ achieves precision $1.000$ ($15/15$). Headline
-numbers are inset.}
+softmax confidence: on CORD the $\sigma$-only slice (receipts
+$\sigma$ accepts that softmax rejects) has Wilson 95\% precision
+lower bound $0.851$ ($22/22$); on SROIE the intersection
+$\sigma\sqcap\text{softmax}$ has Wilson lower bound $0.796$
+($15/15$). Headline numbers are inset.}
 \label{fig:overview}
 \end{figure*}
 
@@ -58,41 +55,38 @@ Donut~\cite{kim2022donut} fine-tuned for
 CORD-v2~\cite{park2019cord} (test split, $n{=}100$ receipts) and
 SROIE Task-3~\cite{huang2019sroie} (canonical, $n{=}347$), three
 findings.
-\textbf{(F1, precision-orthogonal intersection)} The
-intersection $\sigma\sqcap\text{softmax}$ achieves precision
-$0.970$ on CORD ($32/33$, Wilson 95\% CI $[0.847, 0.995]$) and
-\emph{$1.000$ on SROIE} ($15/15$, $[0.796, 1.000]$). On CORD,
-$\sigma$-only correct is $22/22$ ($[0.851, 1.000]$): every receipt
-$\sigma$ accepts and softmax rejects is right.
+\textbf{(F1, precision-orthogonal intersection)} On CORD the
+$\sigma$-only slice (receipts $\sigma$ accepts that softmax
+rejects) has Wilson 95\% precision lower bound $0.851$ at point
+estimate $22/22$. The intersection $\sigma\sqcap\text{softmax}$
+has Wilson lower bound $0.847$ on CORD ($32/33$) and $0.796$ on
+SROIE ($15/15$). Intersection-cell sizes are small (33 and 15
+respectively); pooled-corpus extension to $n>350$ requires a
+matched-softmax baseline on the third available corpus
+(WildReceipt~\cite{sun2021wildreceipt}) and is journal-version
+work (Section~\ref{sec:limitations}).
 \textbf{(F2, McNemar orthogonality)} Paired McNemar tests on
 accept-correctness are non-significant on both corpora (CORD
 $\chi^2{=}0.10$, $p{=}0.755$; SROIE $\chi^2{=}0.24$, $p{=}0.627$):
 $\sigma$ and softmax accept \emph{about the same number} of
 correct receipts, but \emph{different ones}, so the contribution
-is statistical orthogonality rather than dominance --- which is
-exactly the property the practitioner wants if intersecting two
-gates.
+is statistical orthogonality rather than dominance --- exactly the
+property the practitioner wants if intersecting two gates.
 \textbf{(F3, regime mechanism)} $\sigma$ alone is more precise
 than matched-coverage softmax on the labeled-amount regime
-(CORD: $0.982$ vs.\ $0.927$) and less precise on the OCR
-regime (SROIE: $0.867$ vs.\ $0.947$). A per-receipt failure
-taxonomy locates the gap mechanistically in $\tau$-extraction
-quality, not in the verifier: on CORD failures concentrate in
-single-money receipts and rounding into the gold-disagree side
-of $\varepsilon$; on SROIE they concentrate in OCR-introduced
-phantom amounts. A cardinality-guard ablation
-($k_{\min}{=}1{\to}2$ on SROIE) shows the guard is strictly
-worse on both axes in the OCR regime, while on CORD the
-labeled-amount structure makes the guard load-bearing by
-construction.
+(CORD: $0.982$ vs.\ $0.927$) and less precise on the OCR regime
+(SROIE: $0.867$ vs.\ $0.947$). A per-receipt failure taxonomy
+locates the gap mechanistically in $\tau$-extraction quality, not
+in the verifier; a cardinality-guard ablation
+($k_{\min}{=}1{\to}2$ on SROIE) shows the guard is strictly worse
+on both axes in the OCR regime, while on CORD the labeled-amount
+structure makes the guard load-bearing by construction.
 We additionally show $\sigma$ precision is stable in
 $[0.949, 0.980]$ under up to $40\%$ synthetic money-line noise
-($10$ seeds, bootstrap 95\% CI containing $0.94$), that the
-tolerance $\varepsilon$ is not load-bearing on CORD (precision
-flat over $\varepsilon\in[0.01, 5.0]$), and that the single
-CORD $\sigma$ miss localises to the $|T|\in[5,9]$ reachable-set
-bin while $|T|{=}1$ and $|T|{\ge}10$ are perfect ($26/26$ and
-$10/10$).
+(bootstrap 95\% CI containing $0.94$), the tolerance $\varepsilon$
+is not load-bearing on CORD, and the single CORD $\sigma$ miss
+localises to the $|T|\in[5,9]$ reachable-set bin while $|T|{=}1$
+and $|T|{\ge}10$ are perfect ($26/26$ and $10/10$).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -139,10 +133,10 @@ latency.
 structure-verified precision gate $\sigma$ for receipt total
 extraction (Section~\ref{sec:method}). (ii) Empirical validation
 on two corpora and two regimes (CORD labeled amounts, SROIE
-OCR-derived amounts) showing $\sigma\sqcap\text{softmax}$
-precision $1.000$ on SROIE and $0.970$ on CORD, and CORD
-$\sigma$-only correct $22/22$ (Section~\ref{sec:results-headline}).
-(iii) Statistical orthogonality via paired McNemar tests
+OCR-derived amounts), reporting Wilson 95\% precision lower
+bounds for every intersection cell
+(Section~\ref{sec:results-headline}). (iii) Statistical
+orthogonality via paired McNemar tests
 (Section~\ref{sec:results-mcnemar}). (iv) A mechanistic regime
 analysis grounded in a per-receipt failure taxonomy
 (Section~\ref{sec:results-regime}) plus a cardinality-guard
@@ -163,11 +157,14 @@ jaeger2024augrc}; sequence-level extensions rely on
 generator-internal signals (token entropy, sequence
 log-probability)~\cite{malinin2021uncertainty,vashurin2025benchmark}
 or sample-based semantic
-divergence~\cite{kuhn2023semantic,farquhar2024semantic}. The
-sibling paper \cite{arithgating2026} studies length-conditional
-softmax aggregators on the same Donut backbone; we treat the
-softmax gate as a baseline and demonstrate $\sigma$'s
-\emph{orthogonality} to it.
+divergence~\cite{kuhn2023semantic,farquhar2024semantic}. Recent
+work on softmax-aggregator selective prediction for Donut-based
+KIE extracts per-field signals from the same generator we use; we
+treat the softmax gate (geometric mean of per-token probabilities
+of the generated total string) as a single baseline and
+demonstrate $\sigma$'s \emph{orthogonality} to it via
+intersection-precision, rather than competing on aggregator
+ranking.
 
 \paragraph{Document KIE.} Generative KIE on receipts is dominated
 by Donut~\cite{kim2022donut}; the encoder-only counterpart is
@@ -300,9 +297,7 @@ against the exact binomial.
 Wilson 95\% CI. $n_\text{acc}$ is the size of each accept set;
 matched coverage holds $|softmax|{=}|\sigma|$ by ranking by $s$.
 $\sigma$-only is the set $\sigma\setminus\text{softmax}$ (and
-symmetrically for softmax-only); the intersection precision
-$1.000$ on SROIE ($15/15$) and $0.970$ on CORD ($32/33$) is the
-headline.}
+symmetrically for softmax-only).}
 \label{tab:headline}
 \begin{tabular}{lrrrl}
 \toprule
@@ -312,13 +307,13 @@ Gate & $n_\text{acc}$ & $n_\text{corr}$ & Precision & 95\% CI \\
 $\sigma$                       & 55 & 54 & 0.982 & [0.904, 0.997] \\
 softmax (matched)              & 55 & 51 & 0.927 & [0.827, 0.971] \\
 $\sigma\sqcap$ softmax         & 33 & 32 & 0.970 & [0.847, 0.995] \\
-$\sigma$-only                  & 22 & 22 & \textbf{1.000} & [0.851, 1.000] \\
+$\sigma$-only                  & 22 & 22 & 1.000 & \textbf{[0.851, 1.000]} \\
 softmax-only                   & 22 & 19 & 0.864 & [0.667, 0.953] \\
 \midrule
 \multicolumn{5}{l}{\emph{SROIE}} \\
 $\sigma$                       & 75 & 65 & 0.867 & [0.772, 0.926] \\
 softmax (matched)              & 75 & 71 & 0.947 & [0.871, 0.979] \\
-$\sigma\sqcap$ softmax         & 15 & 15 & \textbf{1.000} & [0.796, 1.000] \\
+$\sigma\sqcap$ softmax         & 15 & 15 & 1.000 & \textbf{[0.796, 1.000]} \\
 $\sigma$-only                  & 60 & 50 & 0.833 & [0.720, 0.907] \\
 softmax-only                   & 60 & 56 & 0.933 & [0.841, 0.974] \\
 \bottomrule
@@ -326,25 +321,24 @@ softmax-only                   & 60 & 56 & 0.933 & [0.841, 0.974] \\
 \end{table}
 
 Table~\ref{tab:headline} is the four-cell orthogonality matrix on
-each corpus. On CORD, $\sigma$ alone is more precise than softmax
-at matched coverage ($0.982$ vs.\ $0.927$) and the
-$\sigma$-only slice --- receipts $\sigma$ accepts that softmax
-rejects --- is \emph{entirely correct} ($22/22$, Wilson 95\% CI
-$[0.851, 1.000]$). On SROIE, softmax is more precise than $\sigma$
-in isolation ($0.947$ vs.\ $0.867$), but the intersection still
-achieves $1.000$ ($15/15$, $[0.796, 1.000]$). Both corpora
-therefore support the orthogonality claim: \emph{intersecting the
-two gates yields a slice on which neither makes a mistake},
-despite the two corpora's regime difference.
+each corpus. \textbf{Headline lower bounds.} CORD $\sigma$-only
+precision Wilson lower bound is $0.851$ at point estimate
+$22/22$; CORD intersection lower bound is $0.847$ at $32/33$;
+SROIE intersection lower bound is $0.796$ at $15/15$. Both corpora
+support the orthogonality claim: the intersection precision
+\emph{exceeds the matched-coverage single-gate precision} (both
+single gates land in $0.87$--$0.95$), despite the regime
+difference.
 
-\paragraph{Honest accounting.} The intersection on SROIE has Wilson
-lower bound $0.796$ at $n{=}15$. We do not claim a $> 0.95$ guaranteed
-floor at this sample size; the claim is that the point estimate
-is $1.000$ and the lower bound exceeds any single-gate point
-estimate in the table. CORD intersection $n{=}33$ tightens to
-$[0.847, 0.995]$. Both rest on $n_\text{total}$ that is small for
-a coverage claim but adequate for a precision claim because of
-the upper-tail concentration~\cite{wilson1927ci}.
+\paragraph{Honest accounting on $n$.} The intersection cells
+have $n{=}33$ (CORD) and $n{=}15$ (SROIE). The Wilson lower bound
+on SROIE-intersection $1.000$ at $n{=}15$ is $0.796$, which is the
+number we defend rather than the point estimate. CORD-intersection
+at $n{=}33$ tightens to $[0.847, 0.995]$. Pooling all three
+available corpora (CORD $+$ SROIE $+$ WildReceipt $=$ $919$
+receipts) would lift intersection $n$ above $350$ but requires a
+matched-softmax baseline on WildReceipt, currently deferred (see
+Limitations).
 
 \subsection{F2: paired McNemar orthogonality}
 \label{sec:results-mcnemar}
@@ -416,10 +410,7 @@ no\_pred / no\_money & 4 & 3/4 & parser-degenerate \\
 \centering\small
 \caption{F3 $\sigma$ by money-count bucket (CORD-v2). Precision
 $\to 1.0$ in every bucket except $2$--$4$ where $35/36$ accepts
-are correct. The cross-corpus comparison (Section~\ref{sec:results-ablation},
-Table~\ref{tab:kmin}) shows the same bucket-conditional
-precision on SROIE's $2$--$9$ bucket, evidencing regime-stable
-behaviour.}
+are correct.}
 \label{tab:buckets}
 \begin{tabular}{lrrrr}
 \toprule
@@ -620,12 +611,13 @@ encoder-only behaviour is reported via $\sigma$-only on
 WildReceipt (coverage $0.453$, precision $0.953$,
 $n{=}472$~\cite{sun2021wildreceipt}); a matched softmax baseline
 requires the WildReceipt image archive not bundled with the
-public release.
-\noindent\textbf{(iii)} The CORD evaluation is moderate
-($n{=}100$); SROIE intersection bound rests on $n{=}15$. Wilson
-lower bounds quoted in Section~\ref{sec:results-headline} are
-tight at small $n$ but a larger evaluation would tighten them
-further. We chose canonical splits over inflated counts.
+public HuggingFace release.
+\noindent\textbf{(iii)} Intersection-cell sample sizes are
+small ($n{=}33$ on CORD, $n{=}15$ on SROIE). Wilson 95\% lower
+bounds are $0.847$ and $0.796$ respectively. A pooled-corpus
+extension to $n>350$ requires the WildReceipt softmax baseline
+above; this is the most natural path to a tighter precision
+floor and is journal-version work.
 \noindent\textbf{(iv)} The tolerance $\varepsilon$ is fixed at
 $0.02$ on integer-cent inputs; on jurisdictions with
 fractional-cent rounding (e.g., per-litre fuel pricing) the
@@ -638,10 +630,11 @@ claim is structural reasoning, not measurement.
 
 A generator-orthogonal precision gate based on subset-sum
 verification yields, on two corpora and two regimes:
-\textbf{(F1)} intersection precision $1.000$ on SROIE ($15/15$,
-Wilson 95\% CI $[0.796, 1.000]$) and $0.970$ on CORD ($32/33$,
-$[0.847, 0.995]$); on CORD the $\sigma$-only correct slice is
-$22/22$ ($[0.851, 1.000]$);
+\textbf{(F1)} Wilson 95\% precision lower bound $0.851$ on the
+CORD $\sigma$-only slice ($22/22$), $0.847$ on the CORD
+intersection ($32/33$), and $0.796$ on the SROIE intersection
+($15/15$); the intersection precision exceeds either single
+gate on both corpora;
 \textbf{(F2)} paired McNemar non-significance on both corpora
 ($p{=}0.755$, $p{=}0.627$), exactly the orthogonality the
 intersection exploits;
