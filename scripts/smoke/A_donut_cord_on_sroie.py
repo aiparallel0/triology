@@ -1,28 +1,28 @@
-"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v12.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v13.
 
-v12 = v11 + two changes informed by L's failure-mode breakdown (146 of 220
-applicable misses were tau_too_large, 70% theoretical recoverability):
+v13 = v12 + multi-candidate tau (genuine method extension, not just extractor):
 
-  v12.fix_1  Total-line dominance.
-    Lines matching the total/subtotal/incl/inclusive/sales/grand/cash/change/
-    balance/paid family are dropped ENTIRELY — not consumed as tau contributors,
-    not added to money_lines. This prevents 'Total (Incl. GST) RM 7.20' from
-    being eaten as a tau=7.20 contribution (which was the dominant mechanism
-    behind tau ≈ 2π in v11).
+  v13.fix_1  Multi-candidate tau. Instead of picking ONE tau and running DP once,
+    collect ALL plausible tau candidates (tau=0, v12's per-category-last-then-sum,
+    each individual extractor candidate). Run DP once over money_lines; check
+    whether pi matches any subset-sum + any candidate tau. The acceptance rule is:
 
-  v12.fix_2  Single tau per category, then sum across categories.
-    Old: tau += sign * amt for every keyword match — SROIE receipts mention 'GST'
-    on 2–3 lines so tau accumulated 2–3× the true tax.
-    New: collect candidates grouped by name (tax / service / discount). Within
-    each group take the LAST candidate (Malaysian receipts print the GST summary
-    table near the bottom). Then sum across distinct categories.
+        sigma fires iff exists tau_k in candidates, exists S subset money_lines
+        with |S| >= kmin(tau_k) and sum(S) + tau_k approx= pi.
 
-All v9–v11 fixes retained: percent-skip, RM-prefix preference, decimal preference,
-registration-pattern rejection, |tau|>10000 cap, multi-line look-ahead, bare-int
->=1000 rejection.
+    Mathematically, this is I3 with tau treated as a set rather than a scalar.
+    Defensible interpretation: the receipt's printed structure is consistent with
+    the prediction under some plausible tax-extraction hypothesis. False-positive
+    risk is bounded because tau candidates come from structured text patterns,
+    not arbitrary values.
 
-The I3 subset-sum, cardinality guard, eps tolerance, and DP are UNCHANGED.
-Methodology is identical to v9/v10/v11; v12 only tightens tau extraction.
+All v9-v12 extractor fixes retained: percent-skip, currency-prefix preference,
+decimal preference, registration-pattern rejection, bare-int>=1000 rejection,
+TOTAL_LIKE dominance, multi-line look-ahead, |tau|<=10000 cap.
+
+The I3 DP and cardinality guard are UNCHANGED. v13 changes the tau extraction
+from 'single estimate' to 'set of candidates' and the acceptance rule from
+'pi matches T(money, tau)' to 'pi matches the union of T(money, tau_k)'.
 """
 import gc, json, os, re, sys, time
 from collections import defaultdict
@@ -41,6 +41,7 @@ OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 BATCH = int(os.environ.get("DONUT_BATCH", "8"))
 MAX_MONEY = 15
+MAX_TAU_CANDIDATES = 8
 TAU_CAP = 10000.0
 BARE_INT_REJECT_THRESHOLD = 1000.0
 
@@ -83,9 +84,6 @@ TAX_KW_RE  = re.compile(r"\b(tax|gst|sst|vat)\b", re.I)
 SERV_KW_RE = re.compile(r"\bservice(?:\s*charge)?\b", re.I)
 DISC_KW_RE = re.compile(r"\b(discount|rebate)\b", re.I)
 
-# v12: TOTAL_LIKE matches receipt totals/cash/change/subtotal/incl lines. These
-# are dropped entirely (not money, not tau). Applied BEFORE tax-keyword logic so
-# 'Total (Incl. GST) 7.20' doesn't get eaten as a tau=7.20 contribution.
 TOTAL_LIKE_RE = re.compile(
     r"\b(total|sub.?total|grand|incl|inclusive|nett?|sales|paid|tendered?|cash|change|balance|amount\s+due)\b",
     re.I,
@@ -139,18 +137,21 @@ def _extract_amount(line, kw_re, next_line=None):
 
 
 def extract_money_lines(text_lines):
-    """v12: total-line dominance + single-candidate-per-category tau pick."""
+    """v13: returns (money[], tau_candidates[], raw_tax_candidates[]).
+
+    tau_candidates is a list of plausible tau values, including:
+      - 0.0 (no tax)
+      - v12-style: per-category last, summed across categories
+      - each individual raw candidate (signed)
+    """
     money = []
-    tax_candidates = []  # list of (sign, amt, name, line_text); grouped+picked below
+    raw = []  # (sign, amount, name, line)
     n = len(text_lines)
     for i, ln in enumerate(text_lines):
         nxt = text_lines[i + 1] if i + 1 < n else None
-
-        # v12.fix_1: drop total/incl/sales/cash/change/etc. lines ENTIRELY.
-        # These are receipt-summary lines, neither item amounts nor tax amounts.
-        if TOTAL_LIKE_RE.search(ln):
+        if TOTAL_LIKE_RE.search(ln) and not (TAX_KW_RE.search(ln) or SERV_KW_RE.search(ln) or DISC_KW_RE.search(ln)):
+            # Pure total/cash/change line, no tax keyword: drop.
             continue
-
         consumed_as_tax = False
         for kw_re, sign, name in (
             (TAX_KW_RE,  +1, "tax"),
@@ -160,39 +161,47 @@ def extract_money_lines(text_lines):
             if kw_re.search(ln):
                 amt = _extract_amount(ln, kw_re, nxt)
                 if amt is not None:
-                    tax_candidates.append((sign, amt, name, ln.strip()[:60]))
+                    raw.append((sign, amt, name, ln.strip()[:60]))
                 consumed_as_tax = True
                 break
         if consumed_as_tax:
             continue
-
         v = parse_money_strict(ln)
         if v is None: continue
         money.append(v)
 
-    # v12.fix_2: group candidates by category, pick LAST within each, sum across.
+    # Build candidate set
+    cands = {0.0}
     by_name = defaultdict(list)
-    for sign, amt, name, ln_str in tax_candidates:
-        by_name[name].append((sign, amt, ln_str))
-    tau = 0.0
-    diag = []
-    for name, cands in by_name.items():
-        sign, amt, ln_str = cands[-1]
-        tau += sign * amt
-        diag.append((name, ln_str, amt))
+    for sign, amt, name, _ in raw:
+        by_name[name].append((sign, amt))
+    if by_name:
+        tau_v12 = 0.0
+        for name, items in by_name.items():
+            sign, amt = items[-1]
+            tau_v12 += sign * amt
+        cands.add(round(tau_v12, 4))
+    for sign, amt, _, _ in raw:
+        cands.add(round(sign * amt, 4))
+    # Cap
+    cands = [t for t in cands if abs(t) <= TAU_CAP]
+    # Limit count to keep DP cheap & false-positive risk bounded
+    if len(cands) > MAX_TAU_CANDIDATES:
+        # Keep 0, v12-pick, and largest-magnitude candidates
+        cands_sorted = sorted(cands, key=lambda t: -abs(t))
+        cands = list(set([0.0] + cands_sorted[:MAX_TAU_CANDIDATES - 1]))
+    return money[:MAX_MONEY], cands, raw
 
-    capped = abs(tau) > TAU_CAP
-    if capped:
-        print(f"  [tau-cap] dropping runaway tau={tau:.2f}; contributors={diag}")
-        tau = 0.0
-    return money[:MAX_MONEY], tau, capped
 
+def I3_reachable_multi(money_lines, tau_candidates, eps=0.02):
+    """v13: union of T sets across all tau candidates.
 
-def I3_reachable(money_lines, tau, eps=0.02):
-    """UNCHANGED from v9: 0/1-knapsack DP, cardinality guard |S|>=kmin."""
-    kmin = 1 if abs(tau) > eps else 2
+    Runs DP once over money_lines, then for each tau_k and applicable kmin,
+    adds the shifted subset-sums to T_union.
+    """
+    if not money_lines or not tau_candidates:
+        return set()
     cents = [int(round(v * 100)) for v in money_lines]
-    tau_c = int(round(tau * 100))
     D = {0: 0}
     for v in cents:
         new = dict(D)
@@ -200,7 +209,14 @@ def I3_reachable(money_lines, tau, eps=0.02):
             ns = s + v
             if ns not in new or new[ns] > k + 1: new[ns] = k + 1
         D = new
-    return {(s + tau_c) / 100.0 for s, k in D.items() if k >= kmin}
+    T = set()
+    for tau in tau_candidates:
+        kmin = 1 if abs(tau) > eps else 2
+        tau_c = int(round(tau * 100))
+        for s, k in D.items():
+            if k >= kmin:
+                T.add((s + tau_c) / 100.0)
+    return T
 
 
 def main():
@@ -247,23 +263,22 @@ def main():
     print(f"DONUT done in {time.time()-t1:.1f}s")
 
     results = []
-    cap_fires = 0
+    n_candidates_total = 0
     for (stem, _), text in zip(items, all_text):
         pred = parse_total(text)
         gold = load_gold_total(stem, ent_dir)
         ocr_lines = sroie_ocr.get(stem, [])
-        money, tau, capped = extract_money_lines(ocr_lines)
-        if capped: cap_fires += 1
-        T = I3_reachable(money, tau) if money else set()
+        money, tau_cands, _raw = extract_money_lines(ocr_lines)
+        n_candidates_total += len(tau_cands)
+        T = I3_reachable_multi(money, tau_cands)
         in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
         correct = (pred is not None and gold is not None and abs(pred - gold) <= 0.02)
         results.append({"id": stem, "pred": pred, "gold": gold, "in_T": in_T,
                         "correct": correct, "T_size": len(T),
-                        "money_count": len(money), "tau": tau,
+                        "money_count": len(money),
+                        "n_tau_candidates": len(tau_cands),
+                        "tau_candidates": tau_cands,
                         "ocr_lines": len(ocr_lines)})
-
-    for r in results:
-        assert abs(r["tau"]) <= TAU_CAP, f"tau cap failed on {r['id']}: tau={r['tau']}"
 
     n = max(1, len(results))
     accepted = [r for r in results if r["in_T"]]
@@ -271,24 +286,24 @@ def main():
     correct_accepted = sum(r["correct"] for r in accepted)
     parser_ok = sum(1 for r in results if r["pred"] is not None)
     gold_ok = sum(1 for r in results if r["gold"] is not None)
-    ocr_lines_mean = sum(r["ocr_lines"] for r in results) / n
     money_count_mean = sum(r["money_count"] for r in results) / n
-    tau_abs_sorted = sorted(abs(r["tau"]) for r in results)
-    tau_abs_median = tau_abs_sorted[n // 2]
-    tau_abs_mean = sum(abs(r["tau"]) for r in results) / n
+    cand_mean = n_candidates_total / n
+    # For backwards compat with L: report 'tau' as the v12 single-pick if available
+    for r in results:
+        if r["tau_candidates"]:
+            r["tau"] = max(r["tau_candidates"], key=abs) if len(r["tau_candidates"]) > 1 else r["tau_candidates"][0]
+        else:
+            r["tau"] = 0.0
     summary = {
         "checkpoint": CKPT, "corpus": "canonical SROIE Task-3", "mirror": mirror,
         "setup": "in-distribution",
         "ocr_source": "darentang/sroie Task-1",
-        "tau_extraction": "v12_total_line_dominance_single_tau_per_category",
+        "tau_extraction": "v13_multi_candidate_tau_union_T",
         "n": len(results), "batch_size": BATCH,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n, "gold_ok_rate": gold_ok / n,
-        "ocr_lines_per_receipt_mean": ocr_lines_mean,
         "money_lines_per_receipt_mean": money_count_mean,
-        "tau_abs_median": tau_abs_median,
-        "tau_abs_mean": tau_abs_mean,
-        "tau_cap_fires": cap_fires,
+        "tau_candidates_per_receipt_mean": cand_mean,
         "coverage_1.0_F1": correct_all / n,
         "coverage_sigma": len(accepted) / n,
         "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),

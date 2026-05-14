@@ -1,21 +1,11 @@
-"""K v3: DocILE-like 4th corpus — additive in-distribution validation, both-identities aware.
+"""K v4: DocILE-like 4th corpus — n=501 expansion (train+validation+test pooled).
 
-v3 fix: K_v2 reported 0.0 identity_holds_rate on katanaml-org/invoices-donut-data-v1
-because the dataset uses the convention `total = sum_items` (tax separate, NOT added
-to total). v2 only tested `sum_items + tax ≈ total`. v3 tries both identities and
-reports whichever holds at higher rate, so we don't reject a clean-regime corpus
-for a schema-convention mismatch.
+v3 ran only on n=26 katanaml test, gave 54% identity hold (noise-level n).
+v4 pools train + validation + test for n=501 to get a robust identity-hold rate.
 
-Identities tested:
-  A: sum_items + tax ≈ total      (gross-inclusive convention, CORD/SROIE-style)
-  B: sum_items ≈ total            (net convention, tax reported separately)
+Both identities still tested (gross convention sum+tax=total vs net sum=total).
 
-The I3 method is UNCHANGED. K v3 just probes which receipt-arithmetic convention
-this corpus uses.
-
-Robustness: tries multiple HF mirrors. If none reach, writes 'not available' summary.
-
-Runtime: ~30 s if reachable; <1 s if not.
+Runtime: ~30 s if reachable.
 """
 import json, os, time
 from pathlib import Path
@@ -25,24 +15,32 @@ OUT.parent.mkdir(parents=True, exist_ok=True)
 EPS = 0.05
 
 
-def try_load_docile():
+def try_load_docile_all_splits():
+    """Load and concat train+validation+test from the first reachable mirror."""
     from datasets import load_dataset
-    candidates = [
-        ("harborwater/docile-trial", "test"),
-        ("naver-clova-ix/docile-trial", "test"),
-        ("idd-fit/docile-trial", "test"),
-        ("katanaml-org/invoices-donut-data-v1", "test"),
-        ("katanaml-org/invoices-donut-data-v1", "validation"),
-        ("mychen76/invoices-and-receipts_ocr_v1", "test"),
-        ("mychen76/invoices-and-receipts_ocr_v1", "valid"),
+    candidates_ref = [
+        "harborwater/docile-trial",
+        "naver-clova-ix/docile-trial",
+        "idd-fit/docile-trial",
+        "katanaml-org/invoices-donut-data-v1",
+        "mychen76/invoices-and-receipts_ocr_v1",
     ]
-    for ref, split in candidates:
+    for ref in candidates_ref:
         try:
-            ds = load_dataset(ref, split=split, trust_remote_code=True)
-            print(f"  loaded {ref} split={split} n={len(ds)}")
-            return ds, ref, split
+            pooled = []
+            split_sizes = {}
+            for split in ("train", "validation", "test", "valid"):
+                try:
+                    ds = load_dataset(ref, split=split, trust_remote_code=True)
+                    split_sizes[split] = len(ds)
+                    for ex in ds: pooled.append(ex)
+                except Exception:
+                    continue
+            if pooled:
+                print(f"  loaded {ref} pooled n={len(pooled)} from splits {split_sizes}")
+                return pooled, ref, split_sizes
         except Exception as e:
-            print(f"  miss {ref} [{split}]: {type(e).__name__}")
+            print(f"  miss {ref}: {type(e).__name__}")
     return None, None, None
 
 
@@ -144,9 +142,9 @@ def _ex_schema_sample(ex):
 
 def main():
     t0 = time.time()
-    print("=== K v3: DocILE 4th corpus (both-identities aware) ===")
-    ds, ref, split = try_load_docile()
-    if ds is None:
+    print("=== K v4: DocILE 4th corpus (n=501 pooled) ===")
+    pooled, ref, split_sizes = try_load_docile_all_splits()
+    if pooled is None:
         summary = {"available": False, "reason": "no DocILE-like mirror reachable",
                    "wall_sec": round(time.time() - t0, 1)}
         OUT.write_text(json.dumps(summary, indent=2))
@@ -156,18 +154,17 @@ def main():
     results = []
     failed_samples = []
     n_attempt = 0
-    for ex in ds:
+    for ex in pooled:
         n_attempt += 1
-        if n_attempt > 2000: break
+        if n_attempt > 5000: break
         items, tax, total = _extract_items_total_tax(ex)
         if not items or total is None:
             if len(failed_samples) < 2:
                 failed_samples.append(_ex_schema_sample(ex))
             continue
         sum_items = sum(items)
-        # v3: test BOTH identities, report whichever holds.
-        holds_plus = abs((sum_items + tax) - total) <= EPS  # gross convention
-        holds_eq   = abs(sum_items - total) <= EPS           # net convention
+        holds_plus = abs((sum_items + tax) - total) <= EPS
+        holds_eq   = abs(sum_items - total) <= EPS
         results.append({
             "sum_items": round(sum_items, 4),
             "tax": round(tax, 4),
@@ -186,7 +183,7 @@ def main():
     summary = {
         "available": True,
         "dataset": ref,
-        "split": split,
+        "split_sizes": split_sizes,
         "n_attempted": n_attempt,
         "n_receipts_with_labels": len(results),
         "identity_rate_sum_plus_tax_eq_total": rate_plus,
@@ -196,10 +193,9 @@ def main():
         "items_per_receipt_mean": (sum(r["n_items"] for r in results) / n) if results else None,
         "wall_sec": round(time.time() - t0, 1),
         "schema_sample_failed": failed_samples if not results else [],
-        "note": ("K v3 tests BOTH receipt-arithmetic identities: gross (sum+tax=total) and "
-                 "net (sum=total). Reports whichever convention this corpus uses. A high "
-                 "best_identity_rate confirms the corpus is in the clean-regime suitable for "
-                 "sigma deployment with an in-domain extractor."),
+        "note": ("K v4 pools train+val+test for n>=300 robust identity-hold rate. "
+                 "Tests gross (sum+tax=total) and net (sum=total) conventions; reports both "
+                 "and selects whichever dominates. High best_identity_rate confirms clean-regime fit."),
     }
     OUT.write_text(json.dumps({"summary": summary, "results_sample": results[:50]}, indent=2))
     print(json.dumps(summary, indent=2))
