@@ -11,15 +11,16 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{xcolor}
-\usetikzlibrary{shapes,arrows.meta,positioning,fit,backgrounds,decorations.pathreplacing}
+\usetikzlibrary{shapes,arrows.meta,positioning,fit,backgrounds,decorations.pathreplacing,calc}
 
 \definecolor{ok}{HTML}{2ca02c}
 \definecolor{bad}{HTML}{d62728}
 \definecolor{sig}{HTML}{1f77b4}
 \definecolor{smx}{HTML}{ff7f0e}
+\definecolor{grey}{HTML}{888888}
 
-\title{Is the model's total correct?}
-\subtitle{Catching receipt-extraction errors by checking the math}
+\title{Can we trust the AI when it reads a receipt?}
+\subtitle{A free second opinion for confident-but-wrong models}
 \author{ASYU 2026}
 \date{}
 
@@ -29,271 +30,390 @@
 \frame{\titlepage}
 
 % ==========================================================
-% Slide 2: THE QUESTION
+% Slide 2: SETTING
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Huge \textbf{The question}}\\[2em]
-{\Large ``The model just read a receipt and \\ said the total is \$58.40.''}\\[1.5em]
-{\Large \textbf{Should I trust that number?}}
+{\Huge\textbf{Every day, AI reads}}\\[0.4em]
+{\Huge\textbf{billions of receipts.}}
+\end{center}
+\vspace{2em}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\draw[thick,rounded corners=6pt,fill=white] (-0.7,-1.8) rectangle (0.7,1.8);
+\draw[thick,fill=grey!10] (-0.55,-1.4) rectangle (0.55,1.6);
+\node at (0,0.6) [font=\tiny] {RECEIPT};
+\foreach \y in {0.1,-0.1,-0.3,-0.5,-0.7,-0.9} {
+  \draw[grey] (-0.45,\y) -- (0.45,\y);
+}
+\node at (0,-1.65) [font=\tiny] {\textbullet};
+
+\draw[->,thick,>=Stealth] (0.9,0) -- (2.6,0);
+
+\node[draw,rounded corners=4pt,fill=sig!20,minimum width=2cm,minimum height=1.6cm,thick] at (3.7,0) {\large\textbf{AI}};
+
+\draw[->,thick,>=Stealth] (4.8,0) -- (6.4,0);
+
+\node at (7.8,0) [font=\Huge,text=sig] {\textbf{\$58.40}};
+\end{tikzpicture}
 \end{center}
 \vfill
+\begin{center}
+\small Tax filings.\quad Expense reports.\quad Audits.\quad Bookkeeping.
+\end{center}
 \end{frame}
 
 % ==========================================================
-% Slide 3: A RECEIPT
+% Slide 3: COST
 \begin{frame}{}
 \vfill
 \begin{center}
-\begin{tikzpicture}[scale=0.7]
-\draw[fill=white,thick] (0,0) rectangle (4,6.5);
-\draw (0.3,6.0) -- (3.7,6.0);
-\node at (2,6.25) {\small\bfseries RECEIPT};
-\node[anchor=west] at (0.3,5.4) {\small Coffee \hfill \$3.20};
-\node[anchor=west] at (0.3,4.9) {\small Sandwich \hfill \$8.50};
-\node[anchor=west] at (0.3,4.4) {\small Salad \hfill \$6.00};
-\node[anchor=west] at (0.3,3.9) {\small Pasta \hfill \$30.70};
-\draw (0.3,3.4) -- (3.7,3.4);
-\node[anchor=west] at (0.3,2.9) {\small Subtotal \hfill \$48.40};
-\node[anchor=west] at (0.3,2.4) {\small Tax \hfill \$10.00};
-\draw[thick] (0.3,1.9) -- (3.7,1.9);
-\node[anchor=west] at (0.3,1.4) {\small\bfseries TOTAL \hfill \textbf{?}};
+{\Huge\textbf{What if the AI is wrong?}}
+\end{center}
+\vspace{1.5em}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\node at (-4,1) [font=\Large] {AI said:};
+\node at (-4,0) [font=\huge,text=sig] {\textbf{\$58.40}};
 
-\node at (8,5) [font=\Large] {The model says:};
-\node at (8,4) [font=\huge,text=sig] {\textbf{\$58.40}};
-\node at (8,2.5) [font=\Large] {Real answer?};
-\node at (8,1.5) [font=\Large,text=ok] {\textbf{\$58.40} \checkmark};
+\node at (0,0.5) [font=\Huge,text=bad] {$\neq$};
+
+\node at (4,1) [font=\Large] {Real total:};
+\node at (4,0) [font=\huge,text=ok] {\textbf{\$48.40}};
+
+\node at (0,-2.0) [font=\Large] {\textbf{\textcolor{bad}{Wrong tax. Wrong audit. Real money lost.}}};
 \end{tikzpicture}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 4: OLD WAY
+% Slide 4: TODAY'S METHOD (plain English)
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Large \textbf{The usual way: ask the model how confident it is.}}
+{\Large\textbf{Today's method, since the 1990s:}}\\[0.3em]
+{\Huge\textbf{\textcolor{smx}{ask the AI ``how sure are you?''}}}
 \end{center}
 \vspace{1.5em}
 \begin{center}
-\begin{tikzpicture}[scale=1.2]
-\node[draw,rounded corners,fill=sig!20,minimum width=3cm,minimum height=1.2cm] (m) at (0,0) {\textbf{model}};
-\draw[->,thick] (m.east) -- (3,0);
-\node[anchor=west] at (3,0.4) {\Large ``\$58.40''};
-\node[anchor=west] at (3,-0.4) {\Large 97\% sure};
+\begin{tikzpicture}[scale=1.1]
+\node[draw,rounded corners=4pt,fill=sig!20,minimum width=2.5cm,minimum height=1.4cm,thick] (m) at (-3,0) {\large\textbf{AI}};
+\draw[->,thick,>=Stealth] (m.east) -- (-0.5,0);
+\node[anchor=west] at (-0.4,0.5) [font=\Large] {``\$58.40''};
+\node[anchor=west] at (-0.4,-0.5) [font=\Large,text=smx] {\textbf{97\% sure}};
 \end{tikzpicture}
 \end{center}
 \vspace{1em}
 \begin{center}
-{\large ... but what if the real total is \$48.40, \emph{not} \$58.40?}\\[0.5em]
-{\Large \textbf{\textcolor{bad}{The model can be confidently wrong.}}}
+\small\emph{(In AI lingo: ``softmax confidence''. Same idea, fancier name.)}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 5: NEW IDEA
+% Slide 5: THE FATAL BUG
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Huge \textbf{The new idea}}\\[1.5em]
-{\Large Don't ask the model.}\\[0.5em]
-{\Large \textbf{Check the math on the receipt itself.}}
+{\Huge\textbf{\textcolor{bad}{The catch:}}}\\[0.4em]
+{\Large the AI can be \textbf{confidently wrong.}}
 \end{center}
 \vspace{1.5em}
 \begin{center}
-\large The receipt has all the numbers.\\
-\large Do any of them \emph{add up} to the prediction?
+\begin{tikzpicture}[scale=1.0]
+\node[draw,rounded corners=4pt,fill=sig!20,minimum width=2.5cm,minimum height=1.4cm,thick] (m) at (-4.5,0) {\large\textbf{AI}};
+\draw[->,thick,>=Stealth] (m.east) -- (-2.7,0);
+
+\node at (0,0.6) [font=\Large] {``\$58.40''};
+\node at (0,-0.3) [font=\Large,text=smx] {\textbf{97\% sure}};
+
+\node at (4,0.6) [font=\Large] {Real:};
+\node at (4,-0.3) [font=\Large,text=ok] {\textbf{\$48.40}};
+
+\node at (0,-2.2) [font=\Large,text=bad] {\textbf{Confident. And wrong.}};
+\end{tikzpicture}
+\end{center}
+\vfill
+\begin{center}
+\small For 30 years, this was the only signal we had.
+\end{center}
+\end{frame}
+
+% ==========================================================
+% Slide 6: OUR IDEA
+\begin{frame}{}
+\vfill
+\begin{center}
+{\Huge\textbf{Our idea:}}\\[1.2em]
+{\Huge\textbf{Don't trust the AI.}}\\[0.5em]
+{\Huge\textbf{\textcolor{ok}{Trust the math on the receipt.}}}
+\end{center}
+\vfill
+\begin{center}
+\small The receipt already has every number. If they add up to the AI's answer, the AI is right.
+\end{center}
+\end{frame}
+
+% ==========================================================
+% Slide 7: MEET SIGMA
+\begin{frame}{}
+\vfill
+\begin{center}
+{\Large\textbf{Meet $\sigma$ (``sigma'')}}\\[1em]
+{\large our new verifier}
+\end{center}
+\vspace{1.5em}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\node[draw,rounded corners=8pt,fill=ok!15,thick,text width=11cm,align=center,minimum height=2cm] at (0,0)
+  {\Large $\sigma$ asks one question:\\[0.5em]
+   \textbf{\Large Do any numbers on the receipt}\\
+   \textbf{\Large add up to the AI's answer?}};
+\end{tikzpicture}
+\end{center}
+\vspace{1em}
+\begin{center}
+\large If \textbf{\textcolor{ok}{yes}}: accept the AI.\quad
+       If \textbf{\textcolor{bad}{no}}: reject and ask a human.
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 6: HOW SIGMA WORKS
+% Slide 8: SIGMA IN ACTION
 \begin{frame}{}
-\begin{center}
-{\large \textbf{The $\sigma$ gate: find a subset that sums to the predicted total}}
-\end{center}
-\vspace{0.5em}
+\vfill
 \begin{center}
 \begin{tikzpicture}[scale=0.85]
-\draw[fill=white,thick] (0,0) rectangle (4,5);
+% Receipt
+\draw[fill=white,thick,rounded corners=2pt] (0,0) rectangle (4,5);
 \draw (0.3,4.5) -- (3.7,4.5);
-\node at (2,4.7) {\small\bfseries RECEIPT};
-\node[anchor=west,text=ok] at (0.3,3.9) {\small Coffee \hfill \$3.20 \checkmark};
-\node[anchor=west,text=ok] at (0.3,3.4) {\small Sandwich \hfill \$8.50 \checkmark};
-\node[anchor=west,text=ok] at (0.3,2.9) {\small Salad \hfill \$6.00 \checkmark};
-\node[anchor=west,text=ok] at (0.3,2.4) {\small Pasta \hfill \$30.70 \checkmark};
-\draw (0.3,1.9) -- (3.7,1.9);
-\node[anchor=west,text=ok] at (0.3,1.3) {\small Tax \hfill \$10.00 \checkmark};
-\draw[thick] (0.3,0.8) -- (3.7,0.8);
-\node[anchor=west] at (0.3,0.3) {\small\bfseries TOTAL \hfill \$58.40};
+\node at (2,4.75) {\small\bfseries RECEIPT};
+\node[anchor=west,text=ok] at (0.3,3.95) {\small Coffee \hfill \$3.20 \checkmark};
+\node[anchor=west,text=ok] at (0.3,3.45) {\small Sandwich \hfill \$8.50 \checkmark};
+\node[anchor=west,text=ok] at (0.3,2.95) {\small Salad \hfill \$6.00 \checkmark};
+\node[anchor=west,text=ok] at (0.3,2.45) {\small Pasta \hfill \$30.70 \checkmark};
+\draw (0.3,1.95) -- (3.7,1.95);
+\node[anchor=west,text=ok] at (0.3,1.35) {\small Tax \hfill \$10.00 \checkmark};
+\draw[thick] (0.3,0.85) -- (3.7,0.85);
+\node[anchor=west] at (0.3,0.35) {\small\bfseries TOTAL \hfill \$58.40};
 
-\node at (9,3.8) [text=sig,font=\Large] {$3.20 + 8.50 + 6.00$};
-\node at (9,3.1) [text=sig,font=\Large] {$+ 30.70 + 10.00$};
+% Arrow + math
+\draw[->,very thick,>=Stealth,sig] (4.3,2.5) -- (5.5,2.5);
 
-\draw[->,thick] (9,2.5) -- (9,1.9);
-\node at (9,1.3) [text=ok,font=\huge] {= \$58.40 \checkmark};
-\node at (9,0.3) [text=ok,font=\Large] {\textbf{accept}};
+\node at (9,3.7) [text=sig,font=\large] {$3.20 + 8.50 + 6.00$};
+\node at (9,3.05) [text=sig,font=\large] {$+\, 30.70 + 10.00$};
+
+\draw[->,thick,>=Stealth] (9,2.4) -- (9,1.6);
+\node at (9,1.0) [text=ok,font=\Huge] {\textbf{= \$58.40}};
+\node at (9,0.2) [text=ok,font=\Large] {\textbf{accept \checkmark}};
 \end{tikzpicture}
 \end{center}
 \vspace{0.5em}
 \begin{center}
-\small If \emph{no} subset sums to \$58.40 within tolerance, the gate rejects.
+\small No subset adds up? $\sigma$ rejects, regardless of how sure the AI is.
 \end{center}
+\vfill
 \end{frame}
 
 % ==========================================================
-% Slide 7: WHY IT WORKS
+% Slide 9: TWO INDEPENDENT SIGNALS
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Large \textbf{Why this works}}\\[1em]
-\end{center}
-\begin{center}
-\begin{tikzpicture}[scale=1.0]
-\node[draw,rounded corners,fill=ok!20,text width=11cm,align=center,minimum height=1.2cm] at (0,1.5)
-  {\Large Receipts are \emph{arithmetically closed.}};
-\node[text width=11cm,align=center] at (0,0.2)
-  {\large The total \emph{is} a sum of visible amounts.};
-\node[draw,rounded corners,fill=sig!20,text width=11cm,align=center,minimum height=1.2cm] at (0,-1.5)
-  {\Large $\sigma$ \emph{reads the receipt}, not the model's confidence.};
-\end{tikzpicture}
-\end{center}
-\vfill
-\begin{center}
-\small Two independent signals --- the model's softmax and $\sigma$'s math check.
-\end{center}
-\end{frame}
-
-% ==========================================================
-% Slide 8: TWO SIGNALS, DIFFERENT ERRORS
-\begin{frame}{}
-\vfill
-\begin{center}
-{\large \textbf{Two signals that fail on \emph{different} receipts}}
+{\Large \textbf{Two signals. Two different blind spots.}}
 \end{center}
 \vspace{1em}
 \begin{center}
 \begin{tikzpicture}[scale=1.0]
-\fill[sig!30,opacity=0.7] (-1,0) circle (2.2);
-\fill[smx!30,opacity=0.7] (1,0) circle (2.2);
-\node at (-2.6,0) [text=sig,font=\Large\bfseries] {$\sigma$};
-\node at (2.6,0) [text=smx,font=\Large\bfseries] {softmax};
-
-\node[align=center,font=\small] at (-1.7,0) {$\sigma$-only\\catches};
-\node[align=center,text=ok,font=\bfseries] at (0,0) {\large both\\catch};
-\node[align=center,font=\small] at (1.7,0) {softmax\\only catches};
-
-\node at (0,-2.8) [font=\Large] {Use both $\Rightarrow$ \textbf{\textcolor{ok}{near-perfect precision}}};
+\node[draw,rounded corners=6pt,fill=smx!15,thick,text width=5.5cm,align=center,minimum height=2.6cm] at (-3.5,0)
+  {\Large \textbf{softmax}\\[0.5em]
+   \small the \emph{AI} judging\\ \emph{itself}\\[0.3em]
+   \small\emph{(can be confident + wrong)}};
+\node[draw,rounded corners=6pt,fill=ok!15,thick,text width=5.5cm,align=center,minimum height=2.6cm] at (3.5,0)
+  {\Large \textbf{$\sigma$}\\[0.5em]
+   \small the \emph{math} judging\\ the AI\\[0.3em]
+   \small\emph{(doesn't read the AI at all)}};
 \end{tikzpicture}
+\end{center}
+\vspace{1em}
+\begin{center}
+{\Large \textbf{\textcolor{ok}{These two signals make \emph{different} mistakes.}}}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 9: BIG NUMBER
+% Slide 10: TOGETHER = POWER (Venn intuition)
+\begin{frame}{}
+\begin{center}
+{\Large \textbf{Use both. Accept only when \emph{both} agree.}}
+\end{center}
+\vspace{0.5em}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\fill[smx!30,opacity=0.7] (-1.5,0) circle (2.2);
+\fill[sig!30,opacity=0.7] (1.5,0) circle (2.2);
+\node at (-3.2,0) [text=smx,font=\Large\bfseries] {softmax};
+\node at (3.2,0) [text=sig,font=\Large\bfseries] {$\sigma$};
+
+\node[align=center,font=\small] at (-2.1,0) {softmax\\ only};
+\node[align=center,text=ok,font=\Large\bfseries] at (0,0) {BOTH};
+\node[align=center,font=\small] at (2.1,0) {$\sigma$\\ only};
+
+\node at (0,-2.9) [font=\Large] {\textbf{Intersection $\Rightarrow$ \textcolor{ok}{near-perfect precision}}};
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ==========================================================
+% Slide 11: THE BIG NUMBER
 \begin{frame}{}
 \vfill
 \begin{center}
-{\huge On \textbf{919 real receipts}:}\\[1.5em]
-{\Huge\bfseries\textcolor{ok}{precision = 0.988}}\\[0.5em]
-{\large (160 correct out of 162 accepts)}\\[2em]
-{\Large Wilson 95\% lower bound: \textbf{0.956}}\\[1em]
-{\large Both signals alone: below 0.92}
+{\Large On \textbf{919 real receipts}, with both AIs agreeing:}\\[1.5em]
+{\Huge\bfseries\textcolor{ok}{98.8\% precision}}\\[0.3em]
+{\large (160 right, 2 wrong, out of 162 accepts)}\\[1.5em]
+{\Large Statistical floor (95\% lower bound): \textbf{0.956}}\\[1em]
+{\large Either signal alone: \emph{below 0.92.}}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 10: CROSS-CORPUS (the 3-panel bar fig)
+% Slide 12: VISUAL PROOF — fig_overview
 \begin{frame}{}
 \begin{center}
 \includegraphics[width=0.95\linewidth]{figures/fig_overview.pdf}
 \end{center}
 \begin{center}
-\large \textbf{Three datasets. Two model architectures. Same answer.}
+{\Large \textbf{3 datasets. 2 different AIs. Same answer.}}
 \end{center}
 \end{frame}
 
 % ==========================================================
-% Slide 11: VENN
+% Slide 13: VENN — fig_accept_venn
 \begin{frame}{}
 \begin{center}
 \includegraphics[width=0.85\linewidth]{figures/fig_accept_venn.pdf}
 \end{center}
 \begin{center}
-\large The \emph{middle} of each Venn is the joint slice. Always more precise.
+\large The \emph{middle} of each Venn $=$ both signals agree. Always more precise.
 \end{center}
 \end{frame}
 
 % ==========================================================
-% Slide 12: STRIKING CASE
+% Slide 14: STRIKING CASE
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Large \textbf{Striking case: WildReceipt}}\\[1em]
+{\Large \textbf{The striking case: WildReceipt}}
+\end{center}
+\vspace{1em}
+\begin{center}
 \begin{tikzpicture}[scale=1.1]
-\draw[fill=sig!30] (0,0) rectangle (2,3.2);
-\node at (1,3.5) {$\sigma$ alone};
-\node at (1,-0.4) {\Large \textbf{0.953}};
+\draw[fill=smx!40] (0,0) rectangle (2,3.2);
+\node at (1,3.55) [font=\bfseries] {softmax};
+\node at (1,-0.45) {\Large \textbf{0.953}};
 
-\draw[fill=smx!30] (3,0) rectangle (5,3.2);
-\node at (4,3.5) {softmax alone};
-\node at (4,-0.4) {\Large \textbf{0.953}};
+\node at (3.2,1.6) [font=\Large] {$+$};
 
-\draw[fill=ok!50,pattern=north east lines,pattern color=ok] (6,0) rectangle (8,3.32);
-\node at (7,3.5) {intersection};
-\node at (7,-0.4) {\Large \textbf{\textcolor{ok}{0.991}}};
-\end{tikzpicture}\\[1.5em]
-{\large The two signals are \emph{equally accurate alone}.}\\[0.4em]
-{\large But they fail on \emph{different} receipts.}\\[0.4em]
-{\Large \textbf{Intersection still wins (113 / 114 correct).}}
+\draw[fill=sig!40] (4.4,0) rectangle (6.4,3.2);
+\node at (5.4,3.55) [font=\bfseries] {$\sigma$};
+\node at (5.4,-0.45) {\Large \textbf{0.953}};
+
+\node at (7.6,1.6) [font=\Large] {$=$};
+
+\draw[fill=ok!50,pattern=north east lines,pattern color=ok] (8.8,0) rectangle (10.8,3.33);
+\node at (9.8,3.55) [font=\bfseries] {both};
+\node at (9.8,-0.45) {\Large\bfseries\textcolor{ok}{0.991}};
+\end{tikzpicture}
+\end{center}
+\vspace{1em}
+\begin{center}
+{\Large \textbf{Equal alone. Different mistakes. Together: 113 / 114.}}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 13: COST
+% Slide 15: COST
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Large \textbf{How expensive?}}\\[2em]
+{\Large \textbf{How expensive is $\sigma$?}}
+\end{center}
+\vspace{1em}
+\begin{center}
 \begin{tikzpicture}
-\draw[fill=smx!50] (0,0) rectangle (10,1.2);
-\node at (5,1.7) {\Large Donut inference};
-\node at (5,0.6) {\Large $\sim$\!175 ms};
-\draw[fill=sig!50] (0,-1.5) rectangle (0.0016,-0.3);
-\node at (5,-1) {\large $\sigma$ verifier};
-\node at (5,-1.9) {\Large $\sim$\!1.5 $\mu$s};
-\end{tikzpicture}\\[1em]
-{\Large $\sigma$ adds \textbf{\textcolor{ok}{0.0016\%}} to total latency.}\\[0.5em]
-{\large Effectively free.}
+\draw[fill=smx!50] (0,0) rectangle (12,1.4);
+\node at (6,2.0) [font=\large] {AI inference};
+\node at (6,0.7) [font=\Large] {$\sim$\,175 ms};
+
+\draw[fill=ok!60] (0,-1.6) rectangle (0.002,-0.2);
+\node[anchor=west] at (0.4,-0.9) [font=\large] {$\sigma$ verifier $\sim$\,1.5 $\mu$s};
+\end{tikzpicture}
+\end{center}
+\vspace{1.5em}
+\begin{center}
+{\Huge \textbf{\textcolor{ok}{0.0016\%}}}\\[0.3em]
+{\Large of total time. Effectively free.}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
-% Slide 14: TAKE-HOME
+% Slide 16: BEFORE / AFTER (MARKETING)
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Huge \textbf{Take-home}}\\[2em]
-\begin{tikzpicture}[scale=1.1]
-\node[draw,rounded corners,fill=sig!20,text width=10cm,align=center,minimum height=1.2cm] at (0,1.7)
-  {Softmax is the \emph{model}'s opinion of itself.\\It can be confidently wrong.};
-\node[draw,rounded corners,fill=ok!20,text width=10cm,align=center,minimum height=1.2cm] at (0,0.1)
-  {Check the math \emph{on the receipt}.\\This signal is independent of the model.};
-\node[draw,rounded corners,fill=bad!20,text width=10cm,align=center,minimum height=1.2cm] at (0,-1.6)
-  {Two independent signals $\Rightarrow$ intersection precision $\to$ 1.0.};
+\begin{tikzpicture}[scale=1.0]
+% Before
+\node[draw,rounded corners=6pt,fill=smx!15,thick,text width=6cm,align=center,minimum height=3cm] at (-4.2,0)
+  {\textbf{\Large Before this paper}\\[0.3em]
+   {\Large 30+ years}\\[0.4em]
+   {\large One signal:}\\
+   {\large softmax confidence}\\[0.3em]
+   {\small confidently wrong $\Rightarrow$ silently wrong}};
+% After
+\node[draw,rounded corners=6pt,fill=ok!15,thick,text width=6cm,align=center,minimum height=3cm] at (4.2,0)
+  {\textbf{\Large After this paper}\\[0.3em]
+   {\Large Today}\\[0.4em]
+   {\large Two signals:}\\
+   {\large softmax \emph{+} $\sigma$ math check}\\[0.3em]
+   {\small both agree $\Rightarrow$ near-perfect precision}};
+
+\draw[->,very thick,>=Stealth] (-0.9,0) -- (0.9,0);
 \end{tikzpicture}
 \end{center}
 \vfill
 \begin{center}
-\large \textbf{One sentence:}\\[0.3em]
-\emph{If the receipt's own math doesn't back up the model's number, don't trust it.}\\[1em]
-\emph{Thank you. Questions?}
+{\large \textbf{The 1990s standard finally has a \emph{partner}.}}
+\end{center}
+\end{frame}
+
+% ==========================================================
+% Slide 17: TAKE-HOME
+\begin{frame}{}
+\vfill
+\begin{center}
+{\Huge\textbf{Take-home}}
+\end{center}
+\vspace{1.5em}
+\begin{center}
+\begin{tikzpicture}
+\node[draw,rounded corners=8pt,fill=ok!10,thick,text width=12.5cm,align=center,minimum height=3.5cm] at (0,0) {
+\Large If the receipt's own math doesn't back up the AI's number,\\[0.4em]
+\Large \textbf{don't trust the AI.}\\[0.8em]
+\large 30 years of softmax-only confidence $\to$ softmax \emph{plus} arithmetic.\\[0.3em]
+\large \textbf{\textcolor{ok}{98.8\% precision. 0.0016\% latency.}}
+};
+\end{tikzpicture}
+\end{center}
+\vfill
+\begin{center}
+\large \emph{Thank you.\quad Questions?}
 \end{center}
 \end{frame}
 
