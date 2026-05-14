@@ -45,6 +45,11 @@ def fmt_pct(x, decimals=1):
     return f"{100*x:.{decimals}f}%"
 
 
+def fmt_pct_tex(x, decimals=1):
+    if x is None: return "-"
+    return f"{100*x:.{decimals}f}\\%"
+
+
 def build_T1_headline():
     """Per-corpus sigma vs softmax_matched vs intersect, with Wilson CIs."""
     m  = (load("M_baseline_softmax.json")  or {}).get("summary", {})
@@ -238,10 +243,10 @@ def gen_tex(t1, t2):
     for r in t1:
         L.append("{corpus} & {n} & {scov} & {sprec} & {mprec} & {soprec} \\\\".format(
             corpus=r["corpus"], n=r["n"] or "-",
-            scov=fmt_pct(r["sigma_coverage"]),
-            sprec=fmt_pct(r["sigma_precision"]) if r["sigma_precision"] is not None else "-",
-            mprec=fmt_pct(r["softmax_precision"]) if r["softmax_precision"] is not None else "-",
-            soprec=fmt_pct(r["sigma_only_precision"]) if r["sigma_only_precision"] is not None else "-",
+            scov=fmt_pct_tex(r["sigma_coverage"]),
+            sprec=fmt_pct_tex(r["sigma_precision"]) if r["sigma_precision"] is not None else "-",
+            mprec=fmt_pct_tex(r["softmax_precision"]) if r["softmax_precision"] is not None else "-",
+            soprec=fmt_pct_tex(r["sigma_only_precision"]) if r["sigma_only_precision"] is not None else "-",
         ))
     L.append(r"\bottomrule")
     L.append(r"\end{tabular}")
