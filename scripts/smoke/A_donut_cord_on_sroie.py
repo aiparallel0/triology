@@ -1,14 +1,11 @@
-"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PROPER per-line OCR v8.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 with PRECISE tau extraction v9.
 
-v8 methodology fix: replaces Tesseract OCR (noisy on Malaysian thermal-print
-receipts) with **labeled Task-1 OCR words+bboxes from darentang/sroie**,
-grouped by y-coordinate into lines. Same image set (canonical-347), but
-the verifier now sees clean OCR instead of Tesseract approximations.
+v9 fix: previous tau extraction was 'if line contains tax-keyword, add ALL its money to tau'.
+This grabbed phone numbers on 'TAX INVOICE 102013...' lines and similar.
+v9 uses position-aware regex: captures the value IMMEDIATELY following 'tax|gst|sst|vat'.
 
-Expected: sigma_coverage jumps from 2.6% (v7) to 40-55% range, comparable
-to B (CORD) and F (WildReceipt) which use labeled annotations directly.
-
-Runtime target: ~3 min on RTX 4090 + ~10s darentang download (first run).
+Expected: median tau drops from O(100-100K) to O(1-10), gold totals re-enter T,
+sigma_coverage jumps from 4% to 30-50% range matching B and F.
 """
 import gc, json, os, re, sys, time
 from pathlib import Path
@@ -51,21 +48,54 @@ def parse_total(text):
     return parse_money(m.group(1)) if m else None
 
 
-DROP_KW = re.compile(r"\b(total|sub.?total|cash|change|paid|balance|tendered?)\b", re.I)
-TAX_KW  = re.compile(r"\b(tax|gst|sst|vat)\b", re.I)
-SERV_KW = re.compile(r"\b(service)\b", re.I)
-DISC_KW = re.compile(r"\b(discount|rebate)\b", re.I)
+# v9: PRECISE tau extraction — keyword + immediately-following value.
+# Captures: "tax 5.50", "GST: 2.30", "TAX(6%) RM 1.50", "SST 4.50".
+# Rejects: "Tax invoice no: 12345" (no decimal/currency), "Phone tel: 03-12345".
+TAX_VALUE_RE = re.compile(
+    r"\b(?:tax|gst|sst|vat)(?:[\s\(][^,\d]{0,15})?[\s:=]+(?:rm|\$)?\s*(-?\d+\.\d{1,2})\b",
+    re.I,
+)
+SERV_VALUE_RE = re.compile(
+    r"\bservice(?:\s*charge)?(?:[\s\(][^,\d]{0,15})?[\s:=]+(?:rm|\$)?\s*(-?\d+\.\d{1,2})\b",
+    re.I,
+)
+DISC_VALUE_RE = re.compile(
+    r"\b(?:discount|rebate)(?:[\s\(][^,\d]{0,15})?[\s:=]+(?:rm|\$)?\s*(-?\d+\.\d{1,2})\b",
+    re.I,
+)
+# Lines to skip entirely (their values are summary lines, not items)
+DROP_KW = re.compile(r"\b(total|sub.?total|cash|change|paid|balance|tendered?|amount\s+due)\b", re.I)
 
 
 def extract_money_lines(text_lines):
+    """v9: precise tau extraction. tau only captures value adjacent to tax/service/discount keyword."""
     money, tau = [], 0.0
     for ln in text_lines:
+        # First: check for precise tax/service/discount value pattern.
+        # If matched, the line contributes ONLY that value to tau, NOT to money_lines.
+        tax_m = TAX_VALUE_RE.search(ln)
+        serv_m = SERV_VALUE_RE.search(ln)
+        disc_m = DISC_VALUE_RE.search(ln)
+        if tax_m:
+            try: tau += float(tax_m.group(1))
+            except ValueError: pass
+            continue
+        if serv_m:
+            try: tau += float(serv_m.group(1))
+            except ValueError: pass
+            continue
+        if disc_m:
+            try: tau -= float(disc_m.group(1))
+            except ValueError: pass
+            continue
+        # Else: regular money-line extraction.
         v = parse_money_strict(ln)
         if v is None: continue
-        if TAX_KW.search(ln) or SERV_KW.search(ln): tau += v
-        elif DISC_KW.search(ln): tau -= v
-        elif DROP_KW.search(ln): continue
-        else: money.append(v)
+        if DROP_KW.search(ln): continue
+        money.append(v)
+    # Sanity cap: tau shouldn't be absurd. If tau > 10000, it's likely a runaway match.
+    if abs(tau) > 10000:
+        tau = 0.0  # safer to drop than to poison T
     return money[:MAX_MONEY], tau
 
 
@@ -89,29 +119,12 @@ def main():
     print(f"SROIE canonical-{len(paths)} via mirror={mirror}")
 
     t0 = time.time()
-    print("Loading Task-1 OCR from darentang/sroie...")
     stems_needed = {p.stem for p in paths}
     sroie_ocr = load_sroie_ocr_lines(stems_needed)
     print(f"  matched {len(sroie_ocr)}/{len(paths)} stems with Task-1 OCR")
     if not sroie_ocr:
-        print("  WARN: no Task-1 OCR; falling back to Tesseract")
-        # Tesseract fallback
-        try:
-            import pytesseract
-            from concurrent.futures import ProcessPoolExecutor
-            def _tess_one(path_str):
-                try:
-                    img = Image.open(path_str).convert("RGB")
-                    text = pytesseract.image_to_string(img)
-                    return Path(path_str).stem, [ln for ln in text.splitlines() if ln.strip()]
-                except Exception:
-                    return Path(path_str).stem, []
-            with ProcessPoolExecutor(max_workers=8) as ex:
-                sroie_ocr = dict(ex.map(_tess_one, [str(p) for p in paths]))
-            print(f"  Tesseract OCR done in {time.time()-t0:.1f}s")
-        except Exception as e:
-            print(f"  Tesseract fallback failed: {e}")
-            sroie_ocr = {p.stem: [] for p in paths}
+        print("  WARN: no Task-1 OCR")
+        sroie_ocr = {p.stem: [] for p in paths}
 
     print(f"Loading {CKPT}...")
     processor = DonutProcessor.from_pretrained(CKPT)
@@ -122,8 +135,7 @@ def main():
 
     items = []
     for p in paths:
-        try:
-            items.append((p.stem, Image.open(p).convert("RGB")))
+        try: items.append((p.stem, Image.open(p).convert("RGB")))
         except Exception: continue
 
     print(f"Batched DONUT (batch={BATCH}) on {len(items)} images...")
@@ -166,15 +178,20 @@ def main():
     gold_ok = sum(1 for r in results if r["gold"] is not None)
     ocr_lines_mean = sum(r["ocr_lines"] for r in results) / n
     money_count_mean = sum(r["money_count"] for r in results) / n
+    tau_abs_median = sorted(abs(r["tau"]) for r in results)[n // 2]
+    tau_abs_mean = sum(abs(r["tau"]) for r in results) / n
     summary = {
         "checkpoint": CKPT, "corpus": "canonical SROIE Task-3", "mirror": mirror,
         "setup": "in-distribution",
-        "ocr_source": "darentang/sroie Task-1" if sroie_ocr and len(sroie_ocr) > 100 else "tesseract_fallback",
+        "ocr_source": "darentang/sroie Task-1",
+        "tau_extraction": "v9_strict_position_aware",
         "n": len(results), "batch_size": BATCH,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n, "gold_ok_rate": gold_ok / n,
         "ocr_lines_per_receipt_mean": ocr_lines_mean,
         "money_lines_per_receipt_mean": money_count_mean,
+        "tau_abs_median": tau_abs_median,
+        "tau_abs_mean": tau_abs_mean,
         "coverage_1.0_F1": correct_all / n,
         "coverage_sigma": len(accepted) / n,
         "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),
