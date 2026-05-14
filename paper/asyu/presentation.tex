@@ -18,8 +18,8 @@
 \definecolor{sig}{HTML}{1f77b4}
 \definecolor{smx}{HTML}{ff7f0e}
 
-\title{When models are confidently wrong}
-\subtitle{Catching receipt-total errors by checking the math}
+\title{Is the model's total correct?}
+\subtitle{Catching receipt-extraction errors by checking the math}
 \author{ASYU 2026}
 \date{}
 
@@ -29,75 +29,95 @@
 \frame{\titlepage}
 
 % ==========================================================
+% Slide 2: THE QUESTION
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Huge A model reads a receipt.}\\[0.6em]
-{\Huge It says the total is \textbf{\textcolor{sig}{\$58.40}}.}\\[1.2em]
-{\Large Is it right?}
+{\Huge \textbf{The question}}\\[2em]
+{\Large ``The model just read a receipt and \\ said the total is \$58.40.''}\\[1.5em]
+{\Large \textbf{Should I trust that number?}}
 \end{center}
 \vfill
-\begin{tikzpicture}[remember picture,overlay]
-\node[anchor=south east] at (current page.south east)
-  [xshift=-1cm,yshift=1cm]
-  {\begin{tikzpicture}[scale=0.55]
-    \draw[fill=white,thick] (0,0) rectangle (4,6);
-    \draw (0.3,5.5) -- (3.7,5.5);
-    \node at (2,5.7) {\small\bfseries RECEIPT};
-    \node[anchor=west] at (0.3,4.8) {\small Coffee \hfill \$3.20};
-    \node[anchor=west] at (0.3,4.3) {\small Sandwich \hfill \$8.50};
-    \node[anchor=west] at (0.3,3.8) {\small Salad \hfill \$6.00};
-    \node[anchor=west] at (0.3,3.3) {\small ...};
-    \draw (0.3,2.7) -- (3.7,2.7);
-    \node[anchor=west] at (0.3,2.2) {\small Subtotal \hfill \$52.40};
-    \node[anchor=west] at (0.3,1.7) {\small Tax \hfill \$6.00};
-    \draw[thick] (0.3,1.2) -- (3.7,1.2);
-    \node[anchor=west] at (0.3,0.7) {\small\bfseries TOTAL \hfill \textbf{?}};
-  \end{tikzpicture}};
-\end{tikzpicture}
 \end{frame}
 
 % ==========================================================
+% Slide 3: A RECEIPT
 \begin{frame}{}
+\vfill
 \begin{center}
-{\Large The usual way: \emph{ask the model how confident it is.}}
+\begin{tikzpicture}[scale=0.7]
+\draw[fill=white,thick] (0,0) rectangle (4,6.5);
+\draw (0.3,6.0) -- (3.7,6.0);
+\node at (2,6.25) {\small\bfseries RECEIPT};
+\node[anchor=west] at (0.3,5.4) {\small Coffee \hfill \$3.20};
+\node[anchor=west] at (0.3,4.9) {\small Sandwich \hfill \$8.50};
+\node[anchor=west] at (0.3,4.4) {\small Salad \hfill \$6.00};
+\node[anchor=west] at (0.3,3.9) {\small Pasta \hfill \$30.70};
+\draw (0.3,3.4) -- (3.7,3.4);
+\node[anchor=west] at (0.3,2.9) {\small Subtotal \hfill \$48.40};
+\node[anchor=west] at (0.3,2.4) {\small Tax \hfill \$10.00};
+\draw[thick] (0.3,1.9) -- (3.7,1.9);
+\node[anchor=west] at (0.3,1.4) {\small\bfseries TOTAL \hfill \textbf{?}};
+
+\node at (8,5) [font=\Large] {The model says:};
+\node at (8,4) [font=\huge,text=sig] {\textbf{\$58.40}};
+\node at (8,2.5) [font=\Large] {Real answer?};
+\node at (8,1.5) [font=\Large,text=ok] {\textbf{\$58.40} \checkmark};
+\end{tikzpicture}
 \end{center}
-\vspace{1em}
+\vfill
+\end{frame}
+
+% ==========================================================
+% Slide 4: OLD WAY
+\begin{frame}{}
+\vfill
+\begin{center}
+{\Large \textbf{The usual way: ask the model how confident it is.}}
+\end{center}
+\vspace{1.5em}
 \begin{center}
 \begin{tikzpicture}[scale=1.2]
-\node[draw,rounded corners,fill=sig!20,minimum width=3cm,minimum height=1.2cm] (m) at (0,0) {\textbf{KIE model}};
-\node[anchor=west] at (3,0.4) {\Large ``\$58.40''};
-\node[anchor=west] at (3,-0.3) {\Large 97\% sure};
+\node[draw,rounded corners,fill=sig!20,minimum width=3cm,minimum height=1.2cm] (m) at (0,0) {\textbf{model}};
 \draw[->,thick] (m.east) -- (3,0);
-\node[anchor=north] at (1.5,-1.2) [text=bad] {\Large\bfseries ... but the real total is \$48.40.};
+\node[anchor=west] at (3,0.4) {\Large ``\$58.40''};
+\node[anchor=west] at (3,-0.4) {\Large 97\% sure};
 \end{tikzpicture}
 \end{center}
 \vspace{1em}
 \begin{center}
-\textbf{\textcolor{bad}{The model can be confidently wrong.}}\\
-Softmax is the model's opinion of \emph{itself}.
-\end{center}
-\end{frame}
-
-% ==========================================================
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large \textbf{What if we just \emph{check the math?}}}\\[1em]
-{\large The receipt has all the numbers.}\\
-{\large Do any of them add up to the prediction?}
+{\large ... but what if the real total is \$48.40, \emph{not} \$58.40?}\\[0.5em]
+{\Large \textbf{\textcolor{bad}{The model can be confidently wrong.}}}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
+% Slide 5: NEW IDEA
+\begin{frame}{}
+\vfill
+\begin{center}
+{\Huge \textbf{The new idea}}\\[1.5em]
+{\Large Don't ask the model.}\\[0.5em]
+{\Large \textbf{Check the math on the receipt itself.}}
+\end{center}
+\vspace{1.5em}
+\begin{center}
+\large The receipt has all the numbers.\\
+\large Do any of them \emph{add up} to the prediction?
+\end{center}
+\vfill
+\end{frame}
+
+% ==========================================================
+% Slide 6: HOW SIGMA WORKS
 \begin{frame}{}
 \begin{center}
-{\large Our gate: $\sigma$}
+{\large \textbf{The $\sigma$ gate: find a subset that sums to the predicted total}}
 \end{center}
 \vspace{0.5em}
 \begin{center}
-\begin{tikzpicture}[scale=0.9]
+\begin{tikzpicture}[scale=0.85]
 \draw[fill=white,thick] (0,0) rectangle (4,5);
 \draw (0.3,4.5) -- (3.7,4.5);
 \node at (2,4.7) {\small\bfseries RECEIPT};
@@ -110,61 +130,84 @@ Softmax is the model's opinion of \emph{itself}.
 \draw[thick] (0.3,0.8) -- (3.7,0.8);
 \node[anchor=west] at (0.3,0.3) {\small\bfseries TOTAL \hfill \$58.40};
 
-\node at (6.5,3.5) [text=sig,font=\Large] {3.20};
-\node at (7.2,3.5) [text=sig,font=\Large] {+};
-\node at (7.8,3.5) [text=sig,font=\Large] {8.50};
-\node at (8.5,3.5) [text=sig,font=\Large] {+};
-\node at (9.2,3.5) [text=sig,font=\Large] {6.00};
-\node at (9.9,3.5) [text=sig,font=\Large] {+};
-\node at (10.7,3.5) [text=sig,font=\Large] {30.70};
-\node at (11.5,3.5) [text=sig,font=\Large] {+};
-\node at (12.4,3.5) [text=sig,font=\Large] {10.00};
+\node at (9,3.8) [text=sig,font=\Large] {$3.20 + 8.50 + 6.00$};
+\node at (9,3.1) [text=sig,font=\Large] {$+ 30.70 + 10.00$};
 
-\draw[->,thick] (8.5,2.8) -- (8.5,2.0);
-\node at (8.5,1.5) [text=ok,font=\huge] {= \$58.40 \checkmark};
-\node at (8.5,0.5) [text=ok,font=\large] {\textbf{accept}};
+\draw[->,thick] (9,2.5) -- (9,1.9);
+\node at (9,1.3) [text=ok,font=\huge] {= \$58.40 \checkmark};
+\node at (9,0.3) [text=ok,font=\Large] {\textbf{accept}};
 \end{tikzpicture}
+\end{center}
+\vspace{0.5em}
+\begin{center}
+\small If \emph{no} subset sums to \$58.40 within tolerance, the gate rejects.
 \end{center}
 \end{frame}
 
 % ==========================================================
+% Slide 7: WHY IT WORKS
 \begin{frame}{}
 \vfill
 \begin{center}
-{\large \textbf{Two signals that miss \emph{different} receipts}}
+{\Large \textbf{Why this works}}\\[1em]
+\end{center}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\node[draw,rounded corners,fill=ok!20,text width=11cm,align=center,minimum height=1.2cm] at (0,1.5)
+  {\Large Receipts are \emph{arithmetically closed.}};
+\node[text width=11cm,align=center] at (0,0.2)
+  {\large The total \emph{is} a sum of visible amounts.};
+\node[draw,rounded corners,fill=sig!20,text width=11cm,align=center,minimum height=1.2cm] at (0,-1.5)
+  {\Large $\sigma$ \emph{reads the receipt}, not the model's confidence.};
+\end{tikzpicture}
+\end{center}
+\vfill
+\begin{center}
+\small Two independent signals --- the model's softmax and $\sigma$'s math check.
+\end{center}
+\end{frame}
+
+% ==========================================================
+% Slide 8: TWO SIGNALS, DIFFERENT ERRORS
+\begin{frame}{}
+\vfill
+\begin{center}
+{\large \textbf{Two signals that fail on \emph{different} receipts}}
 \end{center}
 \vspace{1em}
 \begin{center}
 \begin{tikzpicture}[scale=1.0]
 \fill[sig!30,opacity=0.7] (-1,0) circle (2.2);
 \fill[smx!30,opacity=0.7] (1,0) circle (2.2);
-\node at (-2.5,0) [text=sig,font=\bfseries] {$\sigma$};
-\node at (2.5,0) [text=smx,font=\bfseries] {softmax};
+\node at (-2.6,0) [text=sig,font=\Large\bfseries] {$\sigma$};
+\node at (2.6,0) [text=smx,font=\Large\bfseries] {softmax};
 
-\node[align=center] at (-1.7,0) {\small $\sigma$-only\\catches};
+\node[align=center,font=\small] at (-1.7,0) {$\sigma$-only\\catches};
 \node[align=center,text=ok,font=\bfseries] at (0,0) {\large both\\catch};
-\node[align=center] at (1.7,0) {\small softmax\\only catches};
+\node[align=center,font=\small] at (1.7,0) {softmax\\only catches};
 
-\node at (0,-2.8) [font=\Large] {Intersect both $\Rightarrow$ \textbf{\textcolor{ok}{near-perfect precision}}};
+\node at (0,-2.8) [font=\Large] {Use both $\Rightarrow$ \textbf{\textcolor{ok}{near-perfect precision}}};
 \end{tikzpicture}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
+% Slide 9: BIG NUMBER
 \begin{frame}{}
 \vfill
 \begin{center}
-{\huge On 919 real receipts:}\\[1.5em]
+{\huge On \textbf{919 real receipts}:}\\[1.5em]
 {\Huge\bfseries\textcolor{ok}{precision = 0.988}}\\[0.5em]
 {\large (160 correct out of 162 accepts)}\\[2em]
 {\Large Wilson 95\% lower bound: \textbf{0.956}}\\[1em]
-{\large Both single signals alone: below 0.92}
+{\large Both signals alone: below 0.92}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
+% Slide 10: CROSS-CORPUS (the 3-panel bar fig)
 \begin{frame}{}
 \begin{center}
 \includegraphics[width=0.95\linewidth]{figures/fig_overview.pdf}
@@ -175,16 +218,18 @@ Softmax is the model's opinion of \emph{itself}.
 \end{frame}
 
 % ==========================================================
+% Slide 11: VENN
 \begin{frame}{}
 \begin{center}
 \includegraphics[width=0.85\linewidth]{figures/fig_accept_venn.pdf}
 \end{center}
 \begin{center}
-\large The \emph{middle} of each Venn is the joint accept slice. Always more precise.
+\large The \emph{middle} of each Venn is the joint slice. Always more precise.
 \end{center}
 \end{frame}
 
 % ==========================================================
+% Slide 12: STRIKING CASE
 \begin{frame}{}
 \vfill
 \begin{center}
@@ -202,21 +247,22 @@ Softmax is the model's opinion of \emph{itself}.
 \node at (7,3.5) {intersection};
 \node at (7,-0.4) {\Large \textbf{\textcolor{ok}{0.991}}};
 \end{tikzpicture}\\[1.5em]
-{\large The two signals are \emph{equally accurate alone}.}\\[0.5em]
-{\large But they fail on \emph{different} receipts.}\\[0.5em]
-{\large Intersection still wins.}
+{\large The two signals are \emph{equally accurate alone}.}\\[0.4em]
+{\large But they fail on \emph{different} receipts.}\\[0.4em]
+{\Large \textbf{Intersection still wins (113 / 114 correct).}}
 \end{center}
 \vfill
 \end{frame}
 
 % ==========================================================
+% Slide 13: COST
 \begin{frame}{}
 \vfill
 \begin{center}
 {\Large \textbf{How expensive?}}\\[2em]
 \begin{tikzpicture}
 \draw[fill=smx!50] (0,0) rectangle (10,1.2);
-\node at (5,1.5) {\Large Donut inference};
+\node at (5,1.7) {\Large Donut inference};
 \node at (5,0.6) {\Large $\sim$\!175 ms};
 \draw[fill=sig!50] (0,-1.5) rectangle (0.0016,-0.3);
 \node at (5,-1) {\large $\sigma$ verifier};
@@ -229,21 +275,26 @@ Softmax is the model's opinion of \emph{itself}.
 \end{frame}
 
 % ==========================================================
+% Slide 14: TAKE-HOME
 \begin{frame}{}
 \vfill
 \begin{center}
 {\Huge \textbf{Take-home}}\\[2em]
 \begin{tikzpicture}[scale=1.1]
-\node[draw,rounded corners,fill=sig!20,text width=10cm,align=center,minimum height=1.2cm] at (0,1.5)
+\node[draw,rounded corners,fill=sig!20,text width=10cm,align=center,minimum height=1.2cm] at (0,1.7)
   {Softmax is the \emph{model}'s opinion of itself.\\It can be confidently wrong.};
-\node[draw,rounded corners,fill=ok!20,text width=10cm,align=center,minimum height=1.2cm] at (0,0)
+\node[draw,rounded corners,fill=ok!20,text width=10cm,align=center,minimum height=1.2cm] at (0,0.1)
   {Check the math \emph{on the receipt}.\\This signal is independent of the model.};
-\node[draw,rounded corners,fill=bad!20,text width=10cm,align=center,minimum height=1.2cm] at (0,-1.5)
+\node[draw,rounded corners,fill=bad!20,text width=10cm,align=center,minimum height=1.2cm] at (0,-1.6)
   {Two independent signals $\Rightarrow$ intersection precision $\to$ 1.0.};
 \end{tikzpicture}
 \end{center}
 \vfill
-\begin{center}\large \emph{Thank you. Questions?}\end{center}
+\begin{center}
+\large \textbf{One sentence:}\\[0.3em]
+\emph{If the receipt's own math doesn't back up the model's number, don't trust it.}\\[1em]
+\emph{Thank you. Questions?}
+\end{center}
 \end{frame}
 
 \end{document}
