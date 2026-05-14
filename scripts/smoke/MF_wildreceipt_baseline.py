@@ -1,18 +1,22 @@
 """MF: sigma vs softmax baseline on WildReceipt (labeled-amounts, encoder-only).
 
-Tests whether softmax-aggregation (mean max-prob across predicted-as-Total tokens)
+v2 fix: previous version skipped all 472 records because the dataset's text/bbox
+fields didn't match the guessed names. v2 introspects the schema and handles
+multiple loaders + field variants robustly.
+
+Tests whether softmax-aggregation (geo-mean max-prob over Total_value tokens)
 dominates sigma on WildReceipt where F reports sigma_precision=0.95 @ 45% coverage.
-Mirror of MB but for LayoutLMv3 token classification.
 
-If softmax also beats sigma here, the regime distinction is dead.
-
-Runtime ~30s on RTX 4090.
+Runtime ~30s on RTX 4090 once schema is matched.
 """
 import gc, json, os, re, sys, time
+from collections import Counter
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
 import torch
+from PIL import Image
 from datasets import load_dataset
 from transformers import AutoProcessor, LayoutLMv3ForTokenClassification
 
@@ -31,6 +35,67 @@ def parse_money(s):
     return float(m.group()) if m else None
 
 
+def load_image_field(v):
+    """Load an image from a PIL object, path string, dict, or bytes."""
+    if v is None: return None
+    if hasattr(v, "convert"): return v.convert("RGB")
+    if isinstance(v, dict):
+        if v.get("bytes"):
+            return Image.open(BytesIO(v["bytes"])).convert("RGB")
+        if v.get("path"):
+            try: return Image.open(v["path"]).convert("RGB")
+            except Exception: return None
+    if isinstance(v, str):
+        try: return Image.open(v).convert("RGB")
+        except Exception: return None
+    if isinstance(v, (bytes, bytearray)):
+        return Image.open(BytesIO(v)).convert("RGB")
+    return None
+
+
+def normalize_bbox(box, w, h):
+    """Convert pixel-space bbox to [0,1000] for LayoutLMv3."""
+    if not box or len(box) < 4: return [0, 0, 0, 0]
+    x0, y0, x1, y1 = box[:4]
+    return [
+        int(1000 * max(0, min(1, x0 / max(1, w)))),
+        int(1000 * max(0, min(1, y0 / max(1, h)))),
+        int(1000 * max(0, min(1, x1 / max(1, w)))),
+        int(1000 * max(0, min(1, y1 / max(1, h)))),
+    ]
+
+
+def extract_fields(ex):
+    """Schema-flex: try multiple field names. Returns (img, words, boxes, w, h)."""
+    img = (load_image_field(ex.get("image")) or
+           load_image_field(ex.get("img")) or
+           load_image_field(ex.get("image_path")))
+    if img is None:
+        return None, None, None, None, None
+    w, h = img.size
+    words = (ex.get("tokens") or ex.get("words") or
+             ex.get("text") or ex.get("texts") or [])
+    boxes = (ex.get("bboxes") or ex.get("boxes") or
+             ex.get("bbox") or ex.get("normalized_bboxes") or [])
+    return img, words, boxes, w, h
+
+
+def try_load():
+    """Try multiple WildReceipt loaders in order of preference."""
+    candidates = [
+        "Theivaprakasham/wildreceipt",
+        "jinhybr/WildReceipt",
+    ]
+    for ref in candidates:
+        try:
+            ds = load_dataset(ref, split="test", trust_remote_code=True)
+            print(f"  loaded {ref} n={len(ds)}; columns: {ds.column_names}")
+            return ds, ref
+        except Exception as e:
+            print(f"  miss {ref}: {type(e).__name__}: {str(e)[:200]}")
+    return None, None
+
+
 def main():
     t0 = time.time()
     f_in_T, f_correct = {}, {}
@@ -40,20 +105,26 @@ def main():
             rid = r.get("id")
             f_in_T[rid] = r.get("in_T", False)
             f_correct[rid] = r.get("correct", False)
-    else:
-        print("WARN: F's runs/F_layoutlmv3_on_wildreceipt.json not found")
+        print(f"  loaded F's {len(f_in_T)} sigma_accept flags")
 
     print(f"Loading {CKPT}...")
     processor = AutoProcessor.from_pretrained(CKPT, apply_ocr=False)
     model = LayoutLMv3ForTokenClassification.from_pretrained(CKPT).to("cuda").eval()
 
-    try:
-        ds = load_dataset("jinhybr/WildReceipt", split="test", trust_remote_code=True)
-    except Exception:
-        ds = load_dataset("Theivaprakasham/wildreceipt", split="test", trust_remote_code=True)
-    print(f"WildReceipt test n={len(ds)}")
+    ds, ref = try_load()
+    if ds is None:
+        OUT.write_text(json.dumps({"available": False, "reason": "no WildReceipt loader reachable"}, indent=2))
+        return
+
+    # Diagnostic: dump first record's schema
+    first = ds[0]
+    schema = {k: (type(v).__name__ if not isinstance(v, (int, float, bool, type(None)))
+                  else (str(v)[:60] if isinstance(v, str) else v))
+              for k, v in first.items()}
+    print(f"  first-record schema: {json.dumps(schema, default=str)[:300]}")
 
     results = []
+    skip_reasons = Counter()
     t1 = time.time()
     for i in range(0, len(ds), BATCH):
         batch_idx = list(range(i, min(i + BATCH, len(ds))))
@@ -62,36 +133,56 @@ def main():
         images, words_list, boxes_list = [], [], []
         keep_idx = []
         for ex_idx, ex in zip(batch_idx, batch):
+            img, words, boxes, w, h = extract_fields(ex)
+            if img is None:
+                skip_reasons["no_image"] += 1; continue
+            if not words:
+                skip_reasons["no_words"] += 1; continue
+            if not boxes:
+                skip_reasons["no_boxes"] += 1; continue
+            if len(words) != len(boxes):
+                skip_reasons["words_boxes_mismatch"] += 1; continue
+            # Normalize bboxes to [0, 1000] if they appear to be in pixel space
             try:
-                img = ex.get("image")
-                if hasattr(img, "convert"): img = img.convert("RGB")
-                words = ex.get("words") or ex.get("tokens") or []
-                boxes = ex.get("bboxes") or ex.get("boxes") or []
-                if img is None or not words: continue
-                images.append(img); words_list.append(words); boxes_list.append(boxes)
-                keep_idx.append(ex_idx)
-            except Exception:
-                continue
-        if not images: continue
+                if any(any(c > 1000 for c in b[:4]) for b in boxes):
+                    boxes = [normalize_bbox(b, w, h) for b in boxes]
+                else:
+                    # Already normalized or 0-1 range
+                    boxes = [list(b[:4]) for b in boxes]
+                # Truncate to 512 tokens for LayoutLMv3 sequence length
+                if len(words) > 510:
+                    words = words[:510]; boxes = boxes[:510]
+                # Ensure words are strings
+                words = [str(w) for w in words]
+            except Exception as e:
+                skip_reasons[f"bbox_norm_fail"] += 1; continue
+            images.append(img); words_list.append(words); boxes_list.append(boxes)
+            keep_idx.append(ex_idx)
+
+        if not images:
+            if i == 0:
+                print(f"  WARN: first batch yielded 0 valid examples; skip_reasons={dict(skip_reasons)}")
+            continue
 
         try:
             enc = processor(images=images, text=words_list, boxes=boxes_list,
                             return_tensors="pt", padding=True, truncation=True).to("cuda")
         except Exception as e:
-            print(f"  batch encode fail: {e}"); continue
+            print(f"  batch encode fail: {type(e).__name__}: {str(e)[:200]}")
+            skip_reasons["encode_fail"] += len(images)
+            continue
 
         with torch.inference_mode():
-            logits = model(**enc).logits  # [B, L, C]
+            logits = model(**enc).logits
         probs = torch.softmax(logits.float(), dim=-1)
+        preds = logits.argmax(dim=-1)
 
-        preds = logits.argmax(dim=-1)  # [B, L]
         for b, ex_idx in enumerate(keep_idx):
             mask = preds[b] == TOTAL_VALUE_ID
             if mask.sum().item() == 0:
                 sm = None
             else:
                 max_probs = probs[b].gather(-1, preds[b].unsqueeze(-1)).squeeze(-1)
-                # Aggregate confidence: geo-mean of max-probs over Total_value tokens
                 total_probs = max_probs[mask].cpu().tolist()
                 log_ps = [np.log(max(p, 1e-12)) for p in total_probs]
                 sm = float(np.exp(np.mean(log_ps))) if log_ps else None
@@ -105,6 +196,8 @@ def main():
         if (i // BATCH + 1) % 5 == 0:
             gc.collect(); torch.cuda.empty_cache()
             print(f"  {min(i+BATCH, len(ds))}/{len(ds)} elapsed={time.time()-t1:.0f}s")
+
+    print(f"  skip_reasons: {dict(skip_reasons)}")
 
     n = max(1, len(results))
     correct_all = sum(r["correct"] for r in results)
@@ -140,8 +233,10 @@ def main():
     summary = {
         "corpus": "WildReceipt test (labeled-amounts, encoder-only)",
         "ckpt": CKPT,
+        "loader": ref,
         "n": len(results),
         "wall_sec": round(time.time() - t0, 1),
+        "skip_reasons": dict(skip_reasons),
         "base_rate_F1": correct_all / n,
         "sigma": {
             "coverage": sigma_cov, "precision": sigma_prec,
@@ -161,10 +256,9 @@ def main():
             "softmax_only_precision": prec_of(softmax_ids - sigma_ids),
         },
         "verdict_hook": (
-            "Compare sigma.precision vs softmax_matched.precision. If softmax wins here too, "
-            "the regime distinction is dead and Paper 1 pivots entirely to orthogonality. "
-            "WildReceipt is encoder-only (token classifier), so softmax is aggregated as "
-            "geo-mean max-prob over tokens classified as Total_value."
+            "Per CORD's result (MB: sigma 0.982 vs softmax 0.927, sigma_only_precision=1.0), "
+            "expect sigma to win on WildReceipt too if the labeled-amounts regime hypothesis holds. "
+            "If softmax wins here, the regime distinction is corpus-specific to CORD only."
         ),
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
