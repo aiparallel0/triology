@@ -1,16 +1,16 @@
 """paper_table: consolidate all locked Paper 1 numbers into a single LaTeX-ready table.
 
-v2: detects runs/MF2_wildreceipt_softmax.json and fills WildReceipt's
-softmax/intersect/sigma-only cells when present (was None when softmax
-was deferred). All figures now render three-corpus panels.
+v3: figures are now fully data-driven from PAPER_TABLE.json (no hardcoded
+constants). Each T1_headline row carries explicit sigma_acc, sigma_corr,
+softmax_acc, softmax_corr fields so figures can render without knowing
+corpus-specific magic numbers. T6_pareto_front merges MF2's WildReceipt
+Pareto when present.
 """
 import json
 from pathlib import Path
 
 RUNS = Path("runs")
 OUT_JSON = RUNS / "PAPER_TABLE.json"
-OUT_MD = RUNS / "PAPER_TABLE.md"
-OUT_TEX = RUNS / "PAPER_TABLE.tex"
 
 
 def load(name):
@@ -18,24 +18,6 @@ def load(name):
     if not p.exists(): return None
     try: return json.loads(p.read_text())
     except Exception: return None
-
-
-def fmt_ci(ci, decimals=3):
-    if ci is None: return "-"
-    if not isinstance(ci, (list, tuple)) or len(ci) != 2: return "-"
-    lo, hi = ci
-    if lo is None or hi is None: return "-"
-    return f"[{lo:.{decimals}f}, {hi:.{decimals}f}]"
-
-
-def fmt_pct(x, decimals=1):
-    if x is None: return "-"
-    return f"{100*x:.{decimals}f}%"
-
-
-def fmt_pct_tex(x, decimals=1):
-    if x is None: return "-"
-    return f"{100*x:.{decimals}f}\\%"
 
 
 def wilson_ci(k, n, z=1.96):
@@ -49,6 +31,8 @@ def wilson_ci(k, n, z=1.96):
 
 
 def build_T1_headline():
+    """Per-corpus headline. v3: exposes explicit sigma_acc/softmax_acc/intersect_n
+    so figures don't need hardcoded SIGMA_N dicts."""
     m  = (load("M_baseline_softmax.json")  or {}).get("summary", {})
     mb = (load("MB_cord_baseline.json")    or {}).get("summary", {})
     mf = (load("MF_wildreceipt_baseline.json") or {}).get("summary", {})
@@ -57,72 +41,120 @@ def build_T1_headline():
     t_per = t.get("per_corpus", {})
 
     rows = []
-    for name, src, t_src in [
-        ("SROIE",      m,  t_per.get("SROIE", {})),
-        ("CORD",       mb, t_per.get("CORD", {})),
-        ("WildReceipt", mf, None),
-    ]:
-        if name == "WildReceipt":
-            sigma = mf.get("sigma_from_F", {})
-            row = {
-                "corpus": name, "n": sigma.get("n"),
-                "sigma_coverage": sigma.get("coverage"),
-                "sigma_precision": sigma.get("precision"),
-                "sigma_precision_ci": None,
-                "softmax_coverage": None,
-                "softmax_precision": None,
-                "softmax_precision_ci": None,
-                "intersect_n": None,
-                "intersect_precision": None,
-                "intersect_precision_ci": None,
-                "sigma_only_n": None,
-                "sigma_only_precision": None,
-                "sigma_only_precision_ci": None,
-                "softmax_only_precision": None,
-                "mcnemar_p": None,
-                "note": "softmax baseline pending",
-            }
-            if mf2:
-                wr = mf2.get("WildReceipt", {})
-                row.update({
-                    "sigma_coverage": wr["sigma_acc"] / max(1, wr["n"]),
-                    "sigma_precision": wr["sigma_corr"] / max(1, wr["sigma_acc"]),
-                    "sigma_precision_ci": wilson_ci(wr["sigma_corr"], wr["sigma_acc"]),
-                    "softmax_coverage": wr["smax_acc"] / max(1, wr["n"]),
-                    "softmax_precision": wr["smax_corr"] / max(1, wr["smax_acc"]),
-                    "softmax_precision_ci": wilson_ci(wr["smax_corr"], wr["smax_acc"]),
-                    "intersect_n": wr["int_acc"],
-                    "intersect_precision": wr["int_corr"] / max(1, wr["int_acc"]),
-                    "intersect_precision_ci": wilson_ci(wr["int_corr"], wr["int_acc"]),
-                    "sigma_only_n": wr["sigonly_acc"],
-                    "sigma_only_precision": wr["sigonly_corr"] / max(1, wr["sigonly_acc"]),
-                    "sigma_only_precision_ci": wilson_ci(wr["sigonly_corr"], wr["sigonly_acc"]),
-                    "softmax_only_precision": wr["smonly_corr"] / max(1, wr["smonly_acc"]),
-                    "mcnemar_p": None,
-                    "note": "softmax via MF2_wildreceipt_softmax.py (LayoutLMv3)",
-                })
-            rows.append(row)
-            continue
 
+    # CORD and SROIE: from M and MB baselines
+    for name, src, t_src in [
+        ("SROIE", m,  t_per.get("SROIE", {})),
+        ("CORD",  mb, t_per.get("CORD", {})),
+    ]:
         ortho = src.get("orthogonality", {})
+        sigma_info = src.get("sigma", {})
+        smax_info = src.get("softmax_matched_coverage", {})
+        sigma_acc_raw = ortho.get("|sigma|")
+        smax_acc_raw  = ortho.get("|softmax|")
+        intersect_n = ortho.get("|intersect|")
+        n_total = src.get("n")
+        # n_correct backfills: sigma_corr = sigma_precision * sigma_acc
+        sigma_acc = sigma_acc_raw if sigma_acc_raw is not None else (
+            int(round((sigma_info.get("coverage", 0) or 0) * (n_total or 0)))
+        )
+        smax_acc = smax_acc_raw if smax_acc_raw is not None else sigma_acc
+        sigma_corr = int(round((sigma_info.get("precision", 0) or 0) * sigma_acc))
+        smax_corr  = int(round((smax_info.get("precision", 0) or 0) * smax_acc))
+        intersect_corr = int(round(
+            (ortho.get("intersect_precision", 0) or 0) * (intersect_n or 0)
+        ))
+        sigma_only_n = sigma_acc - (intersect_n or 0)
+        sigma_only_corr = int(round(
+            (ortho.get("sigma_only_precision", 0) or 0) * sigma_only_n
+        ))
+        smax_only_n = smax_acc - (intersect_n or 0)
+        smax_only_corr = int(round(
+            (ortho.get("softmax_only_precision", 0) or 0) * smax_only_n
+        ))
         rows.append({
             "corpus": name,
-            "n": src.get("n"),
-            "sigma_coverage":  src.get("sigma", {}).get("coverage"),
-            "sigma_precision": src.get("sigma", {}).get("precision"),
+            "backbone": "Donut",
+            "n": n_total,
+            "sigma_acc":  sigma_acc,
+            "sigma_corr": sigma_corr,
+            "sigma_coverage":  sigma_info.get("coverage"),
+            "sigma_precision": sigma_info.get("precision"),
             "sigma_precision_ci": t_src.get("sigma", {}).get("wilson_95_ci") if t_src else None,
-            "softmax_coverage":  src.get("softmax_matched_coverage", {}).get("coverage"),
-            "softmax_precision": src.get("softmax_matched_coverage", {}).get("precision"),
+            "softmax_acc":  smax_acc,
+            "softmax_corr": smax_corr,
+            "softmax_coverage":  smax_info.get("coverage"),
+            "softmax_precision": smax_info.get("precision"),
             "softmax_precision_ci": t_src.get("softmax_matched", {}).get("wilson_95_ci") if t_src else None,
-            "intersect_n":         ortho.get("|intersect|"),
+            "intersect_n":         intersect_n,
+            "intersect_corr":      intersect_corr,
             "intersect_precision": ortho.get("intersect_precision"),
             "intersect_precision_ci": t_src.get("intersect", {}).get("wilson_95_ci") if t_src else None,
-            "sigma_only_n":         ortho.get("|sigma_only|") if name == "SROIE" else None,
+            "sigma_only_n":         sigma_only_n,
+            "sigma_only_corr":      sigma_only_corr,
             "sigma_only_precision": ortho.get("sigma_only_precision"),
             "sigma_only_precision_ci": t_src.get("sigma_only", {}).get("wilson_95_ci") if t_src else None,
+            "softmax_only_n":         smax_only_n,
+            "softmax_only_corr":      smax_only_corr,
             "softmax_only_precision": ortho.get("softmax_only_precision"),
             "mcnemar_p": t_src.get("mcnemar_paired_test", {}).get("p_value") if t_src else None,
         })
+
+    # WildReceipt: from MF2 when present, else MF (sigma-only)
+    sigma = mf.get("sigma_from_F", {})
+    wr_row = {
+        "corpus": "WildReceipt",
+        "backbone": "LayoutLMv3",
+        "n": sigma.get("n"),
+        "sigma_acc": None, "sigma_corr": None,
+        "sigma_coverage": sigma.get("coverage"),
+        "sigma_precision": sigma.get("precision"),
+        "sigma_precision_ci": None,
+        "softmax_acc": None, "softmax_corr": None,
+        "softmax_coverage": None, "softmax_precision": None,
+        "softmax_precision_ci": None,
+        "intersect_n": None, "intersect_corr": None,
+        "intersect_precision": None, "intersect_precision_ci": None,
+        "sigma_only_n": None, "sigma_only_corr": None,
+        "sigma_only_precision": None, "sigma_only_precision_ci": None,
+        "softmax_only_n": None, "softmax_only_corr": None,
+        "softmax_only_precision": None,
+        "mcnemar_p": None,
+        "note": "softmax baseline pending",
+    }
+    if mf2:
+        wr = mf2.get("WildReceipt", {})
+        bp, cp = wr.get("b_mcnemar"), wr.get("c_mcnemar")
+        mc_p = None
+        if bp is not None and cp is not None:
+            chi2 = ((abs(bp - cp) - 1) ** 2) / max(1, bp + cp)
+            try:
+                from scipy.stats import chi2 as chi2_dist
+                mc_p = float(chi2_dist.sf(chi2, 1))
+            except Exception:
+                import math
+                mc_p = math.erfc((chi2 / 2) ** 0.5)
+        wr_row.update({
+            "sigma_acc":  wr["sigma_acc"], "sigma_corr": wr["sigma_corr"],
+            "sigma_coverage": wr["sigma_acc"] / max(1, wr["n"]),
+            "sigma_precision": wr["sigma_corr"] / max(1, wr["sigma_acc"]),
+            "sigma_precision_ci": wilson_ci(wr["sigma_corr"], wr["sigma_acc"]),
+            "softmax_acc":  wr["smax_acc"], "softmax_corr": wr["smax_corr"],
+            "softmax_coverage": wr["smax_acc"] / max(1, wr["n"]),
+            "softmax_precision": wr["smax_corr"] / max(1, wr["smax_acc"]),
+            "softmax_precision_ci": wilson_ci(wr["smax_corr"], wr["smax_acc"]),
+            "intersect_n": wr["int_acc"], "intersect_corr": wr["int_corr"],
+            "intersect_precision": wr["int_corr"] / max(1, wr["int_acc"]),
+            "intersect_precision_ci": wilson_ci(wr["int_corr"], wr["int_acc"]),
+            "sigma_only_n": wr["sigonly_acc"], "sigma_only_corr": wr["sigonly_corr"],
+            "sigma_only_precision": wr["sigonly_corr"] / max(1, wr["sigonly_acc"]),
+            "sigma_only_precision_ci": wilson_ci(wr["sigonly_corr"], wr["sigonly_acc"]),
+            "softmax_only_n": wr["smonly_acc"], "softmax_only_corr": wr["smonly_corr"],
+            "softmax_only_precision": wr["smonly_corr"] / max(1, wr["smonly_acc"]),
+            "mcnemar_p": mc_p,
+            "note": "softmax via MF2_wildreceipt_softmax.py (LayoutLMv3)",
+        })
+    rows.append(wr_row)
     return rows
 
 
@@ -149,11 +181,15 @@ def build_T5_noise():
 
 
 def build_T6_pareto():
+    """v3: merges MF2's WildReceipt Pareto if present."""
     s = (load("S_pareto.json") or {}).get("per_corpus", {})
-    return {
-        "CORD": s.get("CORD", {}).get("pareto_front"),
-        "SROIE": s.get("SROIE", {}).get("pareto_front"),
+    mf2 = load("MF2_wildreceipt_softmax.json") or {}
+    out = {
+        "CORD":  (s.get("CORD") or {}).get("pareto_front"),
+        "SROIE": (s.get("SROIE") or {}).get("pareto_front"),
+        "WildReceipt": mf2.get("WildReceipt_pareto_front"),
     }
+    return out
 
 
 def build_T7_tolerance():
@@ -161,7 +197,6 @@ def build_T7_tolerance():
 
 
 def build_T8_pooled():
-    """v2: three-corpus pooled headline from MF2 output."""
     mf2 = load("MF2_wildreceipt_softmax.json")
     if not mf2: return None
     return {
@@ -172,20 +207,23 @@ def build_T8_pooled():
 
 
 def main():
-    t1 = build_T1_headline()
-    t2 = build_T2_latency()
-    t3 = build_T3_guard_ablation()
-    t4 = build_T4_failure_modes()
-    t5 = build_T5_noise()
-    t6 = build_T6_pareto()
-    t7 = build_T7_tolerance()
-    t8 = build_T8_pooled()
-    data = {"T1_headline": t1, "T2_latency": t2, "T3_guard_ablation": t3,
-            "T4_failure_modes": t4, "T5_noise_sensitivity": t5,
-            "T6_pareto_front": t6, "T7_tolerance_sweep": t7, "T8_pooled": t8}
+    data = {
+        "T1_headline":          build_T1_headline(),
+        "T2_latency":           build_T2_latency(),
+        "T3_guard_ablation":    build_T3_guard_ablation(),
+        "T4_failure_modes":     build_T4_failure_modes(),
+        "T5_noise_sensitivity": build_T5_noise(),
+        "T6_pareto_front":      build_T6_pareto(),
+        "T7_tolerance_sweep":   build_T7_tolerance(),
+        "T8_pooled":            build_T8_pooled(),
+    }
     OUT_JSON.write_text(json.dumps(data, indent=2))
-    print(f"Wrote {OUT_JSON.name}")
-    print(json.dumps({"T1_rows": len(t1), "T8_pooled_n": t8["Pooled"]["n"] if t8 else None}, indent=2))
+    summary = {
+        "T1_rows": len(data["T1_headline"]),
+        "T6_corpora_with_pareto": [c for c, v in data["T6_pareto_front"].items() if v],
+        "T8_pooled_n": data["T8_pooled"]["Pooled"]["n"] if data["T8_pooled"] else None,
+    }
+    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":
