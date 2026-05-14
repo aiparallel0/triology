@@ -12,26 +12,22 @@ if command -v apt-get >/dev/null 2>&1; then
   apt-get install -y -q tesseract-ocr 2>/dev/null || true
 fi
 
+# Shelved (stable; not in base run): B_donut_cord_on_cord, E_wildreceipt_preflight,
+# F_layoutlmv3_on_wildreceipt. Their result JSONs are locked from prior runs and are
+# the headline numbers in the 3-corpus story. Re-run manually if needed.
+
 echo
-echo "=== A: DONUT-SROIE on canonical SROIE Task-3 (in-dist, n=347, labeled OCR) ==="
+echo "=== A v10: DONUT-SROIE on canonical SROIE Task-3 (in-dist, n=347, precise tau) ==="
 python scripts/smoke/A_donut_cord_on_sroie.py
 
 echo
-echo "=== B: DONUT-CORD on CORD-test (in-dist, n=100) ==="
-python scripts/smoke/B_donut_cord_on_cord.py
-
-echo
-echo "=== E: WildReceipt pre-flight (availability-only, CPU) ==="
-python scripts/smoke/E_wildreceipt_preflight.py
-
-echo
-echo "=== F: LayoutLMv3-WildReceipt on WildReceipt-test (in-dist, n=472) ==="
-python scripts/smoke/F_layoutlmv3_on_wildreceipt.py
-
-echo
-echo "=== G: cardinality-guard ablation + real-data DP latency (CPU) ==="
+echo "=== G v10: cardinality-guard ablation + DP latency + money-count buckets (CPU) ==="
 python scripts/smoke/G_robustness.py
 
 echo
-echo "=== Done. Results in runs/ ==="
+echo "=== K: DocILE 4th corpus (bonus, in-dist labeled-amounts regime) ==="
+python scripts/smoke/K_docile.py || echo "  K returned non-zero; continuing (bonus only)"
+
+echo
+echo "=== Done. Active results in runs/ ==="
 ls -la runs/
