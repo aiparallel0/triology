@@ -1,13 +1,18 @@
-"""DONUT-CORD on canonical SROIE Task-3 test (n=347) v5.
+"""DONUT-SROIE on canonical SROIE Task-3 → I3 selective prediction (IN-DISTRIBUTION) v6.
 
-Uses canonical-347 from sroie_canonical.ensure_canonical_test_set (RRC primary,
-HF fallback). This is the actual leaderboard test split — not zzzDavid's 626-image
-train pool we sampled in v4.
+v6 methodological fix: previous A was DONUT-CORD on SROIE, an unfair cross-corpus
+setup (CORD-trained model emits IDR-style integers on Malaysian receipts with
+decimals). That setup measured noise + broken upstream, not the verifier.
 
-For I3 verification (which needs per-line OCR text), we use pytesseract if
-available; otherwise Script A reports the cross-corpus F1 baseline only.
+v6 uses philschmid/donut-base-sroie — the SROIE-finetuned Donut checkpoint that
+the YT-Rex / Triology Paper 2 baseline cites — on the canonical 347-image
+SROIE Task-3 test set. Same role as Script B, just on a second corpus.
 
-Runtime: ~3 min on RTX 4090 (347 receipts × ~0.5s) + 30-60s download (first run).
+With B (DONUT-CORD on CORD) and A v6 (DONUT-SROIE on SROIE), Paper 1 has
+two in-distribution sigma characterizations across two corpora.
+
+Runtime: ~3 min on RTX 4090.
+Success: F1_sigma_strict_on_accepted > F1_bare — a clean precision gate.
 """
 import gc, json, os, re, sys, time
 from pathlib import Path
@@ -19,7 +24,7 @@ from transformers import DonutProcessor, VisionEncoderDecoderModel
 sys.path.insert(0, str(Path(__file__).parent))
 from sroie_canonical import ensure_canonical_test_set, load_gold_total  # noqa
 
-CKPT = "naver-clova-ix/donut-base-finetuned-cord-v2"
+CKPT = os.environ.get("DONUT_SROIE_CKPT", "philschmid/donut-base-sroie")
 DATA = Path(os.environ.get("SROIE_DATA", "data/sroie_canonical"))
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -45,8 +50,9 @@ def parse_money_strict(s):
     return float(m.group()) if m else None
 
 
-def parse_donut_total(text):
-    for tag in ("<s_total.total_price>", "<s_total_price>", "<s_total>"):
+def parse_donut_sroie_total(text):
+    """SROIE Donut emits <s_total>X</s_total> tags."""
+    for tag in ("<s_total>",):
         m = re.search(re.escape(tag) + r"([^<]+)", text)
         if m: return parse_money(m.group(1))
     return None
@@ -86,7 +92,6 @@ def I3_reachable(money_lines, tau, eps=0.02):
 
 
 def tesseract_lines(img):
-    """Optional OCR via pytesseract; returns [] if not installed."""
     try:
         import pytesseract
     except ImportError:
@@ -104,8 +109,15 @@ def main():
     images = sorted(img_dir.glob("*.jpg"))
     print(f"Images: {len(images)}")
 
+    print(f"Loading checkpoint: {CKPT}")
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
+
+    # Use model's configured start token (Bug 2 guard: don't resolve string-form on tokenizer).
+    start_id = model.config.decoder_start_token_id
+    if start_id is None:
+        start_id = processor.tokenizer.convert_tokens_to_ids(["<s>"])[0]
+    print(f"decoder_start_token_id = {start_id}")
 
     tesseract_available = tesseract_lines(Image.new("RGB", (100, 100))) is not None
     print(f"Tesseract OCR available: {tesseract_available}  (I3 verification {'enabled' if tesseract_available else 'skipped'})")
@@ -120,13 +132,15 @@ def main():
         gold_total = load_gold_total(stem, ent_dir)
 
         px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
-        dec = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
-                                  return_tensors="pt").input_ids.to("cuda")
         with torch.inference_mode():
-            out = model.generate(px, decoder_input_ids=dec, max_length=512, num_beams=1,
-                                  pad_token_id=processor.tokenizer.pad_token_id)
+            out = model.generate(
+                px,
+                max_length=512, num_beams=1,
+                pad_token_id=processor.tokenizer.pad_token_id,
+                decoder_start_token_id=start_id,
+            )
         text = processor.batch_decode(out, skip_special_tokens=False)[0]
-        pred = parse_donut_total(text)
+        pred = parse_donut_sroie_total(text)
 
         if tesseract_available:
             text_lines = tesseract_lines(img) or []
@@ -141,7 +155,7 @@ def main():
 
         if i == 0:
             print(f"  [sanity] stem={stem} pred={pred} gold={gold_total} "
-                  f"|money|={len(money)} |T|={len(T)} tau={tau:.2f} in_T={in_T}")
+                  f"|money|={len(money)} |T|={len(T)} tau={tau:.2f} in_T={in_T} text={text[:80]!r}")
 
         results.append({"id": stem, "pred": pred, "gold": gold_total,
                         "in_T": in_T, "correct": correct, "T_size": len(T),
@@ -157,7 +171,10 @@ def main():
     parser_ok = sum(1 for r in results if r["pred"] is not None)
     gold_ok = sum(1 for r in results if r["gold"] is not None)
     summary = {
+        "checkpoint": CKPT,
+        "corpus": "canonical SROIE Task-3",
         "mirror": mirror,
+        "setup": "in-distribution",
         "n": len(results),
         "tesseract_available": tesseract_available,
         "wall_sec": round(time.time() - t0, 1),
