@@ -14,6 +14,11 @@
 \usepackage{hyperref}
 \usetikzlibrary{shapes,arrows.meta,positioning,fit,backgrounds,decorations.pathreplacing,calc,patterns}
 
+% Quiet hyperref complaints about $\sigma$ in section titles
+\pdfstringdefDisableCommands{\renewcommand{\sigma}{sigma}}
+% Tame overfull hboxes from long \texttt{...} checkpoint paths
+\sloppy
+
 \newcommand{\PH}[1]{\textcolor{red}{\texttt{\detokenize{[#1]}}}}
 
 \definecolor{ok}{HTML}{2ca02c}
@@ -73,8 +78,8 @@ for Generative and Encoder-Only Document Total Extraction}
 \draw[->,thick] (old.east) -- (14.0,1.0);
 \draw[->,thick] (new.east) -- (14.0,-1.4);
 
-% Legend at the very bottom
-\node at (8.0,-2.6) [font=\small,align=center]{\emph{Pooled $n{=}919$ receipts $\cdot$ CORD + SROIE + WildReceipt $\cdot$ Donut + LayoutLMv3. Intersection precision $0.988$ (Wilson lower bound $0.956$); either signal alone, below $0.92$.}};
+% Legend at the very bottom -- wrapped via text width so it does not overflow
+\node at (8.0,-2.8) [font=\small,align=center,text width=14cm]{\emph{Pooled $n{=}919$ receipts $\cdot$ CORD + SROIE + WildReceipt $\cdot$ Donut + LayoutLMv3. Intersection precision $0.988$ (Wilson lower bound $0.956$); either signal alone, below $0.92$.}};
 \end{tikzpicture}
 \caption{\textbf{The contribution in one figure.} An AI reads a
 receipt and predicts a total. For 30+ years the only ``should I
@@ -177,9 +182,9 @@ construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
 program (DP), with sub-millisecond $p_{99}$ latency.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\begin{tikzpicture}[scale=0.82,every node/.style={font=\footnotesize},>=Stealth,thick]
+\begin{tikzpicture}[scale=0.92,every node/.style={font=\footnotesize},>=Stealth,thick]
 % Top row: softmax-only flow (decades-old standard)
 \node[draw,rounded corners=3pt,fill=smx!10,minimum width=1.4cm,minimum height=0.7cm] (r1) at (0,1.8) {receipt};
 \node[draw,rounded corners=3pt,fill=sig!15,minimum width=1.4cm,minimum height=0.7cm] (m1) at (2.2,1.8) {AI};
@@ -188,7 +193,7 @@ program (DP), with sub-millisecond $p_{99}$ latency.
 \draw[->] (r1) -- (m1);
 \draw[->] (m1) -- (s1);
 \draw[->] (s1) -- (a1);
-\node at (-1.2,1.8) [text=smx,font=\bfseries] {Before};
+\node at (-1.6,1.8) [text=smx,font=\bfseries] {Before};
 
 % Bottom row: sigma + softmax flow (this paper)
 \node[draw,rounded corners=3pt,fill=smx!10,minimum width=1.4cm,minimum height=0.7cm] (r2) at (0,0.0) {receipt};
@@ -201,11 +206,11 @@ program (DP), with sub-millisecond $p_{99}$ latency.
 \draw[->] (r2.south) -- ++(0,-0.5) -| (sig.west);
 \draw[->] (s2.east) -- ++(0.4,0) |- (a2.west);
 \draw[->] (sig.east) -- ++(0.4,0) |- (a2.west);
-\node at (-1.2,-0.6) [text=ok,font=\bfseries] {This paper};
+\node at (-1.6,-0.6) [text=ok,font=\bfseries] {This paper};
 
 % Labels
-\node at (10.0,1.8) [text=smx,font=\small,align=left] {one signal\\(can be\\confidently\\wrong)};
-\node at (10.0,-0.6) [text=ok,font=\small,align=left] {two\\independent\\signals};
+\node at (10.5,1.8) [text=smx,font=\small,align=left,text width=4cm] {one signal\\ (can be confidently wrong)};
+\node at (10.5,-0.6) [text=ok,font=\small,align=left,text width=4cm] {two independent signals};
 \end{tikzpicture}
 \caption{Two paradigms for ``trust the predicted receipt total?'' Top
 (before, 30+ years): the AI judges itself via its softmax confidence
@@ -214,7 +219,7 @@ the AI and asks the receipt directly --- ``do any line items add up
 to the predicted total?''. Two independent signals; one runs on the
 AI's internals, one on the document's arithmetic.}
 \label{fig:paradigm}
-\end{figure}
+\end{figure*}
 
 \noindent\textbf{Why this matters operationally.}
 (i)~Silent failures are the expensive failure mode: a plausible-looking
