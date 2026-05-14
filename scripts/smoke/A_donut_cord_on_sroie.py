@@ -1,35 +1,32 @@
-"""DONUT-CORD on SROIE → I3 selective prediction (cross-corpus end-task) v4.
+"""DONUT-CORD on canonical SROIE Task-3 test (n=347) v5.
 
-v4 changes vs v3:
-  - STRICT money parser: requires decimal point or currency symbol
-    (rejects address numbers, phone numbers, dates)
-  - Cap money_lines at 15 to prevent DP memory blow-up
-  - SROIE_LIMIT env var (default 200) to cap receipts processed
-  - Periodic gc.collect() + torch.cuda.empty_cache() every 25 receipts
+Uses canonical-347 from sroie_canonical.ensure_canonical_test_set (RRC primary,
+HF fallback). This is the actual leaderboard test split — not zzzDavid's 626-image
+train pool we sampled in v4.
 
-Runtime: ~2 min on RTX 4090 (200 receipts × ~0.5s each).
-Note: zzzDavid's repo is the SROIE TRAIN pool (626 receipts), not the
-canonical 347 test set. Smoke test samples from the training pool;
-canonical-test eval is deferred to camera-ready via Metric-AI/icdar_sroie.
+For I3 verification (which needs per-line OCR text), we use pytesseract if
+available; otherwise Script A reports the cross-corpus F1 baseline only.
+
+Runtime: ~3 min on RTX 4090 (347 receipts × ~0.5s) + 30-60s download (first run).
 """
-import gc, json, os, re, subprocess, sys, time
+import gc, json, os, re, sys, time
 from pathlib import Path
 
 import torch
 from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
+sys.path.insert(0, str(Path(__file__).parent))
+from sroie_canonical import ensure_canonical_test_set, load_gold_total  # noqa
+
 CKPT = "naver-clova-ix/donut-base-finetuned-cord-v2"
-SROIE_REPO = "https://github.com/zzzDavid/ICDAR-2019-SROIE.git"
-SROIE_DIR = Path(os.environ.get("SROIE_DIR", "data/sroie_clone"))
-SROIE_LIMIT = int(os.environ.get("SROIE_LIMIT", "200"))
-MAX_MONEY_LINES = 15
+DATA = Path(os.environ.get("SROIE_DATA", "data/sroie_canonical"))
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
+MAX_MONEY_LINES = 15
 
 
 def parse_money(s):
-    """Lenient parse — for gold totals from key files."""
     if s is None: return None
     s = str(s).replace(",", "").replace("RM", "").replace("$", "").strip()
     m = re.search(r"-?\d+(?:\.\d+)?", s)
@@ -37,12 +34,6 @@ def parse_money(s):
 
 
 def parse_money_strict(s):
-    """STRICT parse — only counts as money if it has currency or decimal.
-
-    Filters out: address numbers (123 Main St), phone numbers (12345678),
-    dates (01/15/2024), item counts (1 x Coffee).
-    Keeps: 23.45, RM 12.50, $10.99, 8.50.
-    """
     if s is None: return None
     s = str(s).strip()
     has_currency = ("RM" in s.upper()) or ("$" in s)
@@ -94,59 +85,30 @@ def I3_reachable(money_lines, tau, eps=0.02):
     return {(s + tau_c) / 100.0 for s, k in D.items() if k >= kmin}
 
 
-def ensure_sroie_clone():
-    if not SROIE_DIR.exists():
-        print(f"Cloning {SROIE_REPO} ...")
-        SROIE_DIR.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["git", "clone", "--depth=1", SROIE_REPO, str(SROIE_DIR)], check=True)
-    for img_dir in [SROIE_DIR / "data" / "img",
-                    SROIE_DIR / "data" / "test" / "img",
-                    SROIE_DIR / "img"]:
-        if img_dir.exists() and any(img_dir.glob("*.jpg")):
-            return img_dir, img_dir.parent
-    raise RuntimeError(f"No SROIE images found under {SROIE_DIR}")
-
-
-def load_gold_total(stem, data_root):
-    for sub in ("key", "entities"):
-        for ext in ("json", "txt"):
-            path = data_root / sub / f"{stem}.{ext}"
-            if not path.exists(): continue
-            text = path.read_text(errors="ignore").strip()
-            if not text: continue
-            try:
-                data = json.loads(text)
-                if isinstance(data, dict) and "total" in data:
-                    return parse_money(data["total"])
-            except json.JSONDecodeError:
-                for line in text.splitlines():
-                    if ":" in line:
-                        k, v = line.split(":", 1)
-                        if k.strip().lower() == "total":
-                            return parse_money(v.strip())
-    return None
-
-
-def load_ocr_lines(stem, data_root):
-    for ext in ("txt", "csv"):
-        path = data_root / "box" / f"{stem}.{ext}"
-        if not path.exists(): continue
-        lines = []
-        for line in path.read_text(errors="ignore").splitlines():
-            parts = line.split(",", 8)
-            if len(parts) >= 9:
-                lines.append(parts[8])
-        return lines
-    return []
+def tesseract_lines(img):
+    """Optional OCR via pytesseract; returns [] if not installed."""
+    try:
+        import pytesseract
+    except ImportError:
+        return None
+    try:
+        text = pytesseract.image_to_string(img)
+    except Exception:
+        return None
+    return [ln for ln in text.splitlines() if ln.strip()]
 
 
 def main():
-    img_dir, data_root = ensure_sroie_clone()
-    images = sorted(img_dir.glob("*.jpg"))[:SROIE_LIMIT]
-    print(f"SROIE: {len(images)} of {len(list(img_dir.glob('*.jpg')))} (limit={SROIE_LIMIT})")
+    mirror, img_dir, ent_dir = ensure_canonical_test_set(DATA)
+    print(f"SROIE canonical-347 ready via mirror={mirror}")
+    images = sorted(img_dir.glob("*.jpg"))
+    print(f"Images: {len(images)}")
 
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
+
+    tesseract_available = tesseract_lines(Image.new("RGB", (100, 100))) is not None
+    print(f"Tesseract OCR available: {tesseract_available}  (I3 verification {'enabled' if tesseract_available else 'skipped'})")
 
     results, t0 = [], time.time()
     for i, img_path in enumerate(images):
@@ -155,8 +117,7 @@ def main():
             img = Image.open(img_path).convert("RGB")
         except Exception as e:
             print(f"  skip {stem}: {e}"); continue
-        gold_total = load_gold_total(stem, data_root)
-        text_lines = load_ocr_lines(stem, data_root)
+        gold_total = load_gold_total(stem, ent_dir)
 
         px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
         dec = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
@@ -167,9 +128,14 @@ def main():
         text = processor.batch_decode(out, skip_special_tokens=False)[0]
         pred = parse_donut_total(text)
 
-        money, tau = extract_money_lines(text_lines)
-        T = I3_reachable(money, tau) if money else set()
-        in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
+        if tesseract_available:
+            text_lines = tesseract_lines(img) or []
+            money, tau = extract_money_lines(text_lines)
+            T = I3_reachable(money, tau) if money else set()
+            in_T = pred is not None and any(abs(pred - t) <= 0.02 for t in T)
+        else:
+            money, tau, T, in_T = [], 0.0, set(), False
+
         correct = (pred is not None and gold_total is not None
                    and abs(pred - gold_total) <= 0.02)
 
@@ -180,7 +146,7 @@ def main():
         results.append({"id": stem, "pred": pred, "gold": gold_total,
                         "in_T": in_T, "correct": correct, "T_size": len(T),
                         "money_count": len(money), "tau": tau})
-        if (i + 1) % 25 == 0:
+        if (i + 1) % 50 == 0:
             gc.collect(); torch.cuda.empty_cache()
             print(f"  {i+1}/{len(images)}  elapsed={time.time()-t0:.0f}s")
 
@@ -191,20 +157,18 @@ def main():
     parser_ok = sum(1 for r in results if r["pred"] is not None)
     gold_ok = sum(1 for r in results if r["gold"] is not None)
     summary = {
+        "mirror": mirror,
         "n": len(results),
-        "sroie_limit": SROIE_LIMIT,
-        "max_money_lines": MAX_MONEY_LINES,
+        "tesseract_available": tesseract_available,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n,
         "gold_ok_rate": gold_ok / n,
         "coverage_1.0_F1": correct_all / n,
-        "coverage_sigma": len(accepted) / n,
-        "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),
+        "coverage_sigma": len(accepted) / n if tesseract_available else None,
+        "sigma_F1_on_accepted": (correct_accepted / max(1, len(accepted))) if tesseract_available else None,
         "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"])
-                                    / max(1, correct_all)),
-        "sigma_precision": correct_accepted / max(1, len(accepted)),
-        "note": ("cross-corpus DONUT-CORD on SROIE: expect low coverage_1.0_F1 due to "
-                 "output-format mismatch (CORD trains on IDR integers, SROIE prints RM decimals)."),
+                                    / max(1, correct_all)) if tesseract_available else None,
+        "sigma_precision": (correct_accepted / max(1, len(accepted))) if tesseract_available else None,
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
     print(json.dumps(summary, indent=2))
