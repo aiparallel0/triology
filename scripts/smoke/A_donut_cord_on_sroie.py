@@ -1,16 +1,18 @@
-"""DONUT-CORD on SROIE → I3 selective prediction (cross-corpus end-task) v3.
+"""DONUT-CORD on SROIE → I3 selective prediction (cross-corpus end-task) v4.
 
-Uses git clone of zzzDavid/ICDAR-2019-SROIE to bypass HF parquet image-stripping.
-Layout: data/{img,key,box}/<stem>.{jpg,json,txt}.
+v4 changes vs v3:
+  - STRICT money parser: requires decimal point or currency symbol
+    (rejects address numbers, phone numbers, dates)
+  - Cap money_lines at 15 to prevent DP memory blow-up
+  - SROIE_LIMIT env var (default 200) to cap receipts processed
+  - Periodic gc.collect() + torch.cuda.empty_cache() every 25 receipts
 
-Reports SELECTIVE PREDICTION metrics, not 'net F1 lift':
-  - F1 at coverage 1.0 (no abstention) = baseline DONUT-CORD
-  - F1 at coverage = accept_rate (Σ-accepted only) = high-precision gate
-  - Coverage at multiple accept thresholds
-
-Runtime: ~2.5 min on RTX 4090 + ~30s git clone (first run only).
+Runtime: ~2 min on RTX 4090 (200 receipts × ~0.5s each).
+Note: zzzDavid's repo is the SROIE TRAIN pool (626 receipts), not the
+canonical 347 test set. Smoke test samples from the training pool;
+canonical-test eval is deferred to camera-ready via Metric-AI/icdar_sroie.
 """
-import json, os, re, subprocess, sys, time
+import gc, json, os, re, subprocess, sys, time
 from pathlib import Path
 
 import torch
@@ -20,14 +22,35 @@ from transformers import DonutProcessor, VisionEncoderDecoderModel
 CKPT = "naver-clova-ix/donut-base-finetuned-cord-v2"
 SROIE_REPO = "https://github.com/zzzDavid/ICDAR-2019-SROIE.git"
 SROIE_DIR = Path(os.environ.get("SROIE_DIR", "data/sroie_clone"))
+SROIE_LIMIT = int(os.environ.get("SROIE_LIMIT", "200"))
+MAX_MONEY_LINES = 15
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 
 def parse_money(s):
+    """Lenient parse — for gold totals from key files."""
     if s is None: return None
     s = str(s).replace(",", "").replace("RM", "").replace("$", "").strip()
     m = re.search(r"-?\d+(?:\.\d+)?", s)
+    return float(m.group()) if m else None
+
+
+def parse_money_strict(s):
+    """STRICT parse — only counts as money if it has currency or decimal.
+
+    Filters out: address numbers (123 Main St), phone numbers (12345678),
+    dates (01/15/2024), item counts (1 x Coffee).
+    Keeps: 23.45, RM 12.50, $10.99, 8.50.
+    """
+    if s is None: return None
+    s = str(s).strip()
+    has_currency = ("RM" in s.upper()) or ("$" in s)
+    s_no_curr = s.replace("RM", "").replace("rm", "").replace("$", "").replace(",", "").strip()
+    has_decimal = bool(re.search(r"\d+\.\d{1,2}\b", s_no_curr))
+    if not (has_currency or has_decimal):
+        return None
+    m = re.search(r"-?\d+(?:\.\d+)?", s_no_curr)
     return float(m.group()) if m else None
 
 
@@ -47,13 +70,13 @@ DISC_KW = re.compile(r"\b(discount|rebate)\b", re.I)
 def extract_money_lines(text_lines):
     money, tau = [], 0.0
     for ln in text_lines:
-        v = parse_money(ln)
+        v = parse_money_strict(ln)
         if v is None: continue
         if TAX_KW.search(ln) or SERV_KW.search(ln): tau += v
         elif DISC_KW.search(ln): tau -= v
         elif DROP_KW.search(ln): continue
         else: money.append(v)
-    return money, tau
+    return money[:MAX_MONEY_LINES], tau
 
 
 def I3_reachable(money_lines, tau, eps=0.02):
@@ -76,7 +99,6 @@ def ensure_sroie_clone():
         print(f"Cloning {SROIE_REPO} ...")
         SROIE_DIR.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(["git", "clone", "--depth=1", SROIE_REPO, str(SROIE_DIR)], check=True)
-    # Detect layout: flat data/{img,key,box}/ or hierarchical data/test/{img,key,box}/
     for img_dir in [SROIE_DIR / "data" / "img",
                     SROIE_DIR / "data" / "test" / "img",
                     SROIE_DIR / "img"]:
@@ -86,7 +108,6 @@ def ensure_sroie_clone():
 
 
 def load_gold_total(stem, data_root):
-    """Try data_root/key/<stem>.{json,txt}; parse JSON or colon-line format."""
     for sub in ("key", "entities"):
         for ext in ("json", "txt"):
             path = data_root / sub / f"{stem}.{ext}"
@@ -107,7 +128,6 @@ def load_gold_total(stem, data_root):
 
 
 def load_ocr_lines(stem, data_root):
-    """Parse box/<stem>.txt or .csv; Task-1 format: x1,y1,...,x8,y8,text."""
     for ext in ("txt", "csv"):
         path = data_root / "box" / f"{stem}.{ext}"
         if not path.exists(): continue
@@ -122,8 +142,8 @@ def load_ocr_lines(stem, data_root):
 
 def main():
     img_dir, data_root = ensure_sroie_clone()
-    images = sorted(img_dir.glob("*.jpg"))
-    print(f"SROIE images found: {len(images)}  (root={data_root})")
+    images = sorted(img_dir.glob("*.jpg"))[:SROIE_LIMIT]
+    print(f"SROIE: {len(images)} of {len(list(img_dir.glob('*.jpg')))} (limit={SROIE_LIMIT})")
 
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
@@ -160,7 +180,8 @@ def main():
         results.append({"id": stem, "pred": pred, "gold": gold_total,
                         "in_T": in_T, "correct": correct, "T_size": len(T),
                         "money_count": len(money), "tau": tau})
-        if (i + 1) % 50 == 0:
+        if (i + 1) % 25 == 0:
+            gc.collect(); torch.cuda.empty_cache()
             print(f"  {i+1}/{len(images)}  elapsed={time.time()-t0:.0f}s")
 
     n = max(1, len(results))
@@ -171,18 +192,19 @@ def main():
     gold_ok = sum(1 for r in results if r["gold"] is not None)
     summary = {
         "n": len(results),
+        "sroie_limit": SROIE_LIMIT,
+        "max_money_lines": MAX_MONEY_LINES,
         "wall_sec": round(time.time() - t0, 1),
         "parser_ok_rate": parser_ok / n,
         "gold_ok_rate": gold_ok / n,
-        # Selective prediction framing: F1 at multiple coverages
         "coverage_1.0_F1": correct_all / n,
         "coverage_sigma": len(accepted) / n,
         "sigma_F1_on_accepted": correct_accepted / max(1, len(accepted)),
-        # Soundness check: of correct predictions, how many did sigma accept?
         "sigma_recall_on_correct": (sum(1 for r in results if r["correct"] and r["in_T"])
                                     / max(1, correct_all)),
-        # Precision: of sigma-accepted, how many were correct?
         "sigma_precision": correct_accepted / max(1, len(accepted)),
+        "note": ("cross-corpus DONUT-CORD on SROIE: expect low coverage_1.0_F1 due to "
+                 "output-format mismatch (CORD trains on IDR integers, SROIE prints RM decimals)."),
     }
     OUT.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
     print(json.dumps(summary, indent=2))
