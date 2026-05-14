@@ -439,10 +439,10 @@ witness can exist by construction
 (Table~\ref{tab:failure-cord}). On SROIE, the analogous
 taxonomy is dominated by $\tau$\_too\_negative and far\_miss
 driven by OCR-introduced phantom amounts. On WildReceipt,
-where σ and softmax achieve \emph{equal} single-gate
+where $\sigma$ and softmax achieve \emph{equal} single-gate
 precision (both $0.953$), the intersection still rises to
-$0.991$ --- showing that the value of $\sigma$ is not "beats
-softmax" but "fails on different inputs".
+$0.991$ --- showing that the value of $\sigma$ is not ``beats
+softmax'' but ``fails on different inputs''.
 
 \subsection{Cardinality-guard ablation}
 \label{sec:results-ablation}
@@ -549,10 +549,10 @@ phantom amounts grow $T(M)$ in directions that admit wrong
 totals as witnesses. $\sigma$'s precision drop is an OCR
 artefact, not a verifier failure.
 
-\noindent\textbf{Why the intersection wins even when σ and
-softmax are equally precise.} On WildReceipt the two signals
-achieve identical single-gate precision ($0.953$) yet the
-intersection rises to $0.991$ because they fail on
+\noindent\textbf{Why the intersection wins even when $\sigma$
+and softmax are equally precise.} On WildReceipt the two
+signals achieve identical single-gate precision ($0.953$) yet
+the intersection rises to $0.991$ because they fail on
 \emph{different} receipts (perfectly symmetric discordant
 cells $b{=}c{=}91$, Figure~\ref{fig:venn} right panel). The
 orthogonality argument does not require one signal to
@@ -565,9 +565,9 @@ Donut (generative, autoregressive softmax over emitted total
 tokens) with LayoutLMv3 (encoder-only, classification softmax
 at predicted Total\_value positions) does not break the
 orthogonality. The intersection precision $\geq 0.952$ lower
-bound on all three corpora suggests $\sigma$ is signal-orthogonal
-to softmax across architectures, not just within a single
-backbone.
+bound on all three corpora suggests $\sigma$ is
+signal-orthogonal to softmax across architectures, not just
+within a single backbone.
 
 \noindent\textbf{Operational recipe.}
 \begin{enumerate}
@@ -619,10 +619,10 @@ regimes;
 WildReceipt $b{=}c{=}91$ exactly --- the orthogonality the
 intersection exploits;
 \textbf{(F3)} a regime-mechanistic explanation including the
-encoder-only WildReceipt case where σ and softmax are equally
-precise alone but their intersection rises to $113/114$. The
-verifier adds $0.0016\%$ to end-to-end latency and is
-precision-stable under up to $40\%$ money-line noise.
+encoder-only WildReceipt case where $\sigma$ and softmax are
+equally precise alone but their intersection rises to
+$113/114$. The verifier adds $0.0016\%$ to end-to-end latency
+and is precision-stable under up to $40\%$ money-line noise.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
