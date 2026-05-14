@@ -1,0 +1,319 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\title[$\sigma$ Precision Gate]{A Softmax-Orthogonal Precision Gate via\\
+Subset-Sum Verification}
+\subtitle{For Generative and Encoder-Only Document Total Extraction}
+\author{Anonymous Submission}
+\institute{ASYU 2026 (Anonymous Review)}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Why care about receipt KIE precision?}
+\begin{columns}[T,onlytextwidth]
+\column{0.55\textwidth}
+\begin{itemize}
+\setlength{\itemsep}{0.6em}
+\item KIE pipelines route extracted \texttt{total} directly into bookkeeping, expense, and audit systems.
+\item A silently wrong total $=$ a real downstream error.
+\item Selective prediction: ``defer the receipts I cannot reliably handle.''
+\item The bottleneck is \emph{precision on the accepted slice}, not raw F1.
+\end{itemize}
+\column{0.40\textwidth}
+\centering
+\begin{tikzpicture}[scale=0.9]
+\node[draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.8cm] (r) at (0,2) {Receipt image};
+\node[draw, rounded corners, fill=orange!20, minimum width=3cm, minimum height=0.8cm] (m) at (0,0.8) {KIE model};
+\node[draw, rounded corners, fill=red!20, minimum width=3cm, minimum height=0.8cm] (b) at (0,-0.6) {Bookkeeping};
+\draw[->,thick] (r) -- (m);
+\draw[->,thick] (m) -- node[right,font=\small]{\texttt{total}=\$58.40} (b);
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{The standard signal: softmax confidence}
+\begin{block}{Definition}
+For a generative KIE model (e.g.\ Donut), softmax confidence is the
+geometric mean of per-token probabilities of the generated
+\texttt{total} string.
+\end{block}
+
+\bigskip
+\textbf{Problem:} softmax is a property of the \emph{generator}.
+
+\bigskip
+\begin{itemize}
+\item When the generator hallucinates a \emph{plausible} total, softmax often remains high.
+\item The signal cannot disagree with itself.
+\end{itemize}
+
+\bigskip
+\textbf{Idea:} introduce a second gate that fails on \emph{different} receipts. Intersect the two.
+
+\bigskip
+If their errors are disjoint, intersection precision $\to 1.0$.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{$\sigma$: a generator-orthogonal precision gate}
+\textbf{Read the receipt, not the logits.}
+
+\bigskip
+Given predicted total $\pi$ and multiset $M = \{m_1, \dots, m_n\}$ of money amounts:
+\[
+\sigma(\pi) = 1 \iff \exists\, S \subseteq M,\ |S| \ge k_{\min},\ 
+\left|\textstyle\sum_{i \in S} m_i - \pi\right| \le \varepsilon.
+\]
+
+\bigskip
+\textbf{Why it works.} Well-formed receipts are \emph{arithmetically closed} ---
+the total is a sum of visible amounts.
+
+\bigskip
+$T(M)$ = reachable set of subset sums.
+$\sigma$ accepts iff some subset reconstructs the model's answer from
+the receipt's own contents.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Implementation}
+\begin{columns}[T,onlytextwidth]
+\column{0.55\textwidth}
+\textbf{Verifier:} $0/1$-knapsack dynamic program.
+\begin{itemize}
+\item State $(i, s)$: ``is $s$ reachable using a subset of the first $i$ items?''
+\item Integer cents, no floats.
+\item Cardinality guard $k_{\min}{=}2$ excludes singleton witnesses
+on labeled corpora.
+\item Multi-candidate $\tau$ for OCR (mean $3.12$ candidates/receipt on SROIE).
+\end{itemize}
+
+\column{0.40\textwidth}
+\textbf{Cost.}\\
+$p_{99} = 547\,\mu\text{s}$ per receipt (SROIE).\\
+Paired vs Donut generate ($175$ ms median):
+\[
+\text{overhead} = \mathbf{0.0016\%}.
+\]
+The verifier is \emph{operationally free}.
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Composition with softmax}
+Per-corpus matched coverage: softmax accepts the top-$c$ fraction by confidence,
+where $c$ matches $\sigma$'s coverage.
+
+\bigskip
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& accept & reject \\
+\midrule
+$\sigma$ accept & \alert{intersection} & $\sigma$-only \\
+$\sigma$ reject & softmax-only & both reject \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\textbf{Central claim.}
+If $\sigma$ and softmax fail on \emph{different} receipts, the intersection precision
+exceeds either single gate.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Experimental setup}
+Pooled three-corpus benchmark, $n = 919$.
+
+\bigskip
+\begin{center}
+\begin{tabular}{lllr}
+\toprule
+Corpus & Regime & Backbone & $n$ \\
+\midrule
+CORD-v2 & labeled & Donut & 100 \\
+SROIE Task-3 & OCR-derived & Donut & 347 \\
+WildReceipt & encoder-only & LayoutLMv3 & 472 \\
+\midrule
+\textbf{Pooled} & --- & --- & \textbf{919} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+$\varepsilon = 0.02$, $k_{\min} = 2$ default. Wilson 95\% CIs for all proportions.
+McNemar tests with continuity correction.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{F1: precision-orthogonal intersection (pooled)}
+\begin{center}
+\small
+\begin{tabular}{lrrrl}
+\toprule
+Gate & $n_\text{acc}$ & $n_\text{corr}$ & Precision & 95\% CI \\
+\midrule
+$\sigma$               & 344 & 323 & 0.939 & [0.908, 0.960] \\
+softmax (matched)      & 344 & 326 & 0.948 & [0.919, 0.967] \\
+$\sigma\sqcap$ softmax & 162 & 160 & \alert{\textbf{0.988}} & \alert{\textbf{[0.956, 0.997]}} \\
+$\sigma$-only          & 182 & 163 & 0.896 & [0.843, 0.932] \\
+softmax-only           & 182 & 166 & 0.912 & [0.862, 0.945] \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\textbf{Headline.} Intersection Wilson lower bound $0.956$ \emph{exceeds} both single-gate lower bounds (0.908 and 0.919).
+
+\bigskip
+$n_\text{eval} = 919$ clears the $n > 350$ floor; intersection cell $n = 162$.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Cross-regime view: per-corpus + Venn}
+\begin{center}
+\includegraphics[width=0.92\linewidth]{figures/fig_overview.pdf}
+\end{center}
+
+\textbf{All three corpora.} Hatched bar = intersection. Strictly exceeds both single gates.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{F2: McNemar orthogonality}
+\begin{center}
+\small
+\begin{tabular}{lrrrl}
+\toprule
+Set & $b$ & $c$ & $\chi^2$ & $p$-value \\
+\midrule
+\textbf{Pooled}            & 163 & 166 & 0.012 & 0.912 \\
+CORD-v2 (Donut)            &  22 &  19 & 0.098 & 0.755 \\
+SROIE (Donut)              &  50 &  56 & 0.236 & 0.627 \\
+WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\textbf{Non-significance is exactly what we want.}
+$\sigma$ and softmax accept about the \emph{same number} of correct receipts ---
+on \emph{different} receipts.
+
+\bigskip
+WildReceipt: $b = c = 91$ exactly. Discordant cells are large
+and balanced; intersection still rises to $113/114$.
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{F3: regime mechanism}
+Single-gate $\sigma$ precision differs across regimes:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Corpus & $\sigma$ & softmax & intersect \\
+\midrule
+CORD       & \textbf{0.982} & 0.927 & 0.970 \\
+SROIE      & 0.867 & \textbf{0.947} & 1.000 \\
+WildReceipt & 0.953 & 0.953 & \alert{0.991} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\textbf{Mechanism.} The regime gap is in $\tau$-extraction quality, not in the verifier:
+\begin{itemize}
+\item CORD failures: single-money receipts where $|S| \ge 2$ witness is impossible.
+\item SROIE failures: OCR-introduced phantom amounts.
+\item WildReceipt: $\sigma$ and softmax \emph{equally precise alone}, intersection still wins.
+\end{itemize}
+
+\bigskip
+\textbf{Takeaway.} $\sigma$'s value is not ``beats softmax'' but ``fails on different inputs.''
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Robustness and reliability}
+\begin{columns}[T,onlytextwidth]
+\column{0.55\textwidth}
+\textbf{Synthetic money-line noise, CORD ($10$ seeds).}
+\begin{center}
+\small
+\begin{tabular}{crl}
+\toprule
+$r$ & Precision & 95\% CI \\
+\midrule
+$0.00$ & 0.957 & [0.957, 0.957] \\
+$0.10$ & 0.949 & [0.942, 0.962] \\
+$0.20$ & 0.964 & [0.940, 0.986] \\
+$0.40$ & 0.980 & [0.940, 1.000] \\
+\bottomrule
+\end{tabular}
+\end{center}
+Precision stable above $0.94$ under $40\%$ corruption.
+
+\column{0.40\textwidth}
+\textbf{$\varepsilon$ not load-bearing.}\\
+Tolerance sweep $\varepsilon \in [0.01, 5.0]$ on CORD: identical (coverage, precision) at every value.
+
+\bigskip
+\textbf{Reliability by $|T|$.}\\
+Single CORD miss localises to $|T| \in [5,9]$. $|T|=1$ and $|T| \ge 10$ are perfect.
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Operational recipe \& limitations}
+\textbf{Recipe.}
+\begin{enumerate}
+\item Pick a KIE model; produce $\pi$ and softmax $s$ per receipt.
+\item Extract $M$ from the document.
+\item Run $\sigma$ at $\varepsilon{=}0.02$. $k_{\min}{=}2$ labeled, $k_{\min}{=}1$ OCR.
+\item Accept iff $\sigma = 1$ \emph{and} $s \ge \tau_s$. Defer otherwise.
+\end{enumerate}
+
+\bigskip
+\textbf{Limitations.}
+\begin{itemize}
+\item Arithmetic-closed fields only (totals/subtotals/taxes).
+\item Single field, two backbones, three corpora --- multi-field $\sigma$ is journal-version.
+\item Cardinality-guard inversion measured on SROIE; CORD-side is structural.
+\item $\varepsilon$ fixed at $0.02$ (integer-cent regime).
+\end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------------
+\begin{frame}{Conclusion}
+\textbf{Three findings on $n = 919$, two backbones, three regimes.}
+
+\bigskip
+\begin{itemize}
+\setlength{\itemsep}{0.6em}
+\item \textbf{(F1)} Pooled intersection precision Wilson lower bound $\mathbf{0.956}$ ($160/162$); exceeds both single-gate lower bounds.
+\item \textbf{(F2)} Paired McNemar non-significance on all three corpora --- the orthogonality the intersection exploits.
+\item \textbf{(F3)} Regime gap is in $\tau$-extraction, not the verifier. WildReceipt: equal single-gate precision, intersection still rises.
+\end{itemize}
+
+\bigskip
+\textbf{Cost.} $0.0016\%$ of Donut generate latency. Operationally free.
+
+\bigskip
+\centering\Large \emph{Thank you. Questions?}
+\end{frame}
+
+\end{document}
