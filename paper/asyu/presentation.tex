@@ -33,19 +33,21 @@
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Huge\textbf{First, what is an AI model?}}\\[1em]
+{\Huge\textbf{First, what is an AI model?}}
 \end{center}
+\vspace{1.5em}
 \begin{center}
 \begin{tikzpicture}[scale=1.0,>=Stealth,thick]
 \draw[fill=sig!10,thick,rounded corners=8pt] (-1.5,-1.2) rectangle (1.5,1.2);
-\node at (0,0) [font=\Large\bfseries] {AI};
+\node[font=\Large\bfseries] at (0,0) {AI};
 \draw[->,very thick] (-3.0,0.6) -- (-1.7,0.6);
-\node[anchor=east] at (-3.0,0.6) [font=\large] {input};
+\node[anchor=east,font=\large] at (-3.0,0.6) {input};
 \draw[->,very thick] (1.7,0.6) -- (3.0,0.6);
-\node[anchor=west] at (3.0,0.6) [font=\large] {output};
-\node at (0,-2.2) [font=\large,align=center]{\emph{a program that learns patterns from\\thousands of examples}};
+\node[anchor=west,font=\large] at (3.0,0.6) {output};
 \end{tikzpicture}
 \end{center}
+\vspace{1.5em}
+\begin{center}\large\emph{a program that learns patterns from thousands of examples}\end{center}
 \vfill
 \end{frame}
 
@@ -61,13 +63,13 @@
 \begin{tikzpicture}[scale=1.0,>=Stealth,thick]
 \draw[fill=grey!10,thick,rounded corners=4pt] (-0.7,-1.8) rectangle (0.7,1.8);
 \draw[fill=white,thick] (-0.55,-1.4) rectangle (0.55,1.6);
-\node at (0,1.1) [font=\tiny\bfseries] {RECEIPT};
+\node[font=\tiny\bfseries] at (0,1.1) {RECEIPT};
 \foreach \y in {0.7,0.5,0.3,0.1,-0.1,-0.3,-0.5,-0.7,-0.9}{\draw[grey!50](-0.45,\y)--(0.45,\y);}
-\node at (0,-1.65) [font=\tiny]{$\bullet$};
+\node[font=\tiny] at (0,-1.65) {$\bullet$};
 \draw[->,thick,>=Stealth] (0.9,0) -- (2.6,0);
 \node[draw,rounded corners=4pt,fill=sig!20,minimum width=2cm,minimum height=1.6cm,thick] at (3.7,0) {\large\textbf{AI}};
 \draw[->,thick,>=Stealth] (4.8,0) -- (6.4,0);
-\node at (7.8,0) [font=\Huge,text=sig] {\textbf{\$58.40}};
+\node[font=\Huge,text=sig] at (7.8,0) {\textbf{\$58.40}};
 \end{tikzpicture}
 \end{center}
 \vfill
@@ -83,12 +85,12 @@
 \vspace{1.5em}
 \begin{center}
 \begin{tikzpicture}[scale=1.0]
-\node at (-4,1) [font=\Large] {AI said:};
-\node at (-4,0) [font=\huge,text=sig] {\textbf{\$58.40}};
-\node at (0,0.5) [font=\Huge,text=bad] {$\neq$};
-\node at (4,1) [font=\Large] {Real total:};
-\node at (4,0) [font=\huge,text=ok] {\textbf{\$48.40}};
-\node at (0,-2.0) [font=\Large] {\textbf{\textcolor{bad}{Wrong tax. Wrong audit. Real money lost.}}};
+\node[font=\Large] at (-4,1) {AI said:};
+\node[font=\huge,text=sig] at (-4,0) {\textbf{\$58.40}};
+\node[font=\Huge,text=bad] at (0,0.5) {$\neq$};
+\node[font=\Large] at (4,1) {Real total:};
+\node[font=\huge,text=ok] at (4,0) {\textbf{\$48.40}};
+\node[font=\Large] at (0,-2.0) {\textbf{\textcolor{bad}{Wrong tax. Wrong audit. Real money lost.}}};
 \end{tikzpicture}
 \end{center}
 \vfill
@@ -122,8 +124,8 @@
 \begin{tikzpicture}[scale=1.1,>=Stealth,thick]
 \node[draw,rounded corners=4pt,fill=sig!20,minimum width=2.5cm,minimum height=1.4cm,thick] (m) at (-3,0) {\large\textbf{AI}};
 \draw[->,thick,>=Stealth] (m.east) -- (-0.5,0);
-\node[anchor=west] at (-0.4,0.5) [font=\Large] {``\$58.40''};
-\node[anchor=west] at (-0.4,-0.5) [font=\Large,text=smx] {\textbf{97\% sure}};
+\node[anchor=west,font=\Large] at (-0.4,0.5) {``\$58.40''};
+\node[anchor=west,font=\Large,text=smx] at (-0.4,-0.5) {\textbf{97\% sure}};
 \end{tikzpicture}
 \end{center}
 \vspace{1em}
@@ -142,7 +144,7 @@
 \node[draw,rounded corners=8pt,fill=smx!15,thick,text width=12cm,align=center,minimum height=2.5cm] at (0,0) {
 \Large A number from 0 to 1 the AI produces about\\
 \Large \emph{its own} answer --- how sure it is.\\[0.5em]
-\large $\textbf{1.0}$ = totally sure.\quad $\textbf{0.0}$ = no idea.
+\large \textbf{1.0} = totally sure.\quad \textbf{0.0} = no idea.
 };
 \end{tikzpicture}
 \end{center}
@@ -162,11 +164,11 @@
 \begin{tikzpicture}[scale=1.0,>=Stealth,thick]
 \node[draw,rounded corners=4pt,fill=sig!20,minimum width=2.5cm,minimum height=1.4cm,thick] (m) at (-4.5,0) {\large\textbf{AI}};
 \draw[->,thick,>=Stealth] (m.east) -- (-2.7,0);
-\node at (0,0.6) [font=\Large] {``\$58.40''};
-\node at (0,-0.3) [font=\Large,text=smx] {\textbf{97\% sure}};
-\node at (4,0.6) [font=\Large] {Real:};
-\node at (4,-0.3) [font=\Large,text=ok] {\textbf{\$48.40}};
-\node at (0,-2.2) [font=\Large,text=bad] {\textbf{Confident. And wrong.}};
+\node[font=\Large] at (0,0.6) {``\$58.40''};
+\node[font=\Large,text=smx] at (0,-0.3) {\textbf{97\% sure}};
+\node[font=\Large] at (4,0.6) {Real:};
+\node[font=\Large,text=ok] at (4,-0.3) {\textbf{\$48.40}};
+\node[font=\Large,text=bad] at (0,-2.2) {\textbf{Confident. And wrong.}};
 \end{tikzpicture}
 \end{center}
 \vfill
@@ -215,24 +217,20 @@
 \vspace{0.4em}
 \begin{center}
 \begin{tikzpicture}[scale=0.78,every node/.style={font=\footnotesize},>=Stealth,thick]
-% Step 1: read receipt
 \node[draw,rounded corners=4pt,fill=grey!10,thick,minimum width=2.6cm,minimum height=1.6cm] (s1) at (0,0) {};
-\node at (0,0.4) [font=\bfseries] {1. Read receipt};
+\node[font=\bfseries] at (0,0.4) {1. Read receipt};
 \node[text width=2.4cm,align=center] at (0,-0.2) {\scriptsize\{\$3.20, \$8.50,\\ \$6.00, \$30.70,\\ \$10.00\}};
 
-% Step 2: try subsets
 \node[draw,rounded corners=4pt,fill=grey!10,thick,minimum width=2.6cm,minimum height=1.6cm] (s2) at (3.3,0) {};
-\node at (3.3,0.4) [font=\bfseries] {2. Try subsets};
+\node[font=\bfseries] at (3.3,0.4) {2. Try subsets};
 \node[text width=2.4cm,align=center] at (3.3,-0.2) {\scriptsize all combos\\\scriptsize via DP};
 
-% Step 3: check sum
 \node[draw,rounded corners=4pt,fill=grey!10,thick,minimum width=2.6cm,minimum height=1.6cm] (s3) at (6.6,0) {};
-\node at (6.6,0.4) [font=\bfseries] {3. Sum match?};
+\node[font=\bfseries] at (6.6,0.4) {3. Sum match?};
 \node[text width=2.4cm,align=center] at (6.6,-0.2) {\scriptsize$\sum = \$58.40$?\\ \scriptsize within \$0.02?};
 
-% Step 4: accept/reject
 \node[draw,rounded corners=4pt,fill=ok!20,thick,minimum width=2.6cm,minimum height=1.6cm] (s4) at (9.9,0) {};
-\node at (9.9,0.4) [font=\bfseries,text=ok] {4. Accept};
+\node[font=\bfseries,text=ok] at (9.9,0.4) {4. Accept};
 \node[text width=2.4cm,align=center,text=ok] at (9.9,-0.2) {\scriptsize\checkmark};
 
 \draw[->,very thick] (s1) -- (s2);
@@ -261,11 +259,11 @@
 \draw[thick] (0.3,0.85) -- (3.7,0.85);
 \node[anchor=west] at (0.3,0.35) {\small\bfseries TOTAL \hfill \$58.40};
 \draw[->,very thick,>=Stealth,sig] (4.3,2.5) -- (5.5,2.5);
-\node at (9,3.7) [text=sig,font=\large] {$3.20 + 8.50 + 6.00$};
-\node at (9,3.05) [text=sig,font=\large] {$+\, 30.70 + 10.00$};
+\node[text=sig,font=\large] at (9,3.7) {$3.20 + 8.50 + 6.00$};
+\node[text=sig,font=\large] at (9,3.05) {$+\, 30.70 + 10.00$};
 \draw[->,thick,>=Stealth] (9,2.4) -- (9,1.6);
-\node at (9,1.0) [text=ok,font=\Huge] {\textbf{= \$58.40}};
-\node at (9,0.2) [text=ok,font=\Large] {\textbf{accept \checkmark}};
+\node[text=ok,font=\Huge] at (9,1.0) {\textbf{= \$58.40}};
+\node[text=ok,font=\Large] at (9,0.2) {\textbf{accept \checkmark}};
 \end{tikzpicture}
 \end{center}
 \vspace{0.5em}
@@ -306,12 +304,12 @@
 \begin{tikzpicture}[scale=1.0]
 \fill[smx!30,opacity=0.7] (-1.5,0) circle (2.2);
 \fill[sig!30,opacity=0.7] (1.5,0) circle (2.2);
-\node at (-3.2,0) [text=smx,font=\Large\bfseries] {softmax};
-\node at (3.2,0) [text=sig,font=\Large\bfseries] {$\sigma$};
+\node[text=smx,font=\Large\bfseries] at (-3.2,0) {softmax};
+\node[text=sig,font=\Large\bfseries] at (3.2,0) {$\sigma$};
 \node[align=center,font=\small] at (-2.1,0) {softmax\\ only};
 \node[align=center,text=ok,font=\Large\bfseries] at (0,0) {BOTH};
 \node[align=center,font=\small] at (2.1,0) {$\sigma$\\ only};
-\node at (0,-2.9) [font=\Large] {\textbf{Intersection $\Rightarrow$ \textcolor{ok}{near-perfect precision}}};
+\node[font=\Large] at (0,-2.9) {\textbf{Intersection $\Rightarrow$ \textcolor{ok}{near-perfect precision}}};
 \end{tikzpicture}
 \end{center}
 \end{frame}
@@ -338,19 +336,16 @@
 \vspace{1.5em}
 \begin{center}
 \begin{tikzpicture}[scale=0.9]
-% 3 corpora
 \node[draw,rounded corners=4pt,fill=sig!15,thick,minimum width=2.4cm,minimum height=1.4cm] at (-4,0) {CORD-v2};
-\node at (-4,-1) [font=\small] {$n{=}100$};
+\node[font=\small] at (-4,-1) {$n{=}100$};
 \node[draw,rounded corners=4pt,fill=sig!15,thick,minimum width=2.4cm,minimum height=1.4cm] at (0,0) {SROIE};
-\node at (0,-1) [font=\small] {$n{=}347$};
+\node[font=\small] at (0,-1) {$n{=}347$};
 \node[draw,rounded corners=4pt,fill=sig!15,thick,minimum width=2.4cm,minimum height=1.4cm] at (4,0) {WildReceipt};
-\node at (4,-1) [font=\small] {$n{=}472$};
-% Architecture row
-\node at (-4,1.5) [text=ok,font=\bfseries] {Donut};
-\node at (0,1.5) [text=ok,font=\bfseries] {Donut};
-\node at (4,1.5) [text=ok,font=\bfseries] {LayoutLMv3};
-% Pooled n
-\node at (0,-2.3) [font=\Large]{\textbf{Pooled $n = 919$}};
+\node[font=\small] at (4,-1) {$n{=}472$};
+\node[text=ok,font=\bfseries] at (-4,1.5) {Donut};
+\node[text=ok,font=\bfseries] at (0,1.5) {Donut};
+\node[text=ok,font=\bfseries] at (4,1.5) {LayoutLMv3};
+\node[font=\Large] at (0,-2.3) {\textbf{Pooled $n = 919$}};
 \end{tikzpicture}
 \end{center}
 \vfill
@@ -376,15 +371,15 @@
 \begin{center}
 \begin{tikzpicture}[scale=1.1]
 \draw[fill=smx!40] (0,0) rectangle (2,3.2);
-\node at (1,3.55) [font=\bfseries] {softmax};
+\node[font=\bfseries] at (1,3.55) {softmax};
 \node at (1,-0.45) {\Large \textbf{0.953}};
-\node at (3.2,1.6) [font=\Large] {$+$};
+\node[font=\Large] at (3.2,1.6) {$+$};
 \draw[fill=sig!40] (4.4,0) rectangle (6.4,3.2);
-\node at (5.4,3.55) [font=\bfseries] {$\sigma$};
+\node[font=\bfseries] at (5.4,3.55) {$\sigma$};
 \node at (5.4,-0.45) {\Large \textbf{0.953}};
-\node at (7.6,1.6) [font=\Large] {$=$};
+\node[font=\Large] at (7.6,1.6) {$=$};
 \draw[fill=ok!50,pattern=north east lines,pattern color=ok] (8.8,0) rectangle (10.8,3.33);
-\node at (9.8,3.55) [font=\bfseries] {both};
+\node[font=\bfseries] at (9.8,3.55) {both};
 \node at (9.8,-0.45) {\Large\bfseries\textcolor{ok}{0.991}};
 \end{tikzpicture}
 \end{center}
@@ -401,10 +396,10 @@
 \begin{center}
 \begin{tikzpicture}
 \draw[fill=smx!50] (0,0) rectangle (12,1.4);
-\node at (6,2.0) [font=\large] {AI inference};
-\node at (6,0.7) [font=\Large] {$\sim$\,175 ms};
+\node[font=\large] at (6,2.0) {AI inference};
+\node[font=\Large] at (6,0.7) {$\sim$\,175 ms};
 \draw[fill=ok!60] (0,-1.6) rectangle (0.002,-0.2);
-\node[anchor=west] at (0.4,-0.9) [font=\large] {$\sigma$ verifier $\sim$\,1.5 $\mu$s};
+\node[anchor=west,font=\large] at (0.4,-0.9) {$\sigma$ verifier $\sim$\,1.5 $\mu$s};
 \end{tikzpicture}
 \end{center}
 \vspace{1.5em}
