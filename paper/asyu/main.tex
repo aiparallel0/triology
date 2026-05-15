@@ -258,7 +258,7 @@ total field as a single softmax baseline. $\sigma$ is \emph{not} a
 different softmax aggregator --- it is a different \emph{signal} that
 does not read the model at all.
 
-\paragraph{Industrial prior art and program-level verification.}
+\noindent\textbf{Industrial prior art and program-level verification.}
 Arithmetic cross-checks of receipt totals are common engineering
 practice in commercial document-processing pipelines (expense-management
 software has applied them for at least a decade). The gap $\sigma$
@@ -295,7 +295,7 @@ against the document's own arithmetic, and they can be stacked.
 \section{Method}
 \label{sec:method}
 
-\paragraph{Problem.} Given a receipt image $x$, a KIE model emits a
+\noindent\textbf{Problem.} Given a receipt image $x$, a KIE model emits a
 predicted total $\pi(x)\in\mathbb{Q}_{\geq 0}$. Let $y(x)$ be the
 gold total. A selective predictor is a binary gate
 $g:x\mapsto\{\text{accept},\text{reject}\}$ with
@@ -304,7 +304,7 @@ defer) and \emph{precision}
 $P(g)=\Pr(\pi{=}y\mid g{=}\text{accept})$ (how often it's right when
 it doesn't defer).
 
-\paragraph{The $\sigma$ gate.} Let $M(x)=\{m_1,\dots,m_n\}$ be the
+\noindent\textbf{The $\sigma$ gate.} Let $M(x)=\{m_1,\dots,m_n\}$ be the
 multiset of monetary amounts extracted from $x$. Fix
 $k_{\min}\in\{1,2\}$ (the smallest subset size we'll accept as a
 witness; without this, a single line item that happens to equal the
@@ -362,7 +362,7 @@ $\sigma$ would reject regardless of how confident the AI is.}
 \label{fig:sigma-action}
 \end{figure}
 
-\paragraph{Cardinality guard.} $k_{\min}{=}2$ excludes singleton
+\noindent\textbf{Cardinality guard.} $k_{\min}{=}2$ excludes singleton
 witnesses ($\pi{=}m_j$ alone). Without it, every receipt where a line
 item happens to equal the total is trivially accepted, and
 $\sigma$-precision degrades. Section~\ref{sec:results-robust} reports
@@ -370,7 +370,7 @@ an ablation. On OCR-derived corpora, flipping to $k_{\min}{=}1$ helps
 on both axes (the total often appears as a clean labelled line in
 that regime).
 
-\paragraph{Amount extraction $\tau$.} On labelled-amount corpora
+\noindent\textbf{Amount extraction $\tau$.} On labelled-amount corpora
 (CORD), $M$ comes directly from the per-field JSON. On OCR-derived
 corpora (SROIE), we use a multi-candidate extractor over the OCR text:
 when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), we keep
@@ -379,7 +379,7 @@ candidate yields a witness ($3.12$ candidates per receipt on average).
 On WildReceipt (encoder-only), $M$ comes from
 \texttt{Prod\_price\_value} token annotations.
 
-\paragraph{Composition with softmax.} Let $s(x)$ be the softmax
+\noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
 confidence. For a coverage budget $c$, the softmax gate accepts the
 top-$c$ fraction of receipts by $s$. We compose at per-corpus matched
 coverage: $c$ equal to $\sigma$'s coverage on that corpus. The
@@ -388,29 +388,29 @@ intersection $\sigma\sqcap\text{softmax}$ accepts iff both fire.
 \section{Experimental Setup}
 \label{sec:setup}
 
-\paragraph{Pooled benchmark.} \textbf{CORD-v2}~\cite{park2019cord} test
+\noindent\textbf{Pooled benchmark.} \textbf{CORD-v2}~\cite{park2019cord} test
 ($n{=}100$, labelled per-field amounts);
 \textbf{SROIE Task-3}~\cite{huang2019sroie} canonical ($n{=}347$,
 OCR-derived amounts);
 \textbf{WildReceipt}~\cite{sun2021wildreceipt} test ($n{=}472$,
 per-token annotations). Pooled $n{=}919$.
 
-\paragraph{Models.} Donut~\cite{kim2022donut} checkpoints
+\noindent\textbf{Models.} Donut~\cite{kim2022donut} checkpoints
 \texttt{naver-clova-ix/donut-base-finetuned-cord-v2} and
 \texttt{philschmid/donut-base-sroie}; LayoutLMv3~\cite{huang2022layoutlmv3}
 \texttt{Theivaprakasham/layoutlmv3-finetuned-wildreceipt}. Inference-only.
 
-\paragraph{Operating point.} $\varepsilon{=}0.02$ and
+\noindent\textbf{Operating point.} $\varepsilon{=}0.02$ and
 $k_{\min}{=}2$ unless stated otherwise.
 
-\paragraph{Statistics.} \emph{Wilson 95\% CI} (the standard small-$n$-safe
+\noindent\textbf{Statistics.} \emph{Wilson 95\% CI} (the standard small-$n$-safe
 binomial confidence interval: it says ``with 95\% confidence the true
 precision lies in $[L,U]$''). \emph{McNemar's test} (paired $2{\times}2$
 disagreement: it asks ``do the two gates fail on the \emph{same} or
 on \emph{different} examples?'') with $\chi^2$ and continuity
 correction.
 
-\paragraph{Softmax extraction across architectures.} For Donut the
+\noindent\textbf{Softmax extraction across architectures.} For Donut the
 softmax score is the geometric mean of per-token probabilities over
 the predicted \texttt{total\_value} span in the decoder's
 autoregressive output. For LayoutLMv3 it is the geometric mean of the
@@ -651,7 +651,7 @@ reachable set --- adjacent reachable subset sums on CORD are spaced by
 more than $\$5.00$, so any tolerance below that resolves the same
 witness set.
 
-\paragraph{Latency.} Per-receipt $\sigma$ DP over $n{=}347$ SROIE
+\noindent\textbf{Latency.} Per-receipt $\sigma$ DP over $n{=}347$ SROIE
 receipts: median $5\,\mu$s, $p_{99}{=}547\,\mu$s. Paired against
 Donut generate latency on the same GPU, $\sigma$ contributes
 $\mathbf{0.0016\%}$ of inference time (Fig.~\ref{fig:latency}) ---
