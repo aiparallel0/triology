@@ -116,7 +116,7 @@
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Large\textbf{Today's method, since the 1990s:}}\\[0.3em]
+{\Large\textbf{Today's standard method:}}\\[0.3em]
 {\Huge\textbf{\textcolor{smx}{ask the AI ``how sure are you?''}}}
 \end{center}
 \vspace{1.5em}
@@ -144,12 +144,12 @@
 \node[draw,rounded corners=8pt,fill=smx!15,thick,text width=12cm,align=center,minimum height=2.5cm] at (0,0) {
 \Large A number from 0 to 1 the AI produces about\\
 \Large \emph{its own} answer --- how sure it is.\\[0.5em]
-\large \textbf{1.0} = totally sure.\quad \textbf{0.0} = no idea.
+\large \textbf{1.0} = totally sure.\quad \textbf{0.5} = coin flip.\quad \textbf{0.0} = no idea.
 };
 \end{tikzpicture}
 \end{center}
 \vfill
-\begin{center}\small For 30+ years, this is the ONLY signal practitioners had.\end{center}
+\begin{center}\small For the modern era of neural document AI, this has been the only trust signal practitioners had.\end{center}
 \end{frame}
 
 % ============== SLIDE 8: THE BUG ==============
@@ -239,7 +239,7 @@
 \end{tikzpicture}
 \end{center}
 \vspace{0.5em}
-\begin{center}\small Powered by a \emph{$0/1$-knapsack DP} (a textbook algorithm that tries every subset in milliseconds).\end{center}
+\begin{center}\small The math trick: a \emph{$0/1$-knapsack DP} --- a textbook algorithm that builds a table\\\small of every reachable subset sum in microseconds, then looks up the answer. Same family\\\small of algorithm used in puzzle and packing problems.\end{center}
 \end{frame}
 
 % ============== SLIDE 12: SIGMA IN ACTION ==============
@@ -321,7 +321,8 @@
 {\Large On \textbf{919 real receipts}, with both AIs agreeing:}\\[1.5em]
 {\Huge\bfseries\textcolor{ok}{98.8\% precision}}\\[0.3em]
 {\large 160 right, 2 wrong, out of 162 accepts}\\[1.5em]
-{\Large Statistical floor (95\% lower bound): \textbf{0.956}}\\[1em]
+{\Large Even being statistically conservative:\ \textbf{at least 95.6\%}}\\[0.3em]
+{\small (Wilson 95\% lower bound --- ``95\% sure the true rate is no worse than this.'')}\\[1em]
 {\large Either signal alone: \emph{below 0.92.}}
 \end{center}
 \vfill
@@ -402,7 +403,9 @@
 \node[anchor=west,font=\large] at (0.4,-0.9) {$\sigma$ verifier $\sim$\,1.5 $\mu$s};
 \end{tikzpicture}
 \end{center}
-\vspace{1.5em}
+\vspace{1em}
+\begin{center}\small \emph{175 ms} $\approx$ a single blink. \emph{1.5 $\mu$s} $\approx$ a millionth of a second.\end{center}
+\vspace{0.6em}
 \begin{center}{\Huge \textbf{\textcolor{ok}{0.0016\%}}}\\[0.3em]{\Large of total time. Effectively free.}\end{center}
 \vfill
 \end{frame}
@@ -414,7 +417,7 @@
 \begin{tikzpicture}[scale=1.0]
 \node[draw,rounded corners=6pt,fill=smx!15,thick,text width=6cm,align=center,minimum height=3cm] at (-4.2,0)
   {\textbf{\Large Before this paper}\\[0.3em]
-   {\Large 30+ years}\\[0.4em]
+   {\Large Longstanding default}\\[0.4em]
    {\large One signal:}\\
    {\large softmax confidence}\\[0.3em]
    {\small confidently wrong $\Rightarrow$ silently wrong}};
@@ -428,7 +431,7 @@
 \end{tikzpicture}
 \end{center}
 \vfill
-\begin{center}{\large \textbf{The 1990s standard finally has a \emph{partner}.}}\end{center}
+\begin{center}{\large \textbf{The longstanding default finally has a peer-reviewed \emph{partner}.}}\end{center}
 \end{frame}
 
 % ============== SLIDE 22: WHY THIS MATTERS ==============
@@ -460,7 +463,7 @@
 \node[draw,rounded corners=8pt,fill=ok!10,thick,text width=12.5cm,align=center,minimum height=3.5cm] at (0,0) {
 \Large If the receipt's own math doesn't back up the AI's number,\\[0.4em]
 \Large \textbf{don't trust the AI.}\\[0.8em]
-\large 30 years of softmax-only confidence $\to$ softmax \emph{plus} arithmetic.\\[0.3em]
+\large Softmax-only confidence $\to$ softmax \emph{plus} arithmetic.\\[0.3em]
 \large \textbf{\textcolor{ok}{98.8\% precision. 0.0016\% latency.}}
 };
 \end{tikzpicture}
