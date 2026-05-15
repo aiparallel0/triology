@@ -70,7 +70,7 @@ def main():
 
     axes[0].set_ylabel("Accept precision")
     fig.suptitle(
-        r"$\sigma\sqcap$softmax (hatched, bold) exceeds both single-gate precisions on all three corpora",
+        r"Intersection $\sigma\sqcap\mathrm{softmax}$ (hatched, bold) exceeds both single-gate bars on all three corpora",
         fontsize=10.5,
     )
     fig.tight_layout()

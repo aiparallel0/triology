@@ -62,7 +62,7 @@ def main():
               row["sigma_only_precision"] if row["sigma_only_precision"] is not None else 0.0,
               smax_only_p)
 
-    fig.suptitle(r"Accept-set Venn: $\sigma\sqcap$smax (centre, bold) is the high-precision joint slice",
+    fig.suptitle(r"Accept-set Venn: intersection $\sigma\sqcap\mathrm{smax}$ (centre, bold) is the high-precision joint slice",
                  fontsize=10.5)
     fig.tight_layout()
     fig.savefig(OUT, bbox_inches="tight")

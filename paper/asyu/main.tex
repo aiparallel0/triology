@@ -88,10 +88,11 @@ better than either alone.}
 Document-AI systems extract named fields from receipts; the
 \texttt{total} is the highest-value target and a silently wrong total
 propagates downstream into tax filings, expense reports, and audits.
-The standard signal for deciding when to trust a predicted total is
-the model's own softmax confidence, a single scalar that
-miscalibrates in a familiar way: a model can score $0.97$ on a
-receipt and still be wrong. We propose $\sigma$, an arithmetic
+For 30+ years the only signal practitioners have had for deciding
+when to trust a predicted total has been the model's own softmax
+confidence, a single scalar that miscalibrates in a familiar
+way~\cite{guo2017calibration}: a model can score $0.97$ on a receipt
+and still be wrong. We propose $\sigma$, an arithmetic
 verifier that ignores the model and asks of the receipt directly,
 \emph{does any subset of the visible line amounts sum to the predicted
 total?} The check is a textbook $0/1$-knapsack dynamic program; it
@@ -164,8 +165,10 @@ missing is a peer-reviewed formalisation of such a check as an
 independent (model-internal-free) verification signal with paired
 statistical analysis against softmax.
 
-\noindent\textbf{Our contribution.} We propose $\sigma$ as that
-independent signal (Fig.~\ref{fig:paradigm}). Given the model's
+\noindent\textbf{Our contribution.} We propose
+$\sigma$\footnote{Throughout, $\sigma$ names the verifier gate
+defined below, not the standard-deviation symbol.} as that independent
+signal (Fig.~\ref{fig:paradigm}). Given the model's
 predicted total $\pi$ and the multiset $M$ of monetary amounts visible
 on the receipt (line items, taxes, tips, subtotals), $\sigma$ accepts
 $\pi$ iff some subset $S\subseteq M$ with $|S|\geq k_{\min}$ sums to
@@ -353,13 +356,15 @@ $\sigma$ would reject regardless of how confident the AI is.}
 \label{fig:sigma-action}
 \end{figure}
 
-\noindent\textbf{Cardinality guard.} $k_{\min}{=}2$ excludes singleton
-witnesses ($\pi{=}m_j$ alone). Without it, every receipt where a line
-item happens to equal the total is trivially accepted, and
-$\sigma$-precision degrades. Section~\ref{sec:results-robust} reports
-an ablation. On OCR-derived corpora, flipping to $k_{\min}{=}1$ helps
-on both axes (the total often appears as a clean labelled line in
-that regime).
+\noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on
+whether the total typically appears on the receipt as a labelled
+line. On labelled-amount corpora the labelled line is part of $M$ and
+a singleton witness $\pi{=}m_j$ is a coincidence rather than the
+intended structural match, so we set $k_{\min}{=}2$ to exclude it; on
+OCR-derived corpora the OCR step often surfaces the labelled total
+itself, and the singleton witness is then legitimate, so $k_{\min}{=}1$
+helps on both axes (Table~\ref{tab:guard}). The default in this paper
+is $k_{\min}{=}2$ on CORD and WildReceipt, $k_{\min}{=}1$ on SROIE.
 
 \noindent\textbf{Amount extraction $\tau$.} On labelled-amount corpora
 (CORD), $M$ comes directly from the per-field JSON. On OCR-derived
@@ -580,20 +585,29 @@ still rises strictly above both single gates.
 
 \begin{table}[t]
 \centering\small
-\caption{Two robustness sweeps. \emph{Top:} cardinality-guard
-ablation on SROIE: removing $k_{\min}{=}2$ wins on both axes
-because the total often appears as a clean labelled line in the OCR
-regime. \emph{Bottom:} $\sigma$ precision stays in $[0.949, 0.980]$
-under up to $40\%$ injected money-line noise on CORD ($10$ seeds,
-bootstrap 95\% CI). Coverage falls; precision does not.}
+\caption{Cardinality-guard ablation on SROIE: dropping
+$k_{\min}{=}2$ wins on both axes because the total often appears as
+a clean labelled line in the OCR regime, so the singleton witness is
+legitimate.}
+\label{tab:guard}
+\begin{tabular}{lrr}
+\toprule
+Setting (SROIE, $n{=}347$) & Coverage & Precision \\
+\midrule
+$k_{\min}{=}1$ (no guard)  & 0.161 & 0.929 \\
+$k_{\min}{=}2$ (guard on)  & 0.029 & 0.900 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering\small
+\caption{Noise robustness on CORD ($10$ seeds, bootstrap 95\% CI).
+$\sigma$ precision stays in $[0.949, 0.980]$ under up to $40\%$
+injected money-line noise; coverage falls, precision does not.}
 \label{tab:robust}
 \begin{tabular}{lrrl}
 \toprule
-Setting (SROIE, $n{=}347$) & Coverage & Precision & \\
-\midrule
-$k_{\min}{=}1$ (no guard)  & 0.161 & 0.929 & \\
-$k_{\min}{=}2$ (guard on)  & 0.029 & 0.900 & \\
-\midrule
 CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \midrule
 0.00 & 0.267 & 0.957 & [0.957, 0.957] \\
