@@ -9,6 +9,9 @@ bold annotation) since it carries the headline finding.
 """
 import json
 from pathlib import Path
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -70,7 +73,7 @@ def main():
 
     axes[0].set_ylabel("Accept precision")
     fig.suptitle(
-        r"Intersection $\sigma\sqcap\mathrm{softmax}$ (hatched, bold) exceeds both single-gate bars on all three corpora",
+        "Intersection σ⊓softmax (hatched, bold) exceeds both single-gate bars on all three corpora",
         fontsize=10.5,
     )
     fig.tight_layout()
