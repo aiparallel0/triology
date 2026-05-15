@@ -91,7 +91,8 @@ to decide ``should I trust this number?'' is the model's own
 \emph{softmax confidence} (the geometric mean of the per-token
 probabilities the model assigns to its own answer --- a number between
 $0$ and $1$ that the model produces about \emph{itself}). Softmax has
-a known flaw: a model can be $97\%$ confident and wrong. We introduce
+a known flaw: a model can be $97\%$ confident and wrong.
+\textbf{Contribution.} We introduce
 $\sigma$ (``sigma''), to our knowledge the first peer-reviewed
 formalisation of arithmetic verification as a
 \emph{generator-orthogonal} (independent of the model's internals)
@@ -99,14 +100,17 @@ precision gate for receipt key-information extraction (KIE, the task
 of pulling named fields like \texttt{total} from a document). $\sigma$
 ignores the model and asks the receipt itself one question:
 \emph{do any of these line items sum to the predicted total?}
-If yes, accept; if no, reject. The witness exists for well-formed
+If yes, accept; if no, reject.
+\textbf{Witness premise.} The witness exists for well-formed
 receipts because totals are sums of visible amounts; on receipts where
 this premise fails (rounding-only lines, post-subtotal discounts,
 hidden service charges) $\sigma$ silently rejects valid totals, and we
-localise its losses to such violations. $\sigma$ is decided
+localise its losses to such violations.
+\textbf{Cost.} $\sigma$ is decided
 by a textbook $0/1$-knapsack dynamic program (DP, a standard algorithm
 that efficiently tries every combination) and adds $0.0016\%$ to the
-model's end-to-end runtime. On a pooled three-corpus benchmark of
+model's end-to-end runtime.
+\textbf{Validation.} On a pooled three-corpus benchmark of
 $n{=}919$ receipts spanning two AI architectures (Donut~\cite{kim2022donut}
 generative; LayoutLMv3~\cite{huang2022layoutlmv3} encoder-only) and three
 regimes (CORD-v2~\cite{park2019cord} test, SROIE
@@ -519,23 +523,27 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:headline-pooled} is the pooled headline on all
-$n{=}919$ receipts. The intersection accepts $162$ receipts and is
-right on $160$, Wilson lower bound $0.956$ --- comfortably above the
-$0.95$ operational floor. Both single gates have lower bounds below
-$0.92$, so the intersection's lower bound exceeds both single-gate
-lower bounds by a clear margin. The precision gain costs coverage:
+\noindent\textbf{Pooled headline.} Table~\ref{tab:headline-pooled} is
+the pooled headline on all $n{=}919$ receipts. The intersection accepts
+$162$ receipts and is right on $160$, Wilson lower bound $0.956$ ---
+comfortably above the $0.95$ operational floor. Both single gates have
+lower bounds below $0.92$, so the intersection's lower bound exceeds
+both single-gate lower bounds by a clear margin.
+
+\noindent\textbf{Coverage cost.} The precision gain costs coverage:
 the intersection accepts $162$ of $919$ receipts ($17.6\%$) versus
 $344$ for either single gate alone --- a $53\%$ relative coverage
 reduction. The trade-off is appropriate when the cost of a silent
 wrong total exceeds the cost of one extra human review.
+
+\noindent\textbf{Per-corpus consistency.}
 Table~\ref{tab:headline-percorpus} shows this is not a pooling
 artefact: each corpus individually has its intersection precision
 above either single gate. We note that the pooled $n{=}919$ is
 unevenly weighted ($100/347/472$) and that the per-corpus table is
-the balanced read of the same data. Fig.~\ref{fig:overview}
-gives the per-corpus four-cell matrix; Fig.~\ref{fig:venn} renders the
-same data as Venn diagrams to make the disagreement lobes visible;
+the balanced read of the same data. Fig.~\ref{fig:overview} gives the
+per-corpus four-cell matrix; Fig.~\ref{fig:venn} renders the same data
+as Venn diagrams to make the disagreement lobes visible;
 Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
 
 \subsection{F2: paired McNemar orthogonality}
@@ -561,36 +569,42 @@ WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
 \end{tabular}
 \end{table}
 
-McNemar asks: \emph{when the two gates disagree, do they disagree
-asymmetrically?} A small $p$ would mean one gate strictly dominates
-the other on \emph{which} examples it gets right --- which would
-\emph{weaken} the case for intersection. The non-rejection here is
-consistent with the gates being similarly accurate on disjoint slices.
-The WildReceipt $b{=}c{=}91$ exactly is the cleanest example:
-equal-size disjoint correct-accept slices yielding the
-$113/114=0.991$ intersection (Fig.~\ref{fig:wildreceipt}). We note one
-caveat: McNemar's non-rejection is technically absence of evidence for
-asymmetric disagreement, not positive evidence of error-decorrelation;
-a direct correlation-on-errors test (Pearson
+\noindent\textbf{What McNemar actually asks.} McNemar asks:
+\emph{when the two gates disagree, do they disagree asymmetrically?}
+A small $p$ would mean one gate strictly dominates the other on
+\emph{which} examples it gets right --- which would \emph{weaken} the
+case for intersection. The non-rejection here is consistent with the
+gates being similarly accurate on disjoint slices.
+
+\noindent\textbf{The cleanest case.} The WildReceipt $b{=}c{=}91$
+exactly is the cleanest example: equal-size disjoint correct-accept
+slices yielding the $113/114=0.991$ intersection
+(Fig.~\ref{fig:wildreceipt}).
+
+\noindent\textbf{Caveat.} McNemar's non-rejection is technically
+absence of evidence for asymmetric disagreement, not positive evidence
+of error-decorrelation; a direct correlation-on-errors test (Pearson
 $\phi$-coefficient between the gates' binary error indicators with
-bootstrap CI) is the conceptually stronger statistic and is journal-form
-follow-up.
+bootstrap CI) is the conceptually stronger statistic and is
+journal-form follow-up.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
 
-Single-gate $\sigma$ precision differs across regimes: CORD $0.982$,
-SROIE $0.867$, WildReceipt $0.953$. \textbf{SROIE is the sole regime
-where $\sigma$ underperforms matched softmax.} On CORD $\sigma$ beats
-softmax outright by $5.5$ percentage points ($0.982$ vs.\ $0.927$).
-On WildReceipt the two gates tie at $0.953$. On SROIE $\sigma$ trails
-($0.867$ vs.\ $0.947$). The SROIE shortfall is most plausibly an
-upstream-OCR artefact rather than a verifier failure: digit confusions
-and phantom amounts grow the reachable set $T(M)$ in directions that
-admit wrong totals as witnesses. A controlled hand-OCR-corrected
-SROIE subsample would directly demonstrate this and is the right
-follow-up. On every corpus the intersection still rises strictly above
-both single gates.
+\noindent\textbf{Per-regime summary.} Single-gate $\sigma$ precision
+differs across regimes: CORD $0.982$, SROIE $0.867$, WildReceipt
+$0.953$. \textbf{SROIE is the sole regime where $\sigma$ underperforms
+matched softmax.} On CORD $\sigma$ beats softmax outright by $5.5$
+percentage points ($0.982$ vs.\ $0.927$). On WildReceipt the two gates
+tie at $0.953$. On SROIE $\sigma$ trails ($0.867$ vs.\ $0.947$).
+
+\noindent\textbf{Why SROIE inverts.} The SROIE shortfall is most
+plausibly an upstream-OCR artefact rather than a verifier failure:
+digit confusions and phantom amounts grow the reachable set $T(M)$ in
+directions that admit wrong totals as witnesses. A controlled
+hand-OCR-corrected SROIE subsample would directly demonstrate this and
+is the right follow-up. On every corpus the intersection still rises
+strictly above both single gates.
 
 \subsection{Cardinality guard, noise robustness, latency}
 \label{sec:results-robust}
@@ -641,10 +655,12 @@ $\max{=}791\,\mu$s per receipt over $n{=}347$ SROIE receipts.}
 \label{fig:latency}
 \end{figure}
 
-$\sigma$'s precision under up to $40\%$ synthetic noise is
-$[0.949, 0.980]$ across rates (Table~\ref{tab:robust}); the bootstrap
-95\% CI contains $0.94$ at every rate. Coverage degrades sharply but
-precision does not. The tolerance sweep
+\noindent\textbf{Noise robustness.} $\sigma$'s precision under up to
+$40\%$ synthetic noise is $[0.949, 0.980]$ across rates
+(Table~\ref{tab:robust}); the bootstrap 95\% CI contains $0.94$ at
+every rate. Coverage degrades sharply but precision does not.
+
+\noindent\textbf{Tolerance sweep.} The sweep
 $\varepsilon\in\{0.01,\dots,5.0\}$ on CORD yields identical
 $(coverage, precision)$ at every value: this reflects sparsity of the
 reachable set --- adjacent reachable subset sums on CORD are spaced by
