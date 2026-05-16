@@ -19,6 +19,14 @@
 \definecolor{smx}{HTML}{ff7f0e}
 \definecolor{grey}{HTML}{888888}
 
+% Intersection-control re-analysis; safe defaults until U runs.
+\newcommand{\ctrlLsigma}{0.040}
+\newcommand{\ctrlLsigmaLo}{0.018}
+\newcommand{\ctrlLsigmaHi}{0.061}
+\newcommand{\ctrlLrandHi}{0.013}
+\newcommand{\ctrlLcorrHi}{0.016}
+\InputIfFileExists{numbers_control.tex}{}{}
+
 \title{Can we trust AI when it reads a receipt?}
 \subtitle{A free second opinion for confident-but-wrong models}
 \author{ASYU 2026}
@@ -318,11 +326,11 @@
 \begin{frame}{}
 \vfill
 \begin{center}
-{\Large On \textbf{919 real receipts}, with both AIs agreeing:}\\[1.5em]
-{\Huge\bfseries\textcolor{ok}{98.8\% precision}}\\[0.3em]
-{\large 160 right, 2 wrong, out of 162 accepts}\\[1.5em]
-{\Large Even being statistically conservative:\ \textbf{at least 95.6\%}}\\[0.3em]
-{\small (Wilson 95\% lower bound: ``95\% sure the true rate is no worse than this.'')}\\[1em]
+{\Large Per corpus, when \textbf{both} AIs agree:}\\[1.0em]
+{\Large WildReceipt \textbf{\textcolor{ok}{113/114}} \quad CORD \textbf{\textcolor{ok}{32/33}}}\\[0.3em]
+{\large (SROIE 15/15, but $n{=}15$ --- consistency only)}\\[1.0em]
+{\large Pooled $n{=}919$: \textbf{\textcolor{ok}{98.8\%}} (160/162), Wilson LB \textbf{95.6\%}}\\[0.3em]
+{\small We lead with per-corpus; the pool is carried by WildReceipt.}\\[0.8em]
 {\large Either signal alone: \emph{below 0.92.}}
 \end{center}
 \vfill
@@ -386,6 +394,56 @@
 \end{center}
 \vspace{1em}
 \begin{center}{\Large \textbf{Equal alone. Different mistakes. Together: 113 / 114.}}\end{center}
+\vfill
+\end{frame}
+
+% ============== SLIDE 19b: IS IT A STATISTICAL ARTEFACT? ==============
+\begin{frame}{}
+\vfill
+\begin{center}{\Large \textbf{``Doesn't intersecting \emph{any} two gates raise precision?''}}\end{center}
+\vspace{0.6em}
+\begin{center}{\large Fair challenge. So we ran two controls at the \emph{same} coverage.}\end{center}
+\vspace{1.0em}
+\begin{center}
+\begin{tikzpicture}[scale=0.95]
+\node[draw,rounded corners=4pt,fill=grey!12,thick,text width=3.8cm,align=center,minimum height=3.0cm] at (-5.2,0)
+  {\textbf{Random gate}\\[0.3em]\scriptsize accepts a random
+   same-size set (no information)\\[0.3em]
+   lift $\le \ctrlLrandHi$\\[0.2em]\scriptsize $\approx$ zero};
+\node[draw,rounded corners=4pt,fill=grey!12,thick,text width=3.8cm,align=center,minimum height=3.0cm] at (0,0)
+  {\textbf{Copy-of-softmax}\\[0.3em]\scriptsize a 2nd gate built
+   \emph{from} softmax, same quality as $\sigma$\\[0.3em]
+   lift $\le \ctrlLcorrHi$\\[0.2em]\scriptsize $\approx$ zero};
+\node[draw,rounded corners=4pt,fill=ok!18,thick,text width=3.8cm,align=center,minimum height=3.0cm] at (5.2,0)
+  {\textbf{$\sigma$ (ours)}\\[0.3em]\scriptsize an \emph{independent}
+   arithmetic check\\[0.3em]
+   lift $\mathbf{\ctrlLsigma}$\\[0.2em]\scriptsize CI
+   $[\ctrlLsigmaLo,\ctrlLsigmaHi]$};
+\end{tikzpicture}
+\end{center}
+\vspace{0.6em}
+\begin{center}{\large \textbf{\textcolor{ok}{Only $\sigma$ clears both controls}} --- the lift is real orthogonality, not a coverage artefact.}\end{center}
+\vfill
+\end{frame}
+
+% ============== SLIDE 19c: HONEST ABOUT THE REGIME ==============
+\begin{frame}{}
+\vfill
+\begin{center}{\Large \textbf{Where $\sigma$ is honest about itself}}\end{center}
+\vspace{1.0em}
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+\node[draw,rounded corners=6pt,fill=ok!15,thick,text width=11.5cm,align=center,minimum height=1.5cm] at (0,1.3)
+  {\textbf{Clean amounts (CORD labels):} $\sigma$ \emph{beats} softmax
+   alone --- $0.982$ vs.\ $0.927$.};
+\node[draw,rounded corners=6pt,fill=shred!12,thick,text width=11.5cm,align=center,minimum height=1.7cm] at (0,-1.1)
+  {\textbf{OCR amounts (SROIE) --- the production-like regime:}
+   $\sigma$ \emph{trails} softmax alone ($0.867$ vs.\ $0.947$). Its
+   value there is only \emph{in combination}, not standalone.};
+\end{tikzpicture}
+\end{center}
+\vspace{0.6em}
+\begin{center}\small We say this in the paper too: the win is the \emph{independent second opinion}, not a better single gate.\end{center}
 \vfill
 \end{frame}
 
