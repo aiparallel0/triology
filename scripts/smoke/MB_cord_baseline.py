@@ -66,7 +66,14 @@ def main():
     dec_one = processor.tokenizer("<s_cord-v2>", add_special_tokens=False, return_tensors="pt").input_ids
     pad_id = processor.tokenizer.pad_token_id
 
-    ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
+    # Must mirror B_donut_cord_on_cord's CORD_EVAL_SPLITS so the
+    # per-receipt id join with B's records stays aligned.
+    import os as _os
+    from datasets import concatenate_datasets
+    _splits = _os.environ.get("CORD_EVAL_SPLITS", "test").split("+")
+    _parts = [load_dataset("naver-clova-ix/cord-v2", split=s.strip(),
+                           trust_remote_code=True) for s in _splits if s.strip()]
+    ds = _parts[0] if len(_parts) == 1 else concatenate_datasets(_parts)
     print(f"CORD test n={len(ds)}")
 
     results = []

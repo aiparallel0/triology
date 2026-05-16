@@ -51,6 +51,19 @@
 \newcommand{\orthPhi}{0.200}
 \newcommand{\orthPhiP}{0.0002}
 \InputIfFileExists{numbers_orth.tex}{}{}
+% Risk-coverage (U3_risk_coverage.py): matched-coverage AURC of
+% sigma-gating vs softmax-alone; safe defaults before the run.
+\newcommand{\rcAURCsoft}{0.000}
+\newcommand{\rcAURCsig}{0.000}
+\newcommand{\rcAURCd}{0.000}
+\newcommand{\rcAURCdLo}{0.000}
+\newcommand{\rcAURCdHi}{0.000}
+\newcommand{\rcAURCp}{1.000}
+\newcommand{\rcEarned}{PENDING}
+\newcommand{\rcCurveSoft}{(0,0)}
+\newcommand{\rcCurveSig}{(0,0)}
+\InputIfFileExists{numbers_riskcov.tex}{}{}
+\InputIfFileExists{riskcov_curve.tex}{}{}
 
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
 for Generative and Encoder-Only Document Total Extraction}
@@ -262,10 +275,24 @@ requirements, financial-services model-risk-management rules) increasingly
 mandates documented per-prediction trust signals. $\sigma$ is computed on
 the document, not the model, so it produces a separate audit trail.
 
+\noindent\textbf{The general principle.} The contribution is not an
+arithmetic trick specific to receipts. It is a general
+selective-prediction principle: \emph{when a task's output admits a
+checkable structural constraint, a deterministic verifier of that
+constraint is a confidence signal statistically orthogonal to the
+model's own softmax, because its errors are governed by the document
+structure rather than the decoder's logits}. Receipts (totals are a
+subset sum of line items) are a clean instantiation with a decidable
+constraint; the same construction applies wherever a structural
+invariant is checkable (tables that must balance, schemas with
+referential constraints, code with type/compile checks, logic with a
+solver). We develop and validate the receipt instantiation and frame
+the orthogonality result at this general level.
+
 \noindent\textbf{Contributions.} (i)~$\sigma$, to our knowledge the
-first \emph{peer-reviewed formalisation of arithmetic verification as
-a softmax-orthogonal selective-prediction signal} for receipt KIE
-(\S\ref{sec:method}). (ii)~Empirical validation on a pooled
+first \emph{peer-reviewed formalisation of structural (arithmetic)
+verification as a softmax-orthogonal selective-prediction signal},
+instantiated on receipt KIE (\S\ref{sec:method}). (ii)~Empirical validation on a pooled
 three-corpus benchmark of $n{=}919$ receipts spanning two backbones
 (Donut generative, LayoutLMv3 encoder-only) and three regimes (CORD
 labelled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
@@ -658,6 +685,25 @@ individually powered only on WildReceipt; CORD ($n{=}100$) and the
 small SROIE intersection ($n{=}15$) are underpowered and individually
 inconclusive --- not negative --- so we lead with the pooled estimate
 rather than overstate any single corpus.
+
+\subsection{F2c: is it operationally useful? Risk--coverage}
+\label{sec:results-riskcov}
+
+Statistical orthogonality is necessary but not sufficient for
+deployment value; a reviewer rightly asks whether $\sigma$-gating
+beats simply thresholding softmax. We answer with a matched-coverage
+risk--coverage comparison (selective-prediction re-analysis, no model
+inference): at each coverage we evaluate softmax-alone (top by softmax)
+against $\sigma$-gated (top by softmax \emph{and} $\sigma$-accepted) at
+the \emph{same} achieved coverage, and integrate risk to an AURC
+(lower is better). Pooled, AURC is $\rcAURCsoft$ for softmax-alone
+versus $\rcAURCsig$ for $\sigma$-gating, a paired-bootstrap reduction
+of $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
+$p{=}\rcAURCp$); the matched-coverage verdict is \rcEarned. This
+isolates the operational question from the orthogonality question:
+$\sigma$ buys lower risk at equal coverage exactly when its errors are
+decorrelated from softmax's (Section~\ref{sec:results-control}), and
+the cost is the coverage it declines to cover (Section~\ref{sec:results-regime}).
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}

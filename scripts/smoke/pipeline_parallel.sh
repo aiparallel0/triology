@@ -43,6 +43,8 @@ if [ "$NG" -le 1 ]; then
   runlog F   python scripts/smoke/F_layoutlmv3_on_wildreceipt.py
   runlog MF2 python scripts/smoke/MF2_wildreceipt_softmax.py
   runlog U   python scripts/smoke/U_intersection_control.py
+  runlog U2  python scripts/smoke/U2_orthogonality.py
+  runlog U3  python scripts/smoke/U3_risk_coverage.py
 else
   echo "== PARALLEL: B/A/F across GPUs =="
   ( CUDA_VISIBLE_DEVICES="${G[0]}" python scripts/smoke/B_donut_cord_on_cord.py >logs/B.log 2>&1
@@ -54,6 +56,8 @@ else
   wait
   CUDA_VISIBLE_DEVICES="${G[0]}" python scripts/smoke/U_intersection_control.py >logs/U.log 2>&1
   echo "$? U" >>logs/.done
+  python scripts/smoke/U2_orthogonality.py >logs/U2.log 2>&1; echo "$? U2" >>logs/.done
+  python scripts/smoke/U3_risk_coverage.py >logs/U3.log 2>&1; echo "$? U3" >>logs/.done
 fi
 
 echo "# done in $(( $(date +%s) - T0 ))s"

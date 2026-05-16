@@ -89,8 +89,19 @@ def main():
     DTYPE = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
     processor = DonutProcessor.from_pretrained(CKPT)
     model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=DTYPE).to("cuda").eval()
-    ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
-    print(f"CORD-v2 test size: {len(ds)}")
+    # Per-corpus statistical power: CORD-v2 test alone is ~100, which
+    # underpowers the per-corpus orthogonality test. CORD_EVAL_SPLITS
+    # (default "test") may be set to "test+validation" to roughly
+    # double n. sigma is a deterministic arithmetic check with no
+    # training-leakage concern, so adding the validation split does
+    # not contaminate Paper 1's claim.
+    import os as _os
+    from datasets import concatenate_datasets
+    _splits = _os.environ.get("CORD_EVAL_SPLITS", "test").split("+")
+    _parts = [load_dataset("naver-clova-ix/cord-v2", split=s.strip(),
+                           trust_remote_code=True) for s in _splits if s.strip()]
+    ds = _parts[0] if len(_parts) == 1 else concatenate_datasets(_parts)
+    print(f"CORD-v2 eval splits={_splits} size: {len(ds)}")
     pad_id = processor.tokenizer.pad_token_id
     dec_one = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
                                   return_tensors="pt").input_ids
