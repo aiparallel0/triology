@@ -160,8 +160,14 @@ directly (bootstrap). Pooled, $\sigma$'s lift exceeds the random gate
 by $\orthDrand$ ($p{=}\orthDrandP$) and the correlated gate by
 $\orthDcorr$ ($p{=}\orthDcorrP$), and a confound-free direct test of
 error decorrelation gives $\phi{=}\orthPhi$ ($p{=}\orthPhiP$):
-orthogonality is established pooled, with per-corpus power limited to
-WildReceipt (CORD/SROIE underpowered, not negative). The
+statistically the orthogonality is real but the pooled effect is
+\emph{small}, and at $n{\approx}1000$ CORD it does not hold per corpus
+(only WildReceipt is partial) --- we report it as a small, pooled,
+statistically-significant effect, not a per-corpus or large one. A
+matched-coverage risk--coverage comparison shows $\sigma$-gating does
+\emph{not} significantly beat softmax-alone (\S\ref{sec:results-riskcov}):
+the contribution is statistical orthogonality, not a demonstrated
+operational gain. The
 lift costs coverage: the intersection fires on $17.6\%$ of receipts
 versus $37.4\%$ for either single gate (SROIE only $4.3\%$); at a
 human-review cost of $10^2$--$10^3\times$ one inference, the trade is
@@ -680,11 +686,16 @@ $\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$). This is positive
 evidence of orthogonality with no coverage-shrink or
 intersection-arithmetic confound, which the paired-McNemar absence of
 asymmetry (Section~\ref{sec:results-mcnemar}) only implies indirectly.
-The pooled verdict is \orthEarned. Per corpus the effect is
-individually powered only on WildReceipt; CORD ($n{=}100$) and the
-small SROIE intersection ($n{=}15$) are underpowered and individually
-inconclusive --- not negative --- so we lead with the pooled estimate
-rather than overstate any single corpus.
+The pooled verdict is \orthEarned, but two honest caveats bound it.
+First, the pooled effect is \emph{small} ($\orthDrand$/$\orthDcorr$
+AUROC-lift-equivalent); enlarging CORD to its train+validation+test
+union ($n{\approx}1000$) shrank it relative to a smaller-sample
+estimate, i.e.\ the earlier figure was partly small-sample inflation.
+Second, it does \emph{not} hold per corpus: at $n{\approx}1000$ CORD
+is individually \texttt{NOT\_EARNED} and SROIE is too (its intersection
+is structurally tiny); only WildReceipt is partial. We therefore claim
+a \emph{small, pooled, statistically-significant} orthogonality and
+explicitly not a per-corpus or large one.
 
 \subsection{F2c: is it operationally useful? Risk--coverage}
 \label{sec:results-riskcov}
@@ -697,13 +708,18 @@ inference): at each coverage we evaluate softmax-alone (top by softmax)
 against $\sigma$-gated (top by softmax \emph{and} $\sigma$-accepted) at
 the \emph{same} achieved coverage, and integrate risk to an AURC
 (lower is better). Pooled, AURC is $\rcAURCsoft$ for softmax-alone
-versus $\rcAURCsig$ for $\sigma$-gating, a paired-bootstrap reduction
-of $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
-$p{=}\rcAURCp$); the matched-coverage verdict is \rcEarned. This
-isolates the operational question from the orthogonality question:
-$\sigma$ buys lower risk at equal coverage exactly when its errors are
-decorrelated from softmax's (Section~\ref{sec:results-control}), and
-the cost is the coverage it declines to cover (Section~\ref{sec:results-regime}).
+versus $\rcAURCsig$ for $\sigma$-gating, a paired-bootstrap difference
+of only $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
+$p{=}\rcAURCp$): the interval includes zero, so the matched-coverage
+verdict is \rcEarned --- $\sigma$-gating does \emph{not} significantly
+reduce risk over softmax-alone at equal coverage. We state this
+plainly: the contribution of $\sigma$ is \emph{statistical
+orthogonality} (Section~\ref{sec:results-control}) and an independent,
+document-side audit signal, \emph{not} a demonstrated operational
+risk--coverage gain. Both predictors already operate at very low
+absolute risk here, leaving little headroom; whether the
+decorrelation converts to deployment value in higher-error regimes is
+left open and not claimed.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
