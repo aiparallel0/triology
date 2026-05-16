@@ -265,19 +265,20 @@ def main():
     if pooled_res and "earned" in pooled_res:
         t1 = pooled_res["T1_paired_diff"]
         d2 = pooled_res["T2_decorrelation"]
+        fmtp = lambda p: (f"{p:.4f}" if 0 < p < 0.001 else f"{p:.3f}")
         OUT_TEX.parent.mkdir(parents=True, exist_ok=True)
         OUT_TEX.write_text(
             f"\\renewcommand{{\\orthEarned}}{{{pooled_res['earned']}}}\n"
             f"\\renewcommand{{\\orthDrand}}{{{t1['vs_random']['mean']:.3f}}}\n"
             f"\\renewcommand{{\\orthDrandLo}}{{{t1['vs_random']['ci'][0]:.3f}}}\n"
             f"\\renewcommand{{\\orthDrandHi}}{{{t1['vs_random']['ci'][1]:.3f}}}\n"
-            f"\\renewcommand{{\\orthDrandP}}{{{t1['vs_random']['p_one_sided']:.3f}}}\n"
+            f"\\renewcommand{{\\orthDrandP}}{{{fmtp(t1['vs_random']['p_one_sided'])}}}\n"
             f"\\renewcommand{{\\orthDcorr}}{{{t1['vs_correlated']['mean']:.3f}}}\n"
             f"\\renewcommand{{\\orthDcorrLo}}{{{t1['vs_correlated']['ci'][0]:.3f}}}\n"
             f"\\renewcommand{{\\orthDcorrHi}}{{{t1['vs_correlated']['ci'][1]:.3f}}}\n"
-            f"\\renewcommand{{\\orthDcorrP}}{{{t1['vs_correlated']['p_one_sided']:.3f}}}\n"
+            f"\\renewcommand{{\\orthDcorrP}}{{{fmtp(t1['vs_correlated']['p_one_sided'])}}}\n"
             f"\\renewcommand{{\\orthPhi}}{{{d2['phi']:.3f}}}\n"
-            f"\\renewcommand{{\\orthPhiP}}{{{d2['perm_p']:.3f}}}\n"
+            f"\\renewcommand{{\\orthPhiP}}{{{fmtp(d2['perm_p'])}}}\n"
         )
     print(json.dumps(out, indent=2))
 

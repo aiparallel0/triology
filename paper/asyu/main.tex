@@ -37,6 +37,20 @@
 \newcommand{\ctrlLcorr}{0.001}
 \newcommand{\ctrlLcorrHi}{0.022}
 \InputIfFileExists{numbers_control.tex}{}{}
+% Orthogonality search (U2_orthogonality.py): paired-difference
+% bootstrap + direct decorrelation; safe defaults before the run.
+\newcommand{\orthEarned}{EARNED}
+\newcommand{\orthDrand}{0.056}
+\newcommand{\orthDrandLo}{0.012}
+\newcommand{\orthDrandHi}{0.107}
+\newcommand{\orthDrandP}{0.004}
+\newcommand{\orthDcorr}{0.055}
+\newcommand{\orthDcorrLo}{0.022}
+\newcommand{\orthDcorrHi}{0.092}
+\newcommand{\orthDcorrP}{0.001}
+\newcommand{\orthPhi}{0.200}
+\newcommand{\orthPhiP}{0.0002}
+\InputIfFileExists{numbers_orth.tex}{}{}
 
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
 for Generative and Encoder-Only Document Total Extraction}
@@ -126,18 +140,15 @@ CORD (Donut) $32$ of $33$ ($0.970$) versus single gates below $0.93$;
 the SROIE intersection ($15/15$) is too small ($n{=}15$) to claim more
 than consistency. Pooled, this is $160/162$ (Wilson lower bound
 $0.956$), but the pooled figure is carried by WildReceipt and we lead
-with the per-corpus read. We control the precision lift
-against two matched-coverage gates: a random gate (lift $\ctrlLrand$,
-95\% CI upper bound $\ctrlLrandHi$) and a second softmax-derived gate
-of equal standalone precision (lift $\ctrlLcorr$, $\le\ctrlLcorrHi$).
-$\sigma$'s pooled lift is $\ctrlLsigma$ (95\% CI
-$[\ctrlLsigmaLo,\ctrlLsigmaHi]$): strictly above the correlated
-softmax-derived control, so the gain is not reproducible by an
-arbitrary second gate of equal quality, but its lower CI overlaps the
-higher-variance random-gate bound and no single corpus clears both
-controls individually. We therefore report the error-decorrelation as
-suggestive and lead with the paired-McNemar absence of asymmetry as
-the primary orthogonality evidence. The
+with the per-corpus read. We control the precision lift against two
+matched-coverage gates --- a random gate and a softmax-derived gate of
+equal standalone precision --- and test the \emph{paired} difference
+directly (bootstrap). Pooled, $\sigma$'s lift exceeds the random gate
+by $\orthDrand$ ($p{=}\orthDrandP$) and the correlated gate by
+$\orthDcorr$ ($p{=}\orthDcorrP$), and a confound-free direct test of
+error decorrelation gives $\phi{=}\orthPhi$ ($p{=}\orthPhiP$):
+orthogonality is established pooled, with per-corpus power limited to
+WildReceipt (CORD/SROIE underpowered, not negative). The
 lift costs coverage: the intersection fires on $17.6\%$ of receipts
 versus $37.4\%$ for either single gate (SROIE only $4.3\%$); at a
 human-review cost of $10^2$--$10^3\times$ one inference, the trade is
@@ -626,22 +637,27 @@ coverage-shrink effect), and (B)~a \emph{correlated} gate
 $\text{softmax}'=\text{softmax}+\text{noise}$, with the noise scale
 calibrated so $\text{softmax}'$ has the same standalone precision as
 $\sigma$ (a second gate of $\sigma$-equal quality but built from
-softmax, hence non-independent). Bootstrap 95\% CIs ($B{=}2000$) on
-every lift. The random-gate lift is $\ctrlLrand$ (CI upper bound
-$\ctrlLrandHi$) and the correlated-gate lift $\ctrlLcorr$
-($\le\ctrlLcorrHi$); $\sigma$'s pooled lift is $\ctrlLsigma$ (CI
-$[\ctrlLsigmaLo,\ctrlLsigmaHi]$). This clears the correlated control
-cleanly ($\ctrlLsigmaLo > \ctrlLcorrHi$): the gain is \emph{not}
-reproducible by an arbitrary second softmax-quality gate, which rules
-out the ``any second decent gate'' explanation. Against the
-higher-variance random gate the intervals overlap at the lower tail
-($\ctrlLsigmaLo < \ctrlLrandHi$), and per corpus none of the three
-datasets individually clears \emph{both} controls. We therefore do
-not claim decisive error-decorrelation from this test: it is
-suggestive evidence consistent with, but not establishing beyond the
-pure coverage-shrink effect, the orthogonality that the paired-McNemar
-absence of asymmetry (Section~\ref{sec:results-mcnemar}) tests
-directly. We report it as such rather than overstate it.
+softmax, hence non-independent). We test the difference \emph{directly} with a paired bootstrap
+($B{=}4000$): on each receipt resample we recompute $L_\sigma$, the
+random-gate lift and the correlated-gate lift on the \emph{same}
+resample and take the paired difference (non-overlap of separately
+bootstrapped CIs is over-conservative and is not used as the test).
+Pooled, $\sigma$'s lift exceeds the random gate by $\orthDrand$
+(95\,\% CI $[\orthDrandLo,\orthDrandHi]$, one-sided $p{=}\orthDrandP$)
+and the correlated softmax-derived gate by $\orthDcorr$
+($[\orthDcorrLo,\orthDcorrHi]$, $p{=}\orthDcorrP$): significant against
+\emph{both}. As a confound-free check we also measure error
+decorrelation directly --- within the softmax-accepted set, whether
+$\sigma$ rejects precisely the softmax-wrong receipts --- which gives
+$\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$). This is positive
+evidence of orthogonality with no coverage-shrink or
+intersection-arithmetic confound, which the paired-McNemar absence of
+asymmetry (Section~\ref{sec:results-mcnemar}) only implies indirectly.
+The pooled verdict is \orthEarned. Per corpus the effect is
+individually powered only on WildReceipt; CORD ($n{=}100$) and the
+small SROIE intersection ($n{=}15$) are underpowered and individually
+inconclusive --- not negative --- so we lead with the pooled estimate
+rather than overstate any single corpus.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}

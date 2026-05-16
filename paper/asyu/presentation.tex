@@ -28,6 +28,18 @@
 \newcommand{\ctrlLcorr}{0.001}
 \newcommand{\ctrlLcorrHi}{0.022}
 \InputIfFileExists{numbers_control.tex}{}{}
+\newcommand{\orthEarned}{EARNED}
+\newcommand{\orthDrand}{0.056}
+\newcommand{\orthDrandLo}{0.012}
+\newcommand{\orthDrandHi}{0.107}
+\newcommand{\orthDrandP}{0.004}
+\newcommand{\orthDcorr}{0.055}
+\newcommand{\orthDcorrLo}{0.022}
+\newcommand{\orthDcorrHi}{0.092}
+\newcommand{\orthDcorrP}{0.001}
+\newcommand{\orthPhi}{0.200}
+\newcommand{\orthPhiP}{0.0002}
+\InputIfFileExists{numbers_orth.tex}{}{}
 
 \title{Can we trust AI when it reads a receipt?}
 \subtitle{A free second opinion for confident-but-wrong models}
@@ -424,7 +436,7 @@
 \end{tikzpicture}
 \end{center}
 \vspace{0.6em}
-\begin{center}{\large \textbf{$\sigma$ clears the copy-of-softmax control} --- not reproducible by another softmax-quality gate. Against the noisier random gate the margins overlap, so we call this \textbf{suggestive}, not proof.}\end{center}
+\begin{center}{\large On the \emph{paired} test $\sigma$ beats \textbf{both} controls (random $p\,{=}\,\orthDrandP$, copy-of-softmax $p\,{=}\,\orthDcorrP$) and rejects softmax's wrong receipts directly ($\phi\,{=}\,\orthPhi$, $p\,{=}\,\orthPhiP$). \textbf{Pooled orthogonality holds}; per-corpus power is limited to WildReceipt.}\end{center}
 \vfill
 \end{frame}
 
