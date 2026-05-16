@@ -1,15 +1,15 @@
 {
   "per_corpus": {
     "CORD": {
-      "n": 200,
-      "aurc_softmax": 0.05803963042785931,
-      "aurc_sigma_gated": 0.013514251852482478,
-      "dAURC_mean": 0.044525378575376834,
+      "n": 1000,
+      "aurc_softmax": 0.010002607244964662,
+      "aurc_sigma_gated": 0.0020722783381809384,
+      "dAURC_mean": 0.007930328906783723,
       "dAURC_ci": [
-        -0.00852019597202254,
-        0.13632913172538252
+        -0.0025588906779453937,
+        0.025569349275222076
       ],
-      "p_sigma_not_better": 0.10975,
+      "p_sigma_not_better": 0.1615,
       "dominates": false
     },
     "SROIE": {
@@ -18,10 +18,10 @@
       "aurc_sigma_gated": 0.06553911716816004,
       "dAURC_mean": -0.04134988009408975,
       "dAURC_ci": [
-        -0.10221606317950636,
-        0.01155301983918803
+        -0.10033875308409897,
+        0.01049059877390026
       ],
-      "p_sigma_not_better": 0.9405,
+      "p_sigma_not_better": 0.9355,
       "dominates": false
     },
     "WildReceipt": {
@@ -30,25 +30,25 @@
       "aurc_sigma_gated": 0.021998529789302057,
       "dAURC_mean": 0.0035992691814517933,
       "dAURC_ci": [
-        -0.017952520564765102,
-        0.030893378883915572
+        -0.018077460245014346,
+        0.03067183808713217
       ],
-      "p_sigma_not_better": 0.39525,
+      "p_sigma_not_better": 0.3975,
       "dominates": false
     }
   },
   "pooled": {
-    "n": 1019,
-    "aurc_softmax": 0.054424216226276335,
-    "aurc_sigma_gated": 0.027016884722088685,
-    "dAURC_mean": 0.02740733150418765,
+    "n": 1819,
+    "aurc_softmax": 0.01324532756930737,
+    "aurc_sigma_gated": 0.007713182179809505,
+    "dAURC_mean": 0.005532145389497865,
     "dAURC_ci": [
-      0.0016045899770525222,
-      0.058864727858316805
+      -0.0034010674546195467,
+      0.01698948076874554
     ],
-    "p_sigma_not_better": 0.018,
-    "dominates": true
+    "p_sigma_not_better": 0.15125,
+    "dominates": false
   },
   "method": "matched-coverage risk-coverage; paired bootstrap on dAURC = AURC_softmax - AURC_sigma_gated.",
-  "verdict": "Pooled AURC: softmax-alone=0.054 vs sigma-gated=0.027; dAURC=0.027 CI[0.002, 0.059] p=0.018. sigma-gating DOMINATES softmax-alone at matched coverage. Per-corpus dominance on: NONE individually."
+  "verdict": "Pooled AURC: softmax-alone=0.013 vs sigma-gated=0.008; dAURC=0.006 CI[-0.003, 0.017] p=0.151. sigma-gating does NOT dominate softmax-alone at matched coverage. Per-corpus dominance on: NONE individually."
 }

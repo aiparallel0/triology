@@ -8,7 +8,7 @@
     "tau_extraction": "v13_multi_candidate_tau_union_T",
     "n": 347,
     "batch_size": 32,
-    "wall_sec": 60.8,
+    "wall_sec": 281.6,
     "parser_ok_rate": 0.9942363112391931,
     "gold_ok_rate": 1.0,
     "money_lines_per_receipt_mean": 3.974063400576369,

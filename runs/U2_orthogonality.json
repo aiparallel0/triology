@@ -1,46 +1,46 @@
 {
   "per_corpus": {
     "CORD": {
-      "n": 200,
-      "k_sigma": 99,
-      "n_intersection": 55,
-      "p_sigma_alone": 0.98989898989899,
-      "p_softmax_matched": 0.9595959595959596,
-      "p_sigma_inter": 0.9818181818181818,
-      "L_sigma": 0.022222222222222254,
+      "n": 1000,
+      "k_sigma": 495,
+      "n_intersection": 272,
+      "p_sigma_alone": 0.9959595959595959,
+      "p_softmax_matched": 0.9919191919191919,
+      "p_sigma_inter": 0.9963235294117647,
+      "L_sigma": 0.004404337492572852,
       "L_sigma_CI": [
-        -0.013032581453634062,
-        0.06451612903225812
+        -0.002510760401721601,
+        0.01388888888888884
       ],
-      "corr_gate_noise_scale": 0.013354009567093312,
+      "corr_gate_noise_scale": 0.013354103364003512,
       "T1_paired_diff": {
         "vs_random": {
-          "mean": 0.022906530673090966,
+          "mean": 0.00508150620791552,
           "ci": [
-            -0.026315789473684292,
-            0.08849765258215969
+            -0.004132231404958664,
+            0.018178973717146496
           ],
-          "p_one_sided": 0.228
+          "p_one_sided": 0.18225
         },
         "vs_correlated": {
-          "mean": 0.0224741015070232,
+          "mean": 0.004925707686287889,
           "ci": [
-            -0.02083333333333337,
-            0.07042253521126762
+            -0.004158387737723479,
+            0.017064846416382284
           ],
-          "p_one_sided": 0.19625
+          "p_one_sided": 0.256
         }
       },
       "T2_decorrelation": {
-        "phi": 0.12617865362880898,
-        "perm_p": 0.3269182704323919,
+        "phi": 0.05433092112303818,
+        "perm_p": 0.332416895776056,
         "table_sigmaRej_softmaxErr": {
           "rej_err": 3,
-          "rej_ok": 41,
+          "rej_ok": 220,
           "keep_err": 1,
-          "keep_ok": 54
+          "keep_ok": 271
         },
-        "n_in_softmax_accepted": 99
+        "n_in_softmax_accepted": 495
       },
       "earned": "NOT_EARNED"
     },
@@ -53,31 +53,31 @@
       "p_sigma_inter": 1.0,
       "L_sigma": 0.0547945205479452,
       "L_sigma_CI": [
-        0.012658227848101222,
-        0.12222222222222223
+        0.012345679012345734,
+        0.12307692307692308
       ],
       "corr_gate_noise_scale": 0.025550454808949637,
       "T1_paired_diff": {
         "vs_random": {
-          "mean": 0.058554676999212255,
+          "mean": 0.059307543909435226,
           "ci": [
             0.0,
-            0.19999999999999996
+            0.21052631578947367
           ],
-          "p_one_sided": 0.41125
+          "p_one_sided": 0.4115
         },
         "vs_correlated": {
-          "mean": 0.05712791206364669,
+          "mean": 0.05596795009108569,
           "ci": [
             0.0,
-            0.1428571428571429
+            0.13793103448275867
           ],
-          "p_one_sided": 0.10175
+          "p_one_sided": 0.1
         }
       },
       "T2_decorrelation": {
         "phi": 0.12244387999457522,
-        "perm_p": 0.591102224443889,
+        "perm_p": 0.575106223444139,
         "table_sigmaRej_softmaxErr": {
           "rej_err": 4,
           "rej_ok": 54,
@@ -97,31 +97,31 @@
       "p_sigma_inter": 0.9912280701754386,
       "L_sigma": 0.0379570421380554,
       "L_sigma_CI": [
-        0.01016548463356981,
-        0.06592839378724602
+        0.010046913272719782,
+        0.06626043782441882
       ],
       "corr_gate_noise_scale": 0.049265739715323116,
       "T1_paired_diff": {
         "vs_random": {
-          "mean": 0.036467659768815934,
+          "mean": 0.03671333507967402,
           "ci": [
-            -0.002010516548097807,
-            0.08248847926267289
+            0.0,
+            0.08343771076211581
           ],
-          "p_one_sided": 0.0305
+          "p_one_sided": 0.029
         },
         "vs_correlated": {
-          "mean": 0.03352335934852638,
+          "mean": 0.03346704650425136,
           "ci": [
-            0.003939532753092001,
-            0.06748466257668717
+            0.0033625730994152336,
+            0.06666666666666665
           ],
-          "p_one_sided": 0.013
+          "p_one_sided": 0.012
         }
       },
       "T2_decorrelation": {
         "phi": 0.1920186788586354,
-        "perm_p": 0.007498125468632842,
+        "perm_p": 0.00849787553111722,
         "table_sigmaRej_softmaxErr": {
           "rej_err": 9,
           "rej_ok": 91,
@@ -134,49 +134,49 @@
     }
   },
   "pooled": {
-    "n": 1019,
-    "k_sigma": 386,
-    "n_intersection": 168,
-    "p_sigma_alone": 0.9455958549222798,
-    "p_softmax_matched": 0.9378238341968912,
-    "p_sigma_inter": 0.9880952380952381,
-    "L_sigma": 0.050271403898346945,
+    "n": 1819,
+    "k_sigma": 782,
+    "n_intersection": 397,
+    "p_sigma_alone": 0.9718670076726342,
+    "p_softmax_matched": 0.979539641943734,
+    "p_sigma_inter": 0.9974811083123426,
+    "L_sigma": 0.017941466368608605,
     "L_sigma_CI": [
-      0.02562427409988377,
-      0.07638620245003225
+      0.008926623284945978,
+      0.029195924024797093
     ],
-    "corr_gate_noise_scale": 0.0499995090136202,
+    "corr_gate_noise_scale": 0.0499996028105304,
     "T1_paired_diff": {
       "vs_random": {
-        "mean": 0.05039539249032083,
+        "mean": 0.018511082241127515,
         "ci": [
-          0.013271344040574728,
-          0.09420289855072461
+          0.004035947712418331,
+          0.03498258736708115
         ],
-        "p_one_sided": 0.003
+        "p_one_sided": 0.0025
       },
       "vs_correlated": {
-        "mean": 0.04954204913675737,
+        "mean": 0.01847327158436478,
         "ci": [
-          0.020252779046748826,
-          0.0810122791254867
+          0.006064799299467016,
+          0.03265306122448974
         ],
-        "p_one_sided": 0.0005
+        "p_one_sided": 0.001
       }
     },
     "T2_decorrelation": {
-      "phi": 0.18275733071187777,
+      "phi": 0.1286930817660623,
       "perm_p": 0.00024993751562109475,
       "table_sigmaRej_softmaxErr": {
-        "rej_err": 22,
-        "rej_ok": 196,
-        "keep_err": 2,
-        "keep_ok": 166
+        "rej_err": 15,
+        "rej_ok": 370,
+        "keep_err": 1,
+        "keep_ok": 396
       },
-      "n_in_softmax_accepted": 386
+      "n_in_softmax_accepted": 782
     },
     "earned": "EARNED"
   },
   "method": "Paired-difference bootstrap (T1) + direct error-decorrelation phi with permutation p (T2). Replaces the non-overlap-of-separate-CIs proxy.",
-  "verdict": "POOLED orthogonality: EARNED. d(sigma-random)=0.050 CI[0.013, 0.094] p=0.003; d(sigma-correlated)=0.050 CI[0.02, 0.081] p=0.001; decorrelation phi=0.183 perm_p=0.000."
+  "verdict": "POOLED orthogonality: EARNED. d(sigma-random)=0.019 CI[0.004, 0.035] p=0.003; d(sigma-correlated)=0.018 CI[0.006, 0.033] p=0.001; decorrelation phi=0.129 perm_p=0.000."
 }

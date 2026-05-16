@@ -4,7 +4,7 @@
     "corpus": "canonical SROIE Task-3",
     "mirror": "cached",
     "n": 347,
-    "wall_sec": 75.3,
+    "wall_sec": 397.2,
     "base_rate_F1": 0.6887608069164265,
     "sigma": {
       "coverage": 0.21037463976945245,
