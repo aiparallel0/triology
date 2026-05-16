@@ -1,0 +1,13 @@
+/main.pdf
+/presentation.pdf
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.synctex.gz
