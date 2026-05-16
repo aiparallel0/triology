@@ -1,0 +1,5963 @@
+{
+  "summary": {
+    "checkpoint": "philschmid/donut-base-sroie",
+    "corpus": "canonical SROIE Task-3",
+    "mirror": "huggingface",
+    "setup": "in-distribution",
+    "ocr_source": "darentang/sroie Task-1",
+    "tau_extraction": "v13_multi_candidate_tau_union_T",
+    "n": 347,
+    "batch_size": 32,
+    "wall_sec": 55.5,
+    "parser_ok_rate": 0.9942363112391931,
+    "gold_ok_rate": 1.0,
+    "money_lines_per_receipt_mean": 3.974063400576369,
+    "tau_candidates_per_receipt_mean": 3.115273775216138,
+    "coverage_1.0_F1": 0.6887608069164265,
+    "coverage_sigma": 0.21037463976945245,
+    "sigma_F1_on_accepted": 0.863013698630137,
+    "sigma_recall_on_correct": 0.26359832635983266,
+    "sigma_precision": 0.863013698630137
+  },
+  "results": [
+    {
+      "id": "X00016469670",
+      "pred": 193.0,
+      "gold": 193.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        193.0
+      ],
+      "tau": 193.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X00016469671",
+      "pred": 170.0,
+      "gold": 170.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -1.0
+      ],
+      "tau": -1.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005200931",
+      "pred": 41150.0,
+      "gold": 436.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1332,
+      "money_count": 9,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        24.69,
+        411.5,
+        0.01
+      ],
+      "tau": 411.5,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005230605",
+      "pred": 4.9,
+      "gold": 4.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 96,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        5.0,
+        4.62,
+        4.9
+      ],
+      "tau": 5.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005230616",
+      "pred": 38.9,
+      "gold": 38.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 16,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        2.2,
+        3.0,
+        5.2,
+        38.9
+      ],
+      "tau": 38.9,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51005230621",
+      "pred": 7.3,
+      "gold": 7.3,
+      "in_T": true,
+      "correct": true,
+      "T_size": 31,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        0.41,
+        6.69,
+        7.3
+      ],
+      "tau": 7.3,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005230648",
+      "pred": 6.36,
+      "gold": 6.35,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        6.36
+      ],
+      "tau": 6.36,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005230657",
+      "pred": 7.95,
+      "gold": 7.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 88,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.8,
+        7.95
+      ],
+      "tau": 7.95,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51005230659",
+      "pred": 2.0,
+      "gold": 8.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        123.0
+      ],
+      "tau": 123.0,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51005268275",
+      "pred": 278.8,
+      "gold": 278.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 51,
+      "money_count": 6,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51005268408",
+      "pred": 9.61,
+      "gold": 169.8,
+      "in_T": false,
+      "correct": false,
+      "T_size": 22,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        2.0,
+        341.0,
+        160.17
+      ],
+      "tau": 341.0,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51005288570",
+      "pred": null,
+      "gold": 1.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 35,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.06
+      ],
+      "tau": 0.06,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51005301666",
+      "pred": 278.8,
+      "gold": 278.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 51,
+      "money_count": 6,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51005337867",
+      "pred": 30.25,
+      "gold": 30.25,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.01
+      ],
+      "tau": 0.01,
+      "ocr_lines": 15
+    },
+    {
+      "id": "X51005337877",
+      "pred": 46.0,
+      "gold": 53.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 31,
+      "money_count": 6,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        3.0,
+        6.0
+      ],
+      "tau": 6.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005361906",
+      "pred": 27.35,
+      "gold": 27.35,
+      "in_T": false,
+      "correct": true,
+      "T_size": 26,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        6.0
+      ],
+      "tau": 6.0,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005361908",
+      "pred": 127.2,
+      "gold": 127.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        7.2
+      ],
+      "tau": 7.2,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51005361912",
+      "pred": 1.05,
+      "gold": 1.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.06
+      ],
+      "tau": 0.06,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51005361923",
+      "pred": 4.2,
+      "gold": 4.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.24
+      ],
+      "tau": 0.24,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51005365187",
+      "pred": 31.9,
+      "gold": 31.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 28,
+      "money_count": 5,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        1.22,
+        3.0,
+        6.0,
+        50.0,
+        22.0
+      ],
+      "tau": 50.0,
+      "ocr_lines": 36
+    },
+    {
+      "id": "X51005433518",
+      "pred": 81.2,
+      "gold": 8.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.46,
+        774.0
+      ],
+      "tau": 774.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005433543",
+      "pred": 8.2,
+      "gold": 8.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.2,
+        774.0
+      ],
+      "tau": 774.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005433548",
+      "pred": 33.8,
+      "gold": 33.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        20.2
+      ],
+      "tau": 20.2,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51005433556",
+      "pred": 49.7,
+      "gold": 49.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 362,
+      "money_count": 7,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.5,
+        46.9
+      ],
+      "tau": 46.9,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005442322",
+      "pred": 26.7,
+      "gold": 269.4,
+      "in_T": false,
+      "correct": false,
+      "T_size": 19,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        269.4
+      ],
+      "tau": 269.4,
+      "ocr_lines": 15
+    },
+    {
+      "id": "X51005442334",
+      "pred": 8.2,
+      "gold": 8.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.46
+      ],
+      "tau": 0.46,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005442343",
+      "pred": 70.0,
+      "gold": 72.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 6,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        67.92,
+        102.0
+      ],
+      "tau": 102.0,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51005442366",
+      "pred": 22.6,
+      "gold": 22.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 16,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -0.3
+      ],
+      "tau": -0.3,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005442375",
+      "pred": 8.8,
+      "gold": 8.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.48
+      ],
+      "tau": 0.48,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005442382",
+      "pred": 8.2,
+      "gold": 6.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.37
+      ],
+      "tau": 0.37,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005442388",
+      "pred": 21.6,
+      "gold": 21.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 42,
+      "money_count": 6,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51005444040",
+      "pred": 133.7,
+      "gold": 133.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 53,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        100.94,
+        53.0,
+        133.7
+      ],
+      "tau": 133.7,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005444041",
+      "pred": 81.0,
+      "gold": 81.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 628,
+      "money_count": 9,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        41.0,
+        81.0,
+        18.0,
+        28.86
+      ],
+      "tau": 81.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005444044",
+      "pred": 6.35,
+      "gold": 5.35,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        5.35,
+        5.05
+      ],
+      "tau": 5.35,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51005444046",
+      "pred": 66.15,
+      "gold": 66.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 340,
+      "money_count": 10,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        18.0,
+        66.17
+      ],
+      "tau": 66.17,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005447841",
+      "pred": 10.5,
+      "gold": 10.4,
+      "in_T": false,
+      "correct": false,
+      "T_size": 27,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        10.4
+      ],
+      "tau": 10.4,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005447842",
+      "pred": 4.1,
+      "gold": 0.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.9
+      ],
+      "tau": 0.9,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005447844",
+      "pred": 11.0,
+      "gold": 110.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 5,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 37
+    },
+    {
+      "id": "X51005447851",
+      "pred": 98.3,
+      "gold": 1.7,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.7
+      ],
+      "tau": 1.7,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005447859",
+      "pred": 8.55,
+      "gold": 1.45,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.45
+      ],
+      "tau": 1.45,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005568855",
+      "pred": 4.0,
+      "gold": 140.65,
+      "in_T": false,
+      "correct": false,
+      "T_size": 111,
+      "money_count": 5,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.42,
+        69.9,
+        70.32,
+        -140.65
+      ],
+      "tau": -140.65,
+      "ocr_lines": 17
+    },
+    {
+      "id": "X51005568866",
+      "pred": 5.04,
+      "gold": 5.05,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 1,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.85,
+        0.56,
+        0.29,
+        4.0
+      ],
+      "tau": 4.0,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51005568885",
+      "pred": 56.0,
+      "gold": 56.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        56.0
+      ],
+      "tau": 56.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005568887",
+      "pred": 7.2,
+      "gold": 7.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 6,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.41,
+        7.2
+      ],
+      "tau": 7.2,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005568889",
+      "pred": 19.6,
+      "gold": 19.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 10,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        48.0,
+        19.6,
+        -1.38
+      ],
+      "tau": 48.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005568890",
+      "pred": 5.0,
+      "gold": 5.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 6,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        51.0,
+        5.0
+      ],
+      "tau": 51.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005568892",
+      "pred": 26.0,
+      "gold": 26.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 17,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.47,
+        26.0
+      ],
+      "tau": 26.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005568894",
+      "pred": 46.65,
+      "gold": 46.65,
+      "in_T": true,
+      "correct": true,
+      "T_size": 457,
+      "money_count": 9,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        2.64,
+        44.0
+      ],
+      "tau": 44.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51005568895",
+      "pred": 52.45,
+      "gold": 52.45,
+      "in_T": false,
+      "correct": true,
+      "T_size": 338,
+      "money_count": 7,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        49.5,
+        2.97
+      ],
+      "tau": 49.5,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51005577191",
+      "pred": 9.43,
+      "gold": 10.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.57
+      ],
+      "tau": 0.57,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005582745",
+      "pred": 8.49,
+      "gold": 150.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.49,
+        141.51
+      ],
+      "tau": 141.51,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51005587261",
+      "pred": 30.0,
+      "gold": 30.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        30.0
+      ],
+      "tau": 30.0,
+      "ocr_lines": 18
+    },
+    {
+      "id": "X51005605287",
+      "pred": 12.25,
+      "gold": 12.25,
+      "in_T": true,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.7,
+        12.25
+      ],
+      "tau": 12.25,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005605295",
+      "pred": 4.2,
+      "gold": 5.15,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        5.15,
+        0.29
+      ],
+      "tau": 5.15,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005605332",
+      "pred": 7.95,
+      "gold": 7.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        95.0,
+        7.5
+      ],
+      "tau": 95.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005621482",
+      "pred": 12.64,
+      "gold": 13.4,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "money_count": 2,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        -0.76,
+        3.0,
+        12.64,
+        13.4,
+        -13.4
+      ],
+      "tau": 13.4,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005663274",
+      "pred": 10.5,
+      "gold": 10.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 12,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.59,
+        10.5
+      ],
+      "tau": 10.5,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005663300",
+      "pred": 7.0,
+      "gold": 7.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        6.6,
+        7.0
+      ],
+      "tau": 7.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005663307",
+      "pred": 56.8,
+      "gold": 56.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2504,
+      "money_count": 15,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        0.5,
+        0.01,
+        53.58
+      ],
+      "tau": 53.58,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51005663309",
+      "pred": 20.5,
+      "gold": 5.3,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.3
+      ],
+      "tau": 0.3,
+      "ocr_lines": 18
+    },
+    {
+      "id": "X51005663310",
+      "pred": 8.4,
+      "gold": 8.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 12,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.4,
+        7.92
+      ],
+      "tau": 8.4,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005663323",
+      "pred": 48.0,
+      "gold": 848.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 8,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        48.0
+      ],
+      "tau": 48.0,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51005675099",
+      "pred": 13.78,
+      "gold": 132.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 846,
+      "money_count": 9,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        132.5,
+        125.0
+      ],
+      "tau": 132.5,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51005675103",
+      "pred": 5.67,
+      "gold": 100.17,
+      "in_T": true,
+      "correct": false,
+      "T_size": 119,
+      "money_count": 7,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        100.17,
+        40.28,
+        -5.67,
+        94.5
+      ],
+      "tau": 100.17,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51005675104",
+      "pred": 190.8,
+      "gold": 190.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 4,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        169.2,
+        180.0,
+        -10.8,
+        190.8
+      ],
+      "tau": 190.8,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51005675914",
+      "pred": 67.85,
+      "gold": 67.85,
+      "in_T": true,
+      "correct": true,
+      "T_size": 309,
+      "money_count": 6,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        64.0,
+        67.85,
+        3.84,
+        5.3
+      ],
+      "tau": 67.85,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005676534",
+      "pred": 72.08,
+      "gold": 72.08,
+      "in_T": false,
+      "correct": true,
+      "T_size": 86,
+      "money_count": 5,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        68.0,
+        4.08,
+        72.08,
+        10.6,
+        -4.08
+      ],
+      "tau": 72.08,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51005676535",
+      "pred": 89.04,
+      "gold": 89.04,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        89.04,
+        36.04,
+        5.04
+      ],
+      "tau": 89.04,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005676537",
+      "pred": 94.34,
+      "gold": 94.34,
+      "in_T": true,
+      "correct": true,
+      "T_size": 33,
+      "money_count": 4,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        5.34,
+        89.0,
+        90.1,
+        -5.34,
+        94.34
+      ],
+      "tau": 94.34,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005676542",
+      "pred": 10.0,
+      "gold": 10.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        -0.6,
+        10.6,
+        0.6
+      ],
+      "tau": 10.6,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51005676548",
+      "pred": 11.13,
+      "gold": 11.13,
+      "in_T": true,
+      "correct": true,
+      "T_size": 29,
+      "money_count": 4,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        -0.63,
+        0.63,
+        3.18,
+        10.5,
+        11.13
+      ],
+      "tau": 11.13,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005677327",
+      "pred": 36.04,
+      "gold": 36.04,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        34.0,
+        36.04,
+        18.02,
+        -2.04
+      ],
+      "tau": 36.04,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51005677333",
+      "pred": 101.76,
+      "gold": 101.76,
+      "in_T": true,
+      "correct": true,
+      "T_size": 32,
+      "money_count": 4,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        5.76,
+        101.76,
+        -5.76,
+        29.68
+      ],
+      "tau": 101.76,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51005677336",
+      "pred": 22.26,
+      "gold": 22.26,
+      "in_T": true,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        21.0,
+        22.26,
+        -1.26
+      ],
+      "tau": 22.26,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51005677337",
+      "pred": 88.8,
+      "gold": 94.13,
+      "in_T": false,
+      "correct": false,
+      "T_size": 86,
+      "money_count": 5,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        5.33,
+        88.8,
+        25.44,
+        -5.33,
+        94.13
+      ],
+      "tau": 94.13,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X510056849111",
+      "pred": 7.4,
+      "gold": 7.42,
+      "in_T": false,
+      "correct": true,
+      "T_size": 10,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        -46.0,
+        42.0,
+        -2.0
+      ],
+      "tau": -46.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005684949",
+      "pred": 7.4,
+      "gold": 7.42,
+      "in_T": false,
+      "correct": true,
+      "T_size": 10,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        -46.0,
+        42.0,
+        -2.0
+      ],
+      "tau": -46.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005705727",
+      "pred": 38.15,
+      "gold": 38.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "money_count": 1,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        36.0,
+        4.0,
+        42.16,
+        -0.01
+      ],
+      "tau": 42.16,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005705729",
+      "pred": 89.26,
+      "gold": 94.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 10,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        89.26,
+        5.36,
+        15.12
+      ],
+      "tau": 89.26,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51005705784",
+      "pred": 45.2,
+      "gold": 48.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "money_count": 0,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        48.0,
+        45.28
+      ],
+      "tau": 48.0,
+      "ocr_lines": 17
+    },
+    {
+      "id": "X51005710963",
+      "pred": 7.0,
+      "gold": 7.4,
+      "in_T": true,
+      "correct": false,
+      "T_size": 11,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.42
+      ],
+      "tau": 0.42,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005711402",
+      "pred": 9.6,
+      "gold": 9.6,
+      "in_T": true,
+      "correct": true,
+      "T_size": 44,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.53,
+        9.6
+      ],
+      "tau": 9.6,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005711443",
+      "pred": 6.7,
+      "gold": 6.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 65,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.37,
+        6.7
+      ],
+      "tau": 6.7,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005711444",
+      "pred": 4.8,
+      "gold": 4.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.26,
+        4.8
+      ],
+      "tau": 4.8,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51005711446",
+      "pred": 7.2,
+      "gold": 7.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 48,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        0.39,
+        6.81,
+        7.2
+      ],
+      "tau": 7.2,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005711449",
+      "pred": 4.8,
+      "gold": 4.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.26,
+        4.8
+      ],
+      "tau": 4.8,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005715007",
+      "pred": 18.7,
+      "gold": 18.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 35,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.06,
+        3.0
+      ],
+      "tau": 3.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51005715455",
+      "pred": 10.6,
+      "gold": 10.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 12,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        10.0,
+        10.6
+      ],
+      "tau": 10.6,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51005719823",
+      "pred": 46.2,
+      "gold": 46.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 26,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        36.0
+      ],
+      "tau": 36.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005719855",
+      "pred": 185.7,
+      "gold": 181.55,
+      "in_T": false,
+      "correct": false,
+      "T_size": 89,
+      "money_count": 7,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        10.28
+      ],
+      "tau": 10.28,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51005719857",
+      "pred": 23.8,
+      "gold": 23.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 48,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.35,
+        0.01,
+        20.4
+      ],
+      "tau": 20.4,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51005719863",
+      "pred": 77.4,
+      "gold": 77.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 33,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        73.0,
+        0.02
+      ],
+      "tau": 73.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005719888",
+      "pred": 39.8,
+      "gold": 39.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 63,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        2.26
+      ],
+      "tau": 2.26,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005719889",
+      "pred": 42.0,
+      "gold": 42.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 58,
+      "money_count": 7,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        2.38,
+        34.0,
+        39.62,
+        42.0
+      ],
+      "tau": 42.0,
+      "ocr_lines": 35
+    },
+    {
+      "id": "X51005719895",
+      "pred": 34.8,
+      "gold": 34.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 279,
+      "money_count": 8,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.51
+      ],
+      "tau": 0.51,
+      "ocr_lines": 39
+    },
+    {
+      "id": "X51005719898",
+      "pred": 11.9,
+      "gold": 11.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.67,
+        11.9
+      ],
+      "tau": 11.9,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005719903",
+      "pred": 8.5,
+      "gold": 8.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.5,
+        2.0
+      ],
+      "tau": 8.5,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005719905",
+      "pred": 8.2,
+      "gold": 8.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 35,
+      "money_count": 5,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.46,
+        3.1,
+        8.66,
+        8.2
+      ],
+      "tau": 8.66,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51005724552",
+      "pred": 68.9,
+      "gold": 68.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.9,
+        68.9
+      ],
+      "tau": 68.9,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005724611",
+      "pred": 144.16,
+      "gold": 144.16,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        8.16,
+        136.0,
+        144.16
+      ],
+      "tau": 144.16,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51005724622",
+      "pred": 91.16,
+      "gold": 91.16,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        91.16,
+        68.9,
+        5.16
+      ],
+      "tau": 91.16,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51005724623",
+      "pred": 312.7,
+      "gold": 312.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        295.0,
+        174.9,
+        17.7,
+        312.7
+      ],
+      "tau": 312.7,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51005724624",
+      "pred": 135.68,
+      "gold": 135.68,
+      "in_T": false,
+      "correct": true,
+      "T_size": 13,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        128.0,
+        101.76,
+        135.68,
+        7.68
+      ],
+      "tau": 135.68,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51005724625",
+      "pred": 283.5,
+      "gold": 283.55,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        267.5,
+        16.05,
+        283.55,
+        127.2
+      ],
+      "tau": 283.55,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51005724626",
+      "pred": 270.3,
+      "gold": 270.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 32,
+      "money_count": 4,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        270.3,
+        15.3,
+        248.04,
+        255.0
+      ],
+      "tau": 270.3,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005724628",
+      "pred": 84.8,
+      "gold": 84.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        4.8,
+        84.8
+      ],
+      "tau": 84.8,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005741929",
+      "pred": 5.5,
+      "gold": 5.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        5.19
+      ],
+      "tau": 5.19,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51005742110",
+      "pred": 65.7,
+      "gold": 65.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -0.01
+      ],
+      "tau": -0.01,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005745213",
+      "pred": 7.0,
+      "gold": 7.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 13,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        6.6,
+        7.0
+      ],
+      "tau": 7.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005745244",
+      "pred": 11.9,
+      "gold": 11.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "money_count": 1,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        67.0,
+        11.23
+      ],
+      "tau": 67.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005745298",
+      "pred": 3.99,
+      "gold": 4.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 104,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        3.77,
+        3.99,
+        311.0
+      ],
+      "tau": 311.0,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51005746203",
+      "pred": 40.45,
+      "gold": 408.45,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        209.53,
+        408.45,
+        -3.0
+      ],
+      "tau": 408.45,
+      "ocr_lines": 15
+    },
+    {
+      "id": "X51005746204",
+      "pred": 308.7,
+      "gold": 308.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        308.7
+      ],
+      "tau": 308.7,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005746206",
+      "pred": 99.06,
+      "gold": 105.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 31,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        99.06,
+        5.94,
+        105.0,
+        28.0
+      ],
+      "tau": 105.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005746207",
+      "pred": 18.3,
+      "gold": 18.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 159,
+      "money_count": 6,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        18.3,
+        12.54
+      ],
+      "tau": 18.3,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51005746210",
+      "pred": 145.1,
+      "gold": 145.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        9.0,
+        0.01
+      ],
+      "tau": 9.0,
+      "ocr_lines": 9
+    },
+    {
+      "id": "X51005749904",
+      "pred": 2.0,
+      "gold": 4.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 19,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        3.0
+      ],
+      "tau": 3.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005757233",
+      "pred": 9.95,
+      "gold": 9.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.56,
+        9.95
+      ],
+      "tau": 9.95,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51005757282",
+      "pred": 24.5,
+      "gold": 24.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.39
+      ],
+      "tau": 1.39,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51005757292",
+      "pred": 43.4,
+      "gold": 6.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.37,
+        6.6
+      ],
+      "tau": 6.6,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005757308",
+      "pred": 28.5,
+      "gold": 21.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 183,
+      "money_count": 6,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.22,
+        21.5
+      ],
+      "tau": 21.5,
+      "ocr_lines": 35
+    },
+    {
+      "id": "X51005757342",
+      "pred": 6.2,
+      "gold": 6.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        100.0
+      ],
+      "tau": 100.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51005763958",
+      "pred": 59.0,
+      "gold": 59.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 5,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51005763964",
+      "pred": 65.7,
+      "gold": 65.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -0.01
+      ],
+      "tau": -0.01,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51005763999",
+      "pred": 674.0,
+      "gold": 674.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7925,
+      "money_count": 11,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        2.0,
+        674.0,
+        425.27,
+        0.01
+      ],
+      "tau": 674.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51005764031",
+      "pred": 42.1,
+      "gold": 42.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 183,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        33.49,
+        50.0,
+        83.49
+      ],
+      "tau": 83.49,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51005764154",
+      "pred": 205.5,
+      "gold": 205.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 21,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        35.0,
+        11.63,
+        205.5
+      ],
+      "tau": 205.5,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005764161",
+      "pred": 98.9,
+      "gold": 98.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 102,
+      "money_count": 6,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        93.28
+      ],
+      "tau": 93.28,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51005806692",
+      "pred": 367.3,
+      "gold": 367.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 375,
+      "money_count": 9,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.3,
+        20.79
+      ],
+      "tau": 20.79,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51005806695",
+      "pred": 4.1,
+      "gold": 4.1,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.87,
+        -101.0
+      ],
+      "tau": -101.0,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51005806696",
+      "pred": 2.35,
+      "gold": 7.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        2.0,
+        12.0,
+        0.02
+      ],
+      "tau": 12.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005806718",
+      "pred": 51.0,
+      "gold": 40.8,
+      "in_T": false,
+      "correct": false,
+      "T_size": 5,
+      "money_count": 1,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        2.31,
+        1.06,
+        1.25,
+        40.8
+      ],
+      "tau": 40.8,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51005806719",
+      "pred": 63.0,
+      "gold": 63.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "money_count": 2,
+      "n_tau_candidates": 6,
+      "tau_candidates": [
+        0.0,
+        70.0,
+        55.86,
+        59.43,
+        -3.57,
+        63.0
+      ],
+      "tau": 70.0,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51005806720",
+      "pred": 18.87,
+      "gold": 20.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "money_count": 1,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        1.13,
+        13.0,
+        20.0,
+        87.0
+      ],
+      "tau": 87.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006008081",
+      "pred": 21.8,
+      "gold": 226.6,
+      "in_T": true,
+      "correct": false,
+      "T_size": 470,
+      "money_count": 8,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        226.6,
+        12.83,
+        213.78
+      ],
+      "tau": 226.6,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006008082",
+      "pred": 11.56,
+      "gold": 204.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 183,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        11.56,
+        28.58,
+        204.2
+      ],
+      "tau": 204.2,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006008083",
+      "pred": 119.55,
+      "gold": 119.55,
+      "in_T": true,
+      "correct": true,
+      "T_size": 214,
+      "money_count": 6,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        32.65,
+        6.77,
+        119.55
+      ],
+      "tau": 119.55,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006008090",
+      "pred": 30.48,
+      "gold": 30.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        -0.8,
+        2.0,
+        -2.0
+      ],
+      "tau": 2.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51006008092",
+      "pred": 30.7,
+      "gold": 30.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 374,
+      "money_count": 7,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.74,
+        2.0
+      ],
+      "tau": 2.0,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006008093",
+      "pred": 30.0,
+      "gold": 12.15,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13,
+      "money_count": 2,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        11.46,
+        -15.0,
+        -12.15,
+        -3.54
+      ],
+      "tau": -15.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006008105",
+      "pred": 65.1,
+      "gold": 65.1,
+      "in_T": true,
+      "correct": true,
+      "T_size": 6,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        65.1,
+        3.64
+      ],
+      "tau": 65.1,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006008166",
+      "pred": 707.55,
+      "gold": 750.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 42,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        42.45
+      ],
+      "tau": 42.45,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006008206",
+      "pred": 6.9,
+      "gold": 63.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        27.0,
+        3.62
+      ],
+      "tau": 27.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51006248253",
+      "pred": 15.0,
+      "gold": 15.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 14,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.85,
+        14.15
+      ],
+      "tau": 14.15,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51006311714",
+      "pred": 22.45,
+      "gold": 22.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 73,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        21.17,
+        22.45
+      ],
+      "tau": 22.45,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51006327953",
+      "pred": 68.9,
+      "gold": 68.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 47,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        65.0,
+        68.9,
+        13.0
+      ],
+      "tau": 68.9,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006327960",
+      "pred": 9.9,
+      "gold": 9.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 6,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006328345",
+      "pred": 7.2,
+      "gold": 7.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 6,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        17.0,
+        0.41
+      ],
+      "tau": 17.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006328937",
+      "pred": 11.5,
+      "gold": 12.15,
+      "in_T": false,
+      "correct": false,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        3.0
+      ],
+      "tau": 3.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51006328967",
+      "pred": 62.0,
+      "gold": 62.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 58,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.51,
+        62.0
+      ],
+      "tau": 62.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006329183",
+      "pred": 27.0,
+      "gold": 27.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 29,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.78,
+        8.4,
+        0.02,
+        -3.0
+      ],
+      "tau": 8.4,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51006329388",
+      "pred": 165.0,
+      "gold": 165.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 12,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        105.0
+      ],
+      "tau": 105.0,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006332641",
+      "pred": 19.1,
+      "gold": 19.1,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.08
+      ],
+      "tau": 1.08,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51006334139",
+      "pred": 90.0,
+      "gold": 90.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 38,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        17.0,
+        84.9
+      ],
+      "tau": 84.9,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51006334742",
+      "pred": 158.08,
+      "gold": 167.55,
+      "in_T": true,
+      "correct": false,
+      "T_size": 326,
+      "money_count": 7,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        158.08,
+        30.0
+      ],
+      "tau": 158.08,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006334766",
+      "pred": 56.0,
+      "gold": 59.35,
+      "in_T": true,
+      "correct": false,
+      "T_size": 301,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        10.0,
+        3.36,
+        -0.01
+      ],
+      "tau": 10.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006334770",
+      "pred": 1.4,
+      "gold": 1.4,
+      "in_T": true,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.32,
+        1.4
+      ],
+      "tau": 1.4,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006334819",
+      "pred": 203.0,
+      "gold": 203.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 19,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        203.0
+      ],
+      "tau": 203.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006334927",
+      "pred": 43.6,
+      "gold": 6.4,
+      "in_T": false,
+      "correct": false,
+      "T_size": 6,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        3.2,
+        6.04,
+        6.0
+      ],
+      "tau": 6.04,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51006335818",
+      "pred": 26.98,
+      "gold": 27.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 101,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        25.45,
+        50.0,
+        0.02
+      ],
+      "tau": 50.0,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006349081",
+      "pred": 84.8,
+      "gold": 84.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        4.8
+      ],
+      "tau": 4.8,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006349083",
+      "pred": 53.75,
+      "gold": 46.25,
+      "in_T": false,
+      "correct": false,
+      "T_size": 286,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        2.62,
+        -43.63,
+        -41.01
+      ],
+      "tau": -43.63,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006349085",
+      "pred": 100.0,
+      "gold": 23.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.3,
+        23.0
+      ],
+      "tau": 23.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006350737",
+      "pred": 14.65,
+      "gold": 14.65,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.83,
+        14.63
+      ],
+      "tau": 14.63,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006387660",
+      "pred": 4.3,
+      "gold": 4.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 73,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.24,
+        4.3
+      ],
+      "tau": 4.3,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006387737",
+      "pred": 165.0,
+      "gold": 165.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        165.0
+      ],
+      "tau": 165.0,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006387931",
+      "pred": 3.0,
+      "gold": 3.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        17.0
+      ],
+      "tau": 17.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006387950",
+      "pred": null,
+      "gold": 1.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        2.0
+      ],
+      "tau": 2.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51006387973",
+      "pred": 47.15,
+      "gold": 47.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 19,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        3.0,
+        15.0,
+        18.0,
+        52.85
+      ],
+      "tau": 52.85,
+      "ocr_lines": 17
+    },
+    {
+      "id": "X51006388068",
+      "pred": 87.55,
+      "gold": 83.55,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1619,
+      "money_count": 12,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -0.01
+      ],
+      "tau": -0.01,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006388081",
+      "pred": 27.5,
+      "gold": 27.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 26,
+      "money_count": 8,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.55
+      ],
+      "tau": 1.55,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006388089",
+      "pred": 103.0,
+      "gold": 108.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        3.0
+      ],
+      "tau": 3.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006389894",
+      "pred": 70.0,
+      "gold": 70.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 42,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        3.96
+      ],
+      "tau": 3.96,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006389898",
+      "pred": 164.4,
+      "gold": 164.4,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        9.31,
+        155.09,
+        164.4
+      ],
+      "tau": 164.4,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51006392167",
+      "pred": 23.8,
+      "gold": 23.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.35,
+        23.8
+      ],
+      "tau": 23.8,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006401845",
+      "pred": 26.9,
+      "gold": 26.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 13,
+      "money_count": 4,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        1.52,
+        -26.9,
+        -25.38,
+        26.9
+      ],
+      "tau": -26.9,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51006401853",
+      "pred": 37.45,
+      "gold": 37.45,
+      "in_T": false,
+      "correct": true,
+      "T_size": 327,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        2.12,
+        102.0
+      ],
+      "tau": 102.0,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51006401977",
+      "pred": 14.85,
+      "gold": 14.85,
+      "in_T": false,
+      "correct": true,
+      "T_size": 14,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.01,
+        12.0
+      ],
+      "tau": 12.0,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51006414425",
+      "pred": 8.8,
+      "gold": 6.9,
+      "in_T": true,
+      "correct": false,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        6.51,
+        6.9
+      ],
+      "tau": 6.9,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51006414427",
+      "pred": 8.6,
+      "gold": 7.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        7.6,
+        7.17
+      ],
+      "tau": 7.6,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006414433",
+      "pred": 8.7,
+      "gold": 7.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.43
+      ],
+      "tau": 0.43,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006414512",
+      "pred": 50.0,
+      "gold": 50.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 18
+    },
+    {
+      "id": "X51006414532",
+      "pred": 9.4,
+      "gold": 98.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        5.0
+      ],
+      "tau": 5.0,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51006414593",
+      "pred": 8.2,
+      "gold": 8.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.5
+      ],
+      "tau": 0.5,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006414600",
+      "pred": 55.9,
+      "gold": 50.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 183,
+      "money_count": 6,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        2.88,
+        2.0
+      ],
+      "tau": 2.88,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006414702",
+      "pred": 160.0,
+      "gold": 157.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 248,
+      "money_count": 8,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -157.9
+      ],
+      "tau": -157.9,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006414708",
+      "pred": 9.5,
+      "gold": 91.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 85,
+      "money_count": 10,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        18.9,
+        91.5,
+        5.18
+      ],
+      "tau": 91.5,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006414715",
+      "pred": 41.81,
+      "gold": 41.81,
+      "in_T": false,
+      "correct": true,
+      "T_size": 119,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        16.98,
+        2.37,
+        39.44
+      ],
+      "tau": 39.44,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006414717",
+      "pred": 24.11,
+      "gold": 24.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 8,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        25.1,
+        3.58,
+        -0.01
+      ],
+      "tau": 25.1,
+      "ocr_lines": 36
+    },
+    {
+      "id": "X51006414728",
+      "pred": 13.0,
+      "gold": 13.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        13.0
+      ],
+      "tau": 13.0,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51006438346",
+      "pred": 55.4,
+      "gold": 95.48,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.0,
+        95.48
+      ],
+      "tau": 95.48,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51006466070",
+      "pred": 40.45,
+      "gold": 42.88,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        2.0,
+        40.45
+      ],
+      "tau": 40.45,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006502534",
+      "pred": 6.0,
+      "gold": 5.8,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "money_count": 1,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        5.0,
+        4.0,
+        5.47
+      ],
+      "tau": 5.47,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006502540",
+      "pred": 109.05,
+      "gold": 109.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        5.0,
+        109.05
+      ],
+      "tau": 109.05,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006554841",
+      "pred": 9.0,
+      "gold": 9.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        502.0
+      ],
+      "tau": 502.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006555819",
+      "pred": 26.58,
+      "gold": 26.58,
+      "in_T": false,
+      "correct": true,
+      "T_size": 56,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        -0.27,
+        -4.81,
+        31.39
+      ],
+      "tau": 31.39,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006555833",
+      "pred": 12.6,
+      "gold": 1.52,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13,
+      "money_count": 2,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.8,
+        712.0,
+        14.12,
+        -12.6
+      ],
+      "tau": 712.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006555835",
+      "pred": 37.9,
+      "gold": 37.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 56,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        0.88,
+        22.33,
+        15.57
+      ],
+      "tau": 22.33,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006556610",
+      "pred": 393.0,
+      "gold": 393.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        393.0,
+        320.0
+      ],
+      "tau": 393.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006556648",
+      "pred": 55.14,
+      "gold": 55.14,
+      "in_T": false,
+      "correct": true,
+      "T_size": 119,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.34,
+        23.62,
+        31.52
+      ],
+      "tau": 31.52,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556654",
+      "pred": 6.42,
+      "gold": -6.42,
+      "in_T": false,
+      "correct": false,
+      "T_size": 41,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.56,
+        -16.34
+      ],
+      "tau": -16.34,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556657",
+      "pred": 59.31,
+      "gold": 59.31,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        0.86,
+        44.05,
+        15.26
+      ],
+      "tau": 44.05,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556658",
+      "pred": 32.13,
+      "gold": 32.13,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        16.87,
+        15.26,
+        0.86
+      ],
+      "tau": 16.87,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556723",
+      "pred": -5.09,
+      "gold": -5.09,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        -5.09,
+        -0.29
+      ],
+      "tau": -5.09,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006556728",
+      "pred": 60.26,
+      "gold": 60.26,
+      "in_T": false,
+      "correct": true,
+      "T_size": 48,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.18,
+        20.86,
+        39.4
+      ],
+      "tau": 39.4,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006556734",
+      "pred": 32.46,
+      "gold": 32.46,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.46,
+        6.78
+      ],
+      "tau": 6.78,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006556740",
+      "pred": 23.35,
+      "gold": 23.35,
+      "in_T": false,
+      "correct": true,
+      "T_size": 119,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        17.05,
+        714.0,
+        0.35
+      ],
+      "tau": 714.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006556806",
+      "pred": 14.47,
+      "gold": 14.47,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        10.65,
+        0.22
+      ],
+      "tau": 10.65,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556808",
+      "pred": 79.26,
+      "gold": 79.26,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        18.92,
+        3.41,
+        60.34
+      ],
+      "tau": 60.34,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006556809",
+      "pred": 43.36,
+      "gold": 43.36,
+      "in_T": false,
+      "correct": true,
+      "T_size": 13,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        1.14,
+        714.0,
+        19.98,
+        23.38
+      ],
+      "tau": 714.0,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51006556810",
+      "pred": 23.02,
+      "gold": 23.02,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        24.55,
+        -0.09
+      ],
+      "tau": 24.55,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006556812",
+      "pred": 25.84,
+      "gold": 25.84,
+      "in_T": false,
+      "correct": true,
+      "T_size": 56,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        17.7,
+        0.46,
+        8.14
+      ],
+      "tau": 17.7,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556821",
+      "pred": 48.57,
+      "gold": 48.57,
+      "in_T": false,
+      "correct": true,
+      "T_size": 130,
+      "money_count": 5,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.6,
+        37.89,
+        10.68,
+        755.0
+      ],
+      "tau": 755.0,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006556826",
+      "pred": 28.98,
+      "gold": 28.98,
+      "in_T": false,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        5.34,
+        0.3,
+        23.64
+      ],
+      "tau": 23.64,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006556827",
+      "pred": 53.96,
+      "gold": 53.96,
+      "in_T": false,
+      "correct": true,
+      "T_size": 32,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        2.02,
+        35.62,
+        710.0,
+        18.34
+      ],
+      "tau": 710.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006556829",
+      "pred": 38.55,
+      "gold": 38.55,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        42.37,
+        82.0,
+        -0.22
+      ],
+      "tau": 82.0,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51006556851",
+      "pred": 84.78,
+      "gold": 84.78,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.21,
+        28.09
+      ],
+      "tau": 28.09,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006556865",
+      "pred": 62.82,
+      "gold": 62.82,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        33.46,
+        66.0
+      ],
+      "tau": 66.0,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51006557115",
+      "pred": 35.58,
+      "gold": 35.58,
+      "in_T": false,
+      "correct": true,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.23,
+        13.83
+      ],
+      "tau": 13.83,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006557169",
+      "pred": 5.0,
+      "gold": 5.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.35,
+        -1.11
+      ],
+      "tau": -1.11,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51006557173",
+      "pred": 32.26,
+      "gold": 32.26,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.56,
+        22.34
+      ],
+      "tau": 22.34,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006557187",
+      "pred": 42.25,
+      "gold": 42.25,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        25.96,
+        16.29,
+        0.93
+      ],
+      "tau": 25.96,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51006557194",
+      "pred": 39.77,
+      "gold": 39.77,
+      "in_T": false,
+      "correct": true,
+      "T_size": 56,
+      "money_count": 4,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.66,
+        10.47,
+        29.3
+      ],
+      "tau": 29.3,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006557196",
+      "pred": 27.1,
+      "gold": 27.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 3,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        713.0,
+        0.78,
+        13.36
+      ],
+      "tau": 713.0,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006557208",
+      "pred": 32.12,
+      "gold": 32.12,
+      "in_T": false,
+      "correct": true,
+      "T_size": 13,
+      "money_count": 2,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.86,
+        714.0,
+        15.26,
+        16.86
+      ],
+      "tau": 714.0,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51006557209",
+      "pred": 33.84,
+      "gold": 33.84,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006557507",
+      "pred": 35.88,
+      "gold": 35.88,
+      "in_T": false,
+      "correct": true,
+      "T_size": 88,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        25.96,
+        0.56
+      ],
+      "tau": 25.96,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51006619328",
+      "pred": 5.4,
+      "gold": 5.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 81,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        5.4
+      ],
+      "tau": 5.4,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006619338",
+      "pred": 262.2,
+      "gold": 262.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        102.0,
+        262.2
+      ],
+      "tau": 262.2,
+      "ocr_lines": 17
+    },
+    {
+      "id": "X51006619346",
+      "pred": 96.9,
+      "gold": 96.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 73,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        96.9,
+        5.48
+      ],
+      "tau": 96.9,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51006619503",
+      "pred": 8.9,
+      "gold": 8.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 120,
+      "money_count": 9,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.17
+      ],
+      "tau": 0.17,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006619506",
+      "pred": 23.33,
+      "gold": 25.55,
+      "in_T": true,
+      "correct": false,
+      "T_size": 3827,
+      "money_count": 12,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.45
+      ],
+      "tau": 1.45,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51006619507",
+      "pred": 14.7,
+      "gold": 14.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 2,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.83,
+        3.83,
+        3.0,
+        14.7
+      ],
+      "tau": 14.7,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51006619509",
+      "pred": 7.9,
+      "gold": 15.8,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        89.0,
+        3.0
+      ],
+      "tau": 89.0,
+      "ocr_lines": 18
+    },
+    {
+      "id": "X51006619564",
+      "pred": 85.45,
+      "gold": 85.45,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4883,
+      "money_count": 12,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        4.82,
+        85.44
+      ],
+      "tau": 85.44,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006619567",
+      "pred": 675.0,
+      "gold": 676.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 57,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        38.27
+      ],
+      "tau": 38.27,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006619569",
+      "pred": 26.4,
+      "gold": 26.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.49,
+        26.4
+      ],
+      "tau": 26.4,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006619570",
+      "pred": 30.9,
+      "gold": 30.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.75,
+        30.9
+      ],
+      "tau": 30.9,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006619700",
+      "pred": 8.1,
+      "gold": 8.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "money_count": 1,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        -16.0,
+        50.0,
+        8.1
+      ],
+      "tau": 50.0,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51006619703",
+      "pred": 7.0,
+      "gold": 7.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        45.0
+      ],
+      "tau": 45.0,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51006619704",
+      "pred": 32.8,
+      "gold": 32.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.86,
+        32.8
+      ],
+      "tau": 32.8,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006619757",
+      "pred": 71.6,
+      "gold": 71.6,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1014,
+      "money_count": 9,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        67.55,
+        71.6
+      ],
+      "tau": 71.6,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51006619760",
+      "pred": 29.1,
+      "gold": 29.1,
+      "in_T": true,
+      "correct": true,
+      "T_size": 57,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.64
+      ],
+      "tau": 1.64,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51006619764",
+      "pred": 34.4,
+      "gold": 34.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 41,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.95,
+        34.4
+      ],
+      "tau": 34.4,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006619766",
+      "pred": 40.2,
+      "gold": 59.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 470,
+      "money_count": 8,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        3.35
+      ],
+      "tau": 3.35,
+      "ocr_lines": 36
+    },
+    {
+      "id": "X51006619779",
+      "pred": 7.5,
+      "gold": 7.95,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        45.0
+      ],
+      "tau": 45.0,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51006619784",
+      "pred": 399.0,
+      "gold": 399.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 19,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        399.0
+      ],
+      "tau": 399.0,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51006619790",
+      "pred": 14.5,
+      "gold": 14.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 35,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        15.5
+      ],
+      "tau": 15.5,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006619842",
+      "pred": 32.7,
+      "gold": 32.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 25,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        32.7,
+        30.84
+      ],
+      "tau": 32.7,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006619863",
+      "pred": 2.1,
+      "gold": 2.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 34,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.99,
+        2.11
+      ],
+      "tau": 2.11,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51006619869",
+      "pred": 23.2,
+      "gold": 23.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.31
+      ],
+      "tau": 1.31,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51006620175",
+      "pred": 26.7,
+      "gold": 26.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.51,
+        26.7
+      ],
+      "tau": 26.7,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006620182",
+      "pred": 78.5,
+      "gold": 78.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 347,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        35.0,
+        4.45,
+        78.5
+      ],
+      "tau": 78.5,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006620192",
+      "pred": 8.8,
+      "gold": 8.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 12,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.5
+      ],
+      "tau": 0.5,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51006620437",
+      "pred": 14.2,
+      "gold": 14.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        356.0,
+        13.4,
+        15.0
+      ],
+      "tau": 356.0,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51006647933",
+      "pred": 78.3,
+      "gold": 83.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 842,
+      "money_count": 10,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        4.7
+      ],
+      "tau": 4.7,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006647984",
+      "pred": 64.5,
+      "gold": 64.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        3.65
+      ],
+      "tau": 3.65,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51006733495",
+      "pred": 14.2,
+      "gold": 14.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 10,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        146.0,
+        13.4,
+        14.2
+      ],
+      "tau": 146.0,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51006828199",
+      "pred": 36.95,
+      "gold": 36.96,
+      "in_T": false,
+      "correct": true,
+      "T_size": 120,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        2.09
+      ],
+      "tau": 2.09,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51006828200",
+      "pred": 22.6,
+      "gold": 21.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 73,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.8,
+        23.0
+      ],
+      "tau": 23.0,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51006828201",
+      "pred": 34.06,
+      "gold": 39.7,
+      "in_T": false,
+      "correct": false,
+      "T_size": 25,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        2.25
+      ],
+      "tau": 2.25,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006856982",
+      "pred": 22.99,
+      "gold": 108.21,
+      "in_T": true,
+      "correct": false,
+      "T_size": 1909,
+      "money_count": 11,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        108.21,
+        6.13
+      ],
+      "tau": 108.21,
+      "ocr_lines": 38
+    },
+    {
+      "id": "X51006857126",
+      "pred": 28.8,
+      "gold": 28.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 374,
+      "money_count": 8,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.83,
+        1.63
+      ],
+      "tau": 1.83,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51006857132",
+      "pred": 23.8,
+      "gold": 23.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.33,
+        23.8
+      ],
+      "tau": 23.8,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006857137",
+      "pred": 3.3,
+      "gold": 3.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        50.0,
+        3.11
+      ],
+      "tau": 50.0,
+      "ocr_lines": 18
+    },
+    {
+      "id": "X51006857540",
+      "pred": 270.1,
+      "gold": 270.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 246,
+      "money_count": 7,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        309.0,
+        270.1,
+        15.28
+      ],
+      "tau": 309.0,
+      "ocr_lines": 34
+    },
+    {
+      "id": "X51006912959",
+      "pred": 11.6,
+      "gold": 10.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        10.28
+      ],
+      "tau": 10.28,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51006912976",
+      "pred": 71.1,
+      "gold": 71.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 88,
+      "money_count": 7,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        4.04,
+        71.1
+      ],
+      "tau": 71.1,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51006912998",
+      "pred": 50.0,
+      "gold": 50.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -22.0
+      ],
+      "tau": -22.0,
+      "ocr_lines": 18
+    },
+    {
+      "id": "X51006913018",
+      "pred": 448.55,
+      "gold": 458.55,
+      "in_T": false,
+      "correct": false,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        25.95,
+        470.0
+      ],
+      "tau": 470.0,
+      "ocr_lines": 16
+    },
+    {
+      "id": "X51006913032",
+      "pred": 8.2,
+      "gold": 12.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 57,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.69
+      ],
+      "tau": 0.69,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51006913060",
+      "pred": 8.2,
+      "gold": 8.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 10,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        8.2,
+        69.0,
+        7.74
+      ],
+      "tau": 69.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51006913061",
+      "pred": 8.2,
+      "gold": 9.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.68,
+        0.52
+      ],
+      "tau": 8.68,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51007103597",
+      "pred": 10.0,
+      "gold": 10.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -10.0
+      ],
+      "tau": -10.0,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51007103610",
+      "pred": 5.0,
+      "gold": 5.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        5.0,
+        -18.0
+      ],
+      "tau": -18.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51007103649",
+      "pred": 48.9,
+      "gold": 48.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 10,
+      "money_count": 2,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        25.0,
+        100.0,
+        -18.0
+      ],
+      "tau": 100.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51007103668",
+      "pred": 27.2,
+      "gold": 27.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        27.2
+      ],
+      "tau": 27.2,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007103687",
+      "pred": 2.9,
+      "gold": 1.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "money_count": 1,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        2.0,
+        -18.0,
+        -1.0
+      ],
+      "tau": -18.0,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51007225406",
+      "pred": 24.9,
+      "gold": 24.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        24.9
+      ],
+      "tau": 24.9,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51007231274",
+      "pred": 8.9,
+      "gold": 7.3,
+      "in_T": true,
+      "correct": false,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        6.89,
+        7.3
+      ],
+      "tau": 7.3,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51007231275",
+      "pred": 8.8,
+      "gold": 6.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 1,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.37
+      ],
+      "tau": 0.37,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51007231276",
+      "pred": 8.2,
+      "gold": 8.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.46,
+        774.0
+      ],
+      "tau": 774.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007231331",
+      "pred": 8.7,
+      "gold": 7.8,
+      "in_T": true,
+      "correct": false,
+      "T_size": 72,
+      "money_count": 5,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        65.0,
+        0.44,
+        7.8
+      ],
+      "tau": 65.0,
+      "ocr_lines": 33
+    },
+    {
+      "id": "X51007231341",
+      "pred": 8.2,
+      "gold": 8.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.2,
+        7.74
+      ],
+      "tau": 8.2,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007231343",
+      "pred": 8.7,
+      "gold": 6.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        6.23,
+        6.6
+      ],
+      "tau": 6.6,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51007231346",
+      "pred": 8.0,
+      "gold": 60.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 34,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        56.0,
+        60.0
+      ],
+      "tau": 60.0,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51007231364",
+      "pred": 22.25,
+      "gold": 32.25,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "money_count": 1,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        32.25,
+        -942.0
+      ],
+      "tau": -942.0,
+      "ocr_lines": 13
+    },
+    {
+      "id": "X51007231372",
+      "pred": 38.35,
+      "gold": 38.35,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        36.2,
+        0.02
+      ],
+      "tau": 36.2,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007339105",
+      "pred": 3.3,
+      "gold": 3.3,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.3,
+        0.19
+      ],
+      "tau": 3.3,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007339109",
+      "pred": 8.7,
+      "gold": 8.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 12,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.21,
+        8.7
+      ],
+      "tau": 8.7,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007339116",
+      "pred": 21.9,
+      "gold": 21.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.24,
+        21.9
+      ],
+      "tau": 21.9,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007339119",
+      "pred": 2.0,
+      "gold": 2.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.11,
+        2.0
+      ],
+      "tau": 2.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007339121",
+      "pred": 8.7,
+      "gold": 8.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.49,
+        8.7
+      ],
+      "tau": 8.7,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007339122",
+      "pred": 8.7,
+      "gold": 8.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.49,
+        8.7
+      ],
+      "tau": 8.7,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007339125",
+      "pred": 8.7,
+      "gold": 8.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.49,
+        8.7
+      ],
+      "tau": 8.7,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007339127",
+      "pred": 3.0,
+      "gold": 3.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 6,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        3.0,
+        0.17
+      ],
+      "tau": 3.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007339134",
+      "pred": 8.7,
+      "gold": 8.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.49,
+        8.7
+      ],
+      "tau": 8.7,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007339159",
+      "pred": 8.7,
+      "gold": 8.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.49,
+        8.7
+      ],
+      "tau": 8.7,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007339160",
+      "pred": 3.9,
+      "gold": 3.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.22,
+        3.9
+      ],
+      "tau": 3.9,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007339161",
+      "pred": 2.3,
+      "gold": 2.3,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.13,
+        2.3
+      ],
+      "tau": 2.3,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51007339163",
+      "pred": 10.89,
+      "gold": 10.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 34,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.62,
+        10.89
+      ],
+      "tau": 10.89,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007339638",
+      "pred": 28.0,
+      "gold": 28.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        1.58
+      ],
+      "tau": 1.58,
+      "ocr_lines": 19
+    },
+    {
+      "id": "X51007391390",
+      "pred": 2.99,
+      "gold": 3.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.01
+      ],
+      "tau": 0.01,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51007433809",
+      "pred": 190.0,
+      "gold": 190.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 27,
+      "money_count": 4,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        168.5,
+        179.25,
+        -10.75,
+        190.0
+      ],
+      "tau": 190.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007579714",
+      "pred": 61.7,
+      "gold": 61.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 248,
+      "money_count": 9,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007579719",
+      "pred": 20.7,
+      "gold": 20.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 45,
+      "money_count": 6,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        20.7,
+        7.0
+      ],
+      "tau": 20.7,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51007579725",
+      "pred": 58.7,
+      "gold": 58.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 4,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51007846266",
+      "pred": 8.2,
+      "gold": 8.75,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51007846268",
+      "pred": 11.5,
+      "gold": 10.35,
+      "in_T": false,
+      "correct": false,
+      "T_size": 41,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.01
+      ],
+      "tau": 0.01,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51007846282",
+      "pred": 11.2,
+      "gold": 16.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 101,
+      "money_count": 7,
+      "n_tau_candidates": 7,
+      "tau_candidates": [
+        0.0,
+        0.94,
+        0.46,
+        0.39,
+        5.0,
+        16.21,
+        -1.79
+      ],
+      "tau": 16.21,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007846283",
+      "pred": 11.0,
+      "gold": 147.45,
+      "in_T": false,
+      "correct": false,
+      "T_size": 8,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        8.0
+      ],
+      "tau": 8.0,
+      "ocr_lines": 9
+    },
+    {
+      "id": "X51007846288",
+      "pred": 8.3,
+      "gold": 7.25,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        7.25
+      ],
+      "tau": 7.25,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51007846289",
+      "pred": 4.9,
+      "gold": 15.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 19,
+      "money_count": 2,
+      "n_tau_candidates": 7,
+      "tau_candidates": [
+        0.0,
+        0.16,
+        0.23,
+        2.0,
+        -387.0,
+        -77.0,
+        -3.7
+      ],
+      "tau": -387.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51007846290",
+      "pred": 8.3,
+      "gold": 8.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.19,
+        0.01
+      ],
+      "tau": 8.19,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007846303",
+      "pred": 8.7,
+      "gold": 6.7,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 2,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.01,
+        6.69
+      ],
+      "tau": 6.69,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51007846304",
+      "pred": 8.5,
+      "gold": 7.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 41,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.02
+      ],
+      "tau": 0.02,
+      "ocr_lines": 31
+    },
+    {
+      "id": "X51007846310",
+      "pred": 28.2,
+      "gold": 28.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 363,
+      "money_count": 7,
+      "n_tau_candidates": 8,
+      "tau_candidates": [
+        0.0,
+        -28.19,
+        28.19,
+        -3.95,
+        -13.95,
+        -4.6,
+        -3.0,
+        -1.46
+      ],
+      "tau": -28.19,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51007846321",
+      "pred": 1220.0,
+      "gold": 103.85,
+      "in_T": false,
+      "correct": false,
+      "T_size": 299,
+      "money_count": 9,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -0.01
+      ],
+      "tau": -0.01,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51007846355",
+      "pred": 4.05,
+      "gold": 8.95,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "money_count": 1,
+      "n_tau_candidates": 4,
+      "tau_candidates": [
+        0.0,
+        1.0,
+        50.0,
+        3.96
+      ],
+      "tau": 50.0,
+      "ocr_lines": 32
+    },
+    {
+      "id": "X51007846358",
+      "pred": 28.02,
+      "gold": 28.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        28.02
+      ],
+      "tau": 28.02,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51007846360",
+      "pred": 46.2,
+      "gold": 46.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 757,
+      "money_count": 8,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        16.2,
+        46.2
+      ],
+      "tau": 46.2,
+      "ocr_lines": 20
+    },
+    {
+      "id": "X51007846361",
+      "pred": 102.4,
+      "gold": 102.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 246,
+      "money_count": 9,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007846371",
+      "pred": 8.5,
+      "gold": 8.85,
+      "in_T": false,
+      "correct": false,
+      "T_size": 26,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        8.85
+      ],
+      "tau": 8.85,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51007846372",
+      "pred": 41.5,
+      "gold": 10.15,
+      "in_T": false,
+      "correct": false,
+      "T_size": 11,
+      "money_count": 4,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007846379",
+      "pred": 78.45,
+      "gold": 79.45,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        79.45,
+        79.44
+      ],
+      "tau": 79.45,
+      "ocr_lines": 14
+    },
+    {
+      "id": "X51007846387",
+      "pred": 9.3,
+      "gold": 9.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        9.3
+      ],
+      "tau": 9.3,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51007846392",
+      "pred": 8.4,
+      "gold": 8.45,
+      "in_T": false,
+      "correct": false,
+      "T_size": 32,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        8.46,
+        0.01
+      ],
+      "tau": 8.46,
+      "ocr_lines": 29
+    },
+    {
+      "id": "X51007846396",
+      "pred": 12.65,
+      "gold": 7.35,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        309.0,
+        7.35
+      ],
+      "tau": 309.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51007846397",
+      "pred": 8.7,
+      "gold": 7.7,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007846400",
+      "pred": 152.5,
+      "gold": 152.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 120,
+      "money_count": 6,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        152.9
+      ],
+      "tau": 152.9,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51007846403",
+      "pred": 13.1,
+      "gold": 13.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "money_count": 1,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 28
+    },
+    {
+      "id": "X51008030561",
+      "pred": 17.6,
+      "gold": 17.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 75,
+      "money_count": 5,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.99,
+        17.6
+      ],
+      "tau": 17.6,
+      "ocr_lines": 26
+    },
+    {
+      "id": "X51008030563",
+      "pred": 6.0,
+      "gold": 6.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 29,
+      "money_count": 3,
+      "n_tau_candidates": 5,
+      "tau_candidates": [
+        0.0,
+        0.34,
+        66.0,
+        5.66,
+        6.0
+      ],
+      "tau": 66.0,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51008042779",
+      "pred": 7.6,
+      "gold": 7.6,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.42,
+        7.6
+      ],
+      "tau": 7.6,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51008042780",
+      "pred": 7.2,
+      "gold": 7.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 32,
+      "money_count": 4,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        0.39,
+        7.2
+      ],
+      "tau": 7.2,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51008042781",
+      "pred": 1.9,
+      "gold": 1.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 18,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.9,
+        0.11
+      ],
+      "tau": 1.9,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51008042786",
+      "pred": 19.0,
+      "gold": 19.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "money_count": 1,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        1.08,
+        19.0
+      ],
+      "tau": 19.0,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51008042787",
+      "pred": 4112.9,
+      "gold": 412.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 52,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        -0.02
+      ],
+      "tau": -0.02,
+      "ocr_lines": 13
+    },
+    {
+      "id": "X51008099047",
+      "pred": 4.6,
+      "gold": 4.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        4.6
+      ],
+      "tau": 4.6,
+      "ocr_lines": 23
+    },
+    {
+      "id": "X51008099086",
+      "pred": 7.2,
+      "gold": 7.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 26,
+      "money_count": 5,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        7.2
+      ],
+      "tau": 7.2,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51008099088",
+      "pred": 2.3,
+      "gold": 2.3,
+      "in_T": false,
+      "correct": true,
+      "T_size": 9,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        2.3
+      ],
+      "tau": 2.3,
+      "ocr_lines": 22
+    },
+    {
+      "id": "X51008099090",
+      "pred": 4.8,
+      "gold": 4.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        4.8
+      ],
+      "tau": 4.8,
+      "ocr_lines": 21
+    },
+    {
+      "id": "X51008099100",
+      "pred": 46.9,
+      "gold": 46.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 216,
+      "money_count": 9,
+      "n_tau_candidates": 1,
+      "tau_candidates": [
+        0.0
+      ],
+      "tau": 0.0,
+      "ocr_lines": 30
+    },
+    {
+      "id": "X51009008095",
+      "pred": 31.8,
+      "gold": 31.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "money_count": 3,
+      "n_tau_candidates": 3,
+      "tau_candidates": [
+        0.0,
+        2.5,
+        31.8
+      ],
+      "tau": 31.8,
+      "ocr_lines": 24
+    },
+    {
+      "id": "X51009447842",
+      "pred": 4.1,
+      "gold": 0.9,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "money_count": 2,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        0.9
+      ],
+      "tau": 0.9,
+      "ocr_lines": 25
+    },
+    {
+      "id": "X51009453729",
+      "pred": 79.5,
+      "gold": 79.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 3,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        58.3
+      ],
+      "tau": 58.3,
+      "ocr_lines": 27
+    },
+    {
+      "id": "X51009568881",
+      "pred": 10.4,
+      "gold": 10.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "money_count": 4,
+      "n_tau_candidates": 2,
+      "tau_candidates": [
+        0.0,
+        10.4
+      ],
+      "tau": 10.4,
+      "ocr_lines": 25
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "per_corpus": {
+    "CORD": {
+      "n": 100,
+      "k_sigma": 53,
+      "n_intersection": 31,
+      "p_sigma_alone": 0.9811320754716981,
+      "p_softmax_matched": 0.9245283018867925,
+      "p_sigma_inter": 0.967741935483871,
+      "L_sigma": 0.04321363359707853,
+      "L_sigma_CI": [
+        -0.02546296296296291,
+        0.09558823529411764
+      ],
+      "L_random_mean": 0.0017126344677864704,
+      "L_random_CI": [
+        -0.062459336369551144,
+        0.07547169811320753
+      ],
+      "L_correlated_mean": 0.004552032867640923,
+      "L_correlated_CI": [
+        -0.024528301886792447,
+        0.051081454210768484
+      ],
+      "corr_gate_noise_scale": 0.013353896009068528,
+      "orthogonality_earned": false
+    },
+    "SROIE": {
+      "n": 347,
+      "k_sigma": 73,
+      "n_intersection": 15,
+      "p_sigma_alone": 0.863013698630137,
+      "p_softmax_matched": 0.9452054794520548,
+      "p_sigma_inter": 1.0,
+      "L_sigma": 0.0547945205479452,
+      "L_sigma_CI": [
+        0.012987012987012991,
+        0.12345679012345678
+      ],
+      "L_random_mean": 0.0003053178753467145,
+      "L_random_CI": [
+        -0.11187214611872143,
+        0.0547945205479452
+      ],
+      "L_correlated_mean": 0.001945386817449832,
+      "L_correlated_CI": [
+        -0.03822873526600834,
+        0.0547945205479452
+      ],
+      "corr_gate_noise_scale": 0.025550454808949637,
+      "orthogonality_earned": false
+    },
+    "WildReceipt": {
+      "n": 472,
+      "k_sigma": 214,
+      "n_intersection": 114,
+      "p_sigma_alone": 0.9532710280373832,
+      "p_softmax_matched": 0.9532710280373832,
+      "p_sigma_inter": 0.9912280701754386,
+      "L_sigma": 0.0379570421380554,
+      "L_sigma_CI": [
+        0.009342270632593297,
+        0.06565656565656575
+      ],
+      "L_random_mean": -3.337377417527665e-05,
+      "L_random_CI": [
+        -0.031048805815160896,
+        0.027121128825361884
+      ],
+      "L_correlated_mean": 0.002592912082906466,
+      "L_correlated_CI": [
+        -0.011410562921104095,
+        0.017827237858570544
+      ],
+      "corr_gate_noise_scale": 0.049265739715323116,
+      "orthogonality_earned": false
+    }
+  },
+  "pooled": {
+    "n": 919,
+    "k_sigma": 340,
+    "n_intersection": 147,
+    "p_sigma_alone": 0.9382352941176471,
+    "p_softmax_matched": 0.9264705882352942,
+    "p_sigma_inter": 0.9863945578231292,
+    "L_sigma": 0.05992396958783508,
+    "L_sigma_CI": [
+      0.028874955070090635,
+      0.08454325468844526
+    ],
+    "L_random_mean": 0.0009581850423861733,
+    "L_random_CI": [
+      -0.036640079760717925,
+      0.03813118167621021
+    ],
+    "L_correlated_mean": 0.0005404515589225239,
+    "L_correlated_CI": [
+      -0.0181736450038531,
+      0.021581359816653878
+    ],
+    "corr_gate_noise_scale": 0.04999939545559542,
+    "orthogonality_earned": false
+  },
+  "method": "L = P(sigma & softmax) - P(softmax @ matched coverage). Control A = random gate (no info) @ matched coverage; Control B = softmax'+noise calibrated to sigma's standalone precision (a second good but softmax-derived gate). Orthogonality earned iff L_sigma 95% CI lies strictly above both control CIs.",
+  "verdict": "sigma lift exceeds BOTH the random-gate and the correlated-good-gate controls on: NONE. Pooled L_sigma=0.060 CI[0.029, 0.085] vs random CI[-0.037, 0.038] and correlated CI[-0.018, 0.022]."
+}

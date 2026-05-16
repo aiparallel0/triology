@@ -1,0 +1,814 @@
+{
+  "summary": {
+    "n": 100,
+    "wall_sec": 15.0,
+    "coverage_1.0_F1": 0.85,
+    "coverage_sigma": 0.53,
+    "sigma_F1_on_accepted": 0.9811320754716981,
+    "sigma_recall_on_correct": 0.611764705882353,
+    "sigma_precision": 0.9811320754716981,
+    "selective_prediction_note": "sigma is a precision gate, not a net F1 lift."
+  },
+  "results": [
+    {
+      "id": 0,
+      "pred": 60.0,
+      "gold": 60.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 1,
+      "pred": 91000.0,
+      "gold": 91000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4
+    },
+    {
+      "id": 2,
+      "pred": 28000.0,
+      "gold": 28000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 3,
+      "pred": 11000.0,
+      "gold": 11000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 4,
+      "pred": 174.6,
+      "gold": 174600.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7
+    },
+    {
+      "id": 5,
+      "pred": 31.0,
+      "gold": 31.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 6,
+      "pred": 46000.0,
+      "gold": 46000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4
+    },
+    {
+      "id": 7,
+      "pred": 111000.0,
+      "gold": 111000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 8,
+      "pred": 50000.0,
+      "gold": 50000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 9,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0
+    },
+    {
+      "id": 10,
+      "pred": 17000.0,
+      "gold": 17000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 11,
+      "pred": 230000.0,
+      "gold": 230000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 12,
+      "pred": 120000.0,
+      "gold": 120000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 13,
+      "pred": 51300.0,
+      "gold": 51.3,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3
+    },
+    {
+      "id": 14,
+      "pred": 281435.0,
+      "gold": 281435.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 49
+    },
+    {
+      "id": 15,
+      "pred": 63.0,
+      "gold": 63.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 16,
+      "pred": 70000.0,
+      "gold": 70000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3
+    },
+    {
+      "id": 17,
+      "pred": 91000.0,
+      "gold": 91000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 8
+    },
+    {
+      "id": 18,
+      "pred": null,
+      "gold": 156000.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0
+    },
+    {
+      "id": 19,
+      "pred": 176000.0,
+      "gold": 176000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3
+    },
+    {
+      "id": 20,
+      "pred": 377859.0,
+      "gold": 377859.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23
+    },
+    {
+      "id": 21,
+      "pred": 38.0,
+      "gold": 38.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 22,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 23,
+      "pred": 63000.0,
+      "gold": 63000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 24,
+      "pred": 118.0,
+      "gold": 118.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 25,
+      "pred": 43000.0,
+      "gold": 43000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4
+    },
+    {
+      "id": 26,
+      "pred": 138.0,
+      "gold": 138.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3
+    },
+    {
+      "id": 27,
+      "pred": 61600.0,
+      "gold": 61600.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3
+    },
+    {
+      "id": 28,
+      "pred": 426195.0,
+      "gold": 426195.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7
+    },
+    {
+      "id": 29,
+      "pred": 145900.0,
+      "gold": 145900.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 47
+    },
+    {
+      "id": 30,
+      "pred": 31500.0,
+      "gold": 31500.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 31,
+      "pred": 113886.0,
+      "gold": 113886.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 2
+    },
+    {
+      "id": 32,
+      "pred": 24.0,
+      "gold": 24.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 33,
+      "pred": 148127.0,
+      "gold": 148127.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5
+    },
+    {
+      "id": 34,
+      "pred": 93.5,
+      "gold": 93.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3
+    },
+    {
+      "id": 35,
+      "pred": 54000.0,
+      "gold": 54000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11
+    },
+    {
+      "id": 36,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 37,
+      "pred": 20.0,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0
+    },
+    {
+      "id": 38,
+      "pred": 664329.0,
+      "gold": 664329.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 247
+    },
+    {
+      "id": 39,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4
+    },
+    {
+      "id": 40,
+      "pred": 68.0,
+      "gold": 68000.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1
+    },
+    {
+      "id": 41,
+      "pred": 365000.0,
+      "gold": 365000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 65
+    },
+    {
+      "id": 42,
+      "pred": 16500.0,
+      "gold": 16500.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 43,
+      "pred": 165000.0,
+      "gold": 165000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 44,
+      "pred": 30.0,
+      "gold": 30.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 45,
+      "pred": 88.0,
+      "gold": 88000.0,
+      "in_T": true,
+      "correct": false,
+      "T_size": 8
+    },
+    {
+      "id": 46,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 47,
+      "pred": 63000.0,
+      "gold": 63000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 48,
+      "pred": 25000.0,
+      "gold": 25000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 49,
+      "pred": 23000.0,
+      "gold": 23000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 50,
+      "pred": 19500.0,
+      "gold": 19500.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 51,
+      "pred": 334000.0,
+      "gold": 334000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15
+    },
+    {
+      "id": 52,
+      "pred": 40.0,
+      "gold": 40.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 53,
+      "pred": 123.585,
+      "gold": 123.585,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7
+    },
+    {
+      "id": 54,
+      "pred": 10000.0,
+      "gold": 10000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 55,
+      "pred": 54000.0,
+      "gold": 54000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 56,
+      "pred": 8999.0,
+      "gold": 8999.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 57,
+      "pred": 22000.0,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1
+    },
+    {
+      "id": 58,
+      "pred": 60500.0,
+      "gold": 60500.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 59,
+      "pred": 680500.0,
+      "gold": 680500.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 473
+    },
+    {
+      "id": 60,
+      "pred": 26.25,
+      "gold": 26.25,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 61,
+      "pred": 24500.0,
+      "gold": 24500.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11
+    },
+    {
+      "id": 62,
+      "pred": 48.0,
+      "gold": 48.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 63,
+      "pred": 57.0,
+      "gold": 57.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 64,
+      "pred": 16.0,
+      "gold": 16.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 65,
+      "pred": null,
+      "gold": 13.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0
+    },
+    {
+      "id": 66,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 67,
+      "pred": 9.5,
+      "gold": 9.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 68,
+      "pred": 20000.0,
+      "gold": 20000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 69,
+      "pred": 74000.0,
+      "gold": 74000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4
+    },
+    {
+      "id": 70,
+      "pred": 1565938.0,
+      "gold": 1565938.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 255
+    },
+    {
+      "id": 71,
+      "pred": 198000.0,
+      "gold": 198000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 72,
+      "pred": 17500.0,
+      "gold": 17500.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 73,
+      "pred": 22.0,
+      "gold": 22.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 74,
+      "pred": 330264.0,
+      "gold": 330264.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11
+    },
+    {
+      "id": 75,
+      "pred": 282000.0,
+      "gold": 282000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 63
+    },
+    {
+      "id": 76,
+      "pred": 5.0,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 8
+    },
+    {
+      "id": 77,
+      "pred": 17000.0,
+      "gold": 17000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 78,
+      "pred": 30.0,
+      "gold": 30.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 79,
+      "pred": 22.0,
+      "gold": 22.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 80,
+      "pred": 25.0,
+      "gold": 25.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 81,
+      "pred": 50.0,
+      "gold": 50.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 82,
+      "pred": 385000.0,
+      "gold": 385000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4
+    },
+    {
+      "id": 83,
+      "pred": 23.0,
+      "gold": 23000.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1
+    },
+    {
+      "id": 84,
+      "pred": 3.0,
+      "gold": 39.6,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3
+    },
+    {
+      "id": 85,
+      "pred": 197.45,
+      "gold": 197.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 275
+    },
+    {
+      "id": 86,
+      "pred": 22000.0,
+      "gold": 22000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 87,
+      "pred": 40150.0,
+      "gold": 40150.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 88,
+      "pred": 47000.0,
+      "gold": 47000.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 89,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 90,
+      "pred": 29500.0,
+      "gold": 29500.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 91,
+      "pred": 21000.0,
+      "gold": 21.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1
+    },
+    {
+      "id": 92,
+      "pred": 240.0,
+      "gold": 240.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 93,
+      "pred": 17999.0,
+      "gold": 17999.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1
+    },
+    {
+      "id": 94,
+      "pred": null,
+      "gold": 140063.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13
+    },
+    {
+      "id": 95,
+      "pred": 61799.0,
+      "gold": 61799.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3
+    },
+    {
+      "id": 96,
+      "pred": 41000.0,
+      "gold": 41000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0
+    },
+    {
+      "id": 97,
+      "pred": 55.0,
+      "gold": 55.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4
+    },
+    {
+      "id": 98,
+      "pred": 250690.0,
+      "gold": 250690.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7
+    },
+    {
+      "id": 99,
+      "pred": 75000.0,
+      "gold": 75000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1
+    }
+  ]
+}

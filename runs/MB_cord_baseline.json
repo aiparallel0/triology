@@ -1,0 +1,886 @@
+{
+  "summary": {
+    "corpus": "CORD-v2 test (labeled-amounts, generative)",
+    "ckpt": "naver-clova-ix/donut-base-finetuned-cord-v2",
+    "n": 100,
+    "wall_sec": 31.2,
+    "base_rate_F1": 0.85,
+    "sigma": {
+      "coverage": 0.53,
+      "precision": 0.9811320754716981,
+      "n_accepted": 53,
+      "n_correct": 52
+    },
+    "softmax_matched_coverage": {
+      "coverage": 0.53,
+      "precision": 0.9245283018867925,
+      "n_accepted": 53,
+      "n_correct": 49
+    },
+    "softmax_threshold_sweep": [
+      {
+        "k": 5,
+        "coverage": 0.05,
+        "precision": 0.8
+      },
+      {
+        "k": 10,
+        "coverage": 0.1,
+        "precision": 0.9
+      },
+      {
+        "k": 20,
+        "coverage": 0.2,
+        "precision": 0.95
+      },
+      {
+        "k": 30,
+        "coverage": 0.3,
+        "precision": 0.9333333333333333
+      },
+      {
+        "k": 40,
+        "coverage": 0.4,
+        "precision": 0.95
+      },
+      {
+        "k": 50,
+        "coverage": 0.5,
+        "precision": 0.96
+      },
+      {
+        "k": 55,
+        "coverage": 0.55,
+        "precision": 0.9272727272727272
+      },
+      {
+        "k": 70,
+        "coverage": 0.7,
+        "precision": 0.9142857142857143
+      },
+      {
+        "k": 85,
+        "coverage": 0.85,
+        "precision": 0.9058823529411765
+      },
+      {
+        "k": 100,
+        "coverage": 1.0,
+        "precision": 0.85
+      }
+    ],
+    "orthogonality": {
+      "|sigma|": 53,
+      "|softmax|": 53,
+      "|union|": 75,
+      "|intersect|": 31,
+      "intersect_precision": 0.967741935483871,
+      "union_precision": 0.9466666666666667,
+      "sigma_only_precision": 1.0,
+      "softmax_only_precision": 0.8636363636363636
+    },
+    "verdict_hook": "sigma 0.982 vs softmax 0.927 (matched 55%): sigma wins by 5.5pp on CORD. sigma_only_precision = 1.0 indicates orthogonal evidence: the 22 receipts sigma accepts that softmax doesn't are ALL correct."
+  },
+  "results": [
+    {
+      "id": 0,
+      "pred": 60.0,
+      "gold": 60.0,
+      "correct": true,
+      "softmax_score": 0.9552265870983084,
+      "sigma_accept": false
+    },
+    {
+      "id": 1,
+      "pred": 91000.0,
+      "gold": 91000.0,
+      "correct": true,
+      "softmax_score": 0.9941762837039279,
+      "sigma_accept": true
+    },
+    {
+      "id": 2,
+      "pred": 28000.0,
+      "gold": 28000.0,
+      "correct": true,
+      "softmax_score": 0.9143939113238257,
+      "sigma_accept": false
+    },
+    {
+      "id": 3,
+      "pred": 11000.0,
+      "gold": 11000.0,
+      "correct": true,
+      "softmax_score": 0.999269521972422,
+      "sigma_accept": false
+    },
+    {
+      "id": 4,
+      "pred": 174.6,
+      "gold": 174600.0,
+      "correct": false,
+      "softmax_score": 0.9237791894092569,
+      "sigma_accept": false
+    },
+    {
+      "id": 5,
+      "pred": 31.0,
+      "gold": 31.0,
+      "correct": true,
+      "softmax_score": 0.984797953599743,
+      "sigma_accept": true
+    },
+    {
+      "id": 6,
+      "pred": 46000.0,
+      "gold": 46000.0,
+      "correct": true,
+      "softmax_score": 0.9955975574341223,
+      "sigma_accept": true
+    },
+    {
+      "id": 7,
+      "pred": 111000.0,
+      "gold": 111000.0,
+      "correct": true,
+      "softmax_score": 0.9982948931491858,
+      "sigma_accept": false
+    },
+    {
+      "id": 8,
+      "pred": 50000.0,
+      "gold": 50000.0,
+      "correct": true,
+      "softmax_score": 0.9959079803295645,
+      "sigma_accept": true
+    },
+    {
+      "id": 9,
+      "pred": null,
+      "gold": null,
+      "correct": false,
+      "softmax_score": 0.9827891257787417,
+      "sigma_accept": false
+    },
+    {
+      "id": 10,
+      "pred": 17000.0,
+      "gold": 17000.0,
+      "correct": true,
+      "softmax_score": 0.9998817977878801,
+      "sigma_accept": false
+    },
+    {
+      "id": 11,
+      "pred": 230000.0,
+      "gold": 230000.0,
+      "correct": true,
+      "softmax_score": 0.9990229695085837,
+      "sigma_accept": false
+    },
+    {
+      "id": 12,
+      "pred": 120000.0,
+      "gold": 120000.0,
+      "correct": true,
+      "softmax_score": 0.966733704682297,
+      "sigma_accept": false
+    },
+    {
+      "id": 13,
+      "pred": 51300.0,
+      "gold": 51.3,
+      "correct": false,
+      "softmax_score": 0.9562618515726131,
+      "sigma_accept": false
+    },
+    {
+      "id": 14,
+      "pred": 281435.0,
+      "gold": 281435.0,
+      "correct": true,
+      "softmax_score": 0.9709296125881389,
+      "sigma_accept": true
+    },
+    {
+      "id": 15,
+      "pred": 63.0,
+      "gold": 63.0,
+      "correct": true,
+      "softmax_score": 0.9988576593032826,
+      "sigma_accept": true
+    },
+    {
+      "id": 16,
+      "pred": 70000.0,
+      "gold": 70000.0,
+      "correct": true,
+      "softmax_score": 0.9840698331247681,
+      "sigma_accept": true
+    },
+    {
+      "id": 17,
+      "pred": 91000.0,
+      "gold": 91000.0,
+      "correct": true,
+      "softmax_score": 0.9564333592218148,
+      "sigma_accept": true
+    },
+    {
+      "id": 18,
+      "pred": null,
+      "gold": 156000.0,
+      "correct": false,
+      "softmax_score": 0.9682197934285067,
+      "sigma_accept": false
+    },
+    {
+      "id": 19,
+      "pred": 176000.0,
+      "gold": 176000.0,
+      "correct": true,
+      "softmax_score": 0.9772147919860036,
+      "sigma_accept": true
+    },
+    {
+      "id": 20,
+      "pred": 377859.0,
+      "gold": 377859.0,
+      "correct": true,
+      "softmax_score": 0.9730546258834796,
+      "sigma_accept": true
+    },
+    {
+      "id": 21,
+      "pred": 38.0,
+      "gold": 38.0,
+      "correct": true,
+      "softmax_score": 0.9829611018053384,
+      "sigma_accept": true
+    },
+    {
+      "id": 22,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "correct": true,
+      "softmax_score": 0.9998969505159702,
+      "sigma_accept": true
+    },
+    {
+      "id": 23,
+      "pred": 63000.0,
+      "gold": 63000.0,
+      "correct": true,
+      "softmax_score": 0.999975528674482,
+      "sigma_accept": true
+    },
+    {
+      "id": 24,
+      "pred": 118.0,
+      "gold": 118.0,
+      "correct": true,
+      "softmax_score": 0.9721727898589261,
+      "sigma_accept": true
+    },
+    {
+      "id": 25,
+      "pred": 43000.0,
+      "gold": 43000.0,
+      "correct": true,
+      "softmax_score": 0.9999864704114594,
+      "sigma_accept": true
+    },
+    {
+      "id": 26,
+      "pred": 138.0,
+      "gold": 138.0,
+      "correct": true,
+      "softmax_score": 0.9777995830324435,
+      "sigma_accept": false
+    },
+    {
+      "id": 27,
+      "pred": 61600.0,
+      "gold": 61600.0,
+      "correct": true,
+      "softmax_score": 0.9823586828544267,
+      "sigma_accept": true
+    },
+    {
+      "id": 28,
+      "pred": 426195.0,
+      "gold": 426195.0,
+      "correct": true,
+      "softmax_score": 0.9996866111205284,
+      "sigma_accept": true
+    },
+    {
+      "id": 29,
+      "pred": 145900.0,
+      "gold": 145900.0,
+      "correct": true,
+      "softmax_score": 0.9995010476368961,
+      "sigma_accept": true
+    },
+    {
+      "id": 30,
+      "pred": 31500.0,
+      "gold": 31500.0,
+      "correct": true,
+      "softmax_score": 0.9998463050822808,
+      "sigma_accept": true
+    },
+    {
+      "id": 31,
+      "pred": 113886.0,
+      "gold": 113886.0,
+      "correct": true,
+      "softmax_score": 0.9997312514519779,
+      "sigma_accept": true
+    },
+    {
+      "id": 32,
+      "pred": 24.0,
+      "gold": 24.0,
+      "correct": true,
+      "softmax_score": 0.9855720184143526,
+      "sigma_accept": false
+    },
+    {
+      "id": 33,
+      "pred": 148127.0,
+      "gold": 148127.0,
+      "correct": true,
+      "softmax_score": 0.999649698524596,
+      "sigma_accept": true
+    },
+    {
+      "id": 34,
+      "pred": 93.5,
+      "gold": 93.5,
+      "correct": true,
+      "softmax_score": 0.9985023643776141,
+      "sigma_accept": true
+    },
+    {
+      "id": 35,
+      "pred": 54000.0,
+      "gold": 54000.0,
+      "correct": true,
+      "softmax_score": 0.9999189710858758,
+      "sigma_accept": true
+    },
+    {
+      "id": 36,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "correct": true,
+      "softmax_score": 0.9988724838923478,
+      "sigma_accept": false
+    },
+    {
+      "id": 37,
+      "pred": 20.0,
+      "gold": null,
+      "correct": false,
+      "softmax_score": 0.9999879091119083,
+      "sigma_accept": false
+    },
+    {
+      "id": 38,
+      "pred": 664329.0,
+      "gold": 664329.0,
+      "correct": true,
+      "softmax_score": 0.9882692327557585,
+      "sigma_accept": true
+    },
+    {
+      "id": 39,
+      "pred": 1555.2,
+      "gold": null,
+      "correct": false,
+      "softmax_score": 0.7329099889305377,
+      "sigma_accept": false
+    },
+    {
+      "id": 40,
+      "pred": 68.0,
+      "gold": 68000.0,
+      "correct": false,
+      "softmax_score": 0.9348143140530484,
+      "sigma_accept": false
+    },
+    {
+      "id": 41,
+      "pred": 365000.0,
+      "gold": 365000.0,
+      "correct": true,
+      "softmax_score": 0.9762737969510918,
+      "sigma_accept": false
+    },
+    {
+      "id": 42,
+      "pred": 16500.0,
+      "gold": 16500.0,
+      "correct": true,
+      "softmax_score": 0.9962564944716429,
+      "sigma_accept": false
+    },
+    {
+      "id": 43,
+      "pred": 165000.0,
+      "gold": 165000.0,
+      "correct": true,
+      "softmax_score": 0.9842327207841899,
+      "sigma_accept": false
+    },
+    {
+      "id": 44,
+      "pred": 30.0,
+      "gold": 30.0,
+      "correct": true,
+      "softmax_score": 0.9967868351424133,
+      "sigma_accept": false
+    },
+    {
+      "id": 45,
+      "pred": 88.0,
+      "gold": 88000.0,
+      "correct": false,
+      "softmax_score": 0.999774479690585,
+      "sigma_accept": true
+    },
+    {
+      "id": 46,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "correct": true,
+      "softmax_score": 0.9921893466091767,
+      "sigma_accept": true
+    },
+    {
+      "id": 47,
+      "pred": 63000.0,
+      "gold": 63000.0,
+      "correct": true,
+      "softmax_score": 0.9801629406211603,
+      "sigma_accept": true
+    },
+    {
+      "id": 48,
+      "pred": 25000.0,
+      "gold": 25000.0,
+      "correct": true,
+      "softmax_score": 0.9973985764960184,
+      "sigma_accept": false
+    },
+    {
+      "id": 49,
+      "pred": 23000.0,
+      "gold": 23000.0,
+      "correct": true,
+      "softmax_score": 0.9963104490709678,
+      "sigma_accept": true
+    },
+    {
+      "id": 50,
+      "pred": 19500.0,
+      "gold": 19500.0,
+      "correct": true,
+      "softmax_score": 0.9994343747663336,
+      "sigma_accept": true
+    },
+    {
+      "id": 51,
+      "pred": 334000.0,
+      "gold": 334000.0,
+      "correct": true,
+      "softmax_score": 0.9634215259405706,
+      "sigma_accept": false
+    },
+    {
+      "id": 52,
+      "pred": 40.0,
+      "gold": 40.0,
+      "correct": true,
+      "softmax_score": 0.9997547270550388,
+      "sigma_accept": true
+    },
+    {
+      "id": 53,
+      "pred": 123.585,
+      "gold": 123.585,
+      "correct": true,
+      "softmax_score": 0.9971143372391131,
+      "sigma_accept": true
+    },
+    {
+      "id": 54,
+      "pred": 10000.0,
+      "gold": 10000.0,
+      "correct": true,
+      "softmax_score": 0.9999445030217061,
+      "sigma_accept": false
+    },
+    {
+      "id": 55,
+      "pred": 54000.0,
+      "gold": 54000.0,
+      "correct": true,
+      "softmax_score": 0.9999495586698592,
+      "sigma_accept": true
+    },
+    {
+      "id": 56,
+      "pred": 8999.0,
+      "gold": 8999.0,
+      "correct": true,
+      "softmax_score": 0.9999125663393945,
+      "sigma_accept": true
+    },
+    {
+      "id": 57,
+      "pred": 22000.0,
+      "gold": null,
+      "correct": false,
+      "softmax_score": 0.9930647799707135,
+      "sigma_accept": false
+    },
+    {
+      "id": 58,
+      "pred": 60500.0,
+      "gold": 60500.0,
+      "correct": true,
+      "softmax_score": 0.991324928297925,
+      "sigma_accept": true
+    },
+    {
+      "id": 59,
+      "pred": 680500.0,
+      "gold": 680500.0,
+      "correct": true,
+      "softmax_score": 0.9857101771937611,
+      "sigma_accept": false
+    },
+    {
+      "id": 60,
+      "pred": 26.25,
+      "gold": 26.25,
+      "correct": true,
+      "softmax_score": 0.978732305423437,
+      "sigma_accept": true
+    },
+    {
+      "id": 61,
+      "pred": 24500.0,
+      "gold": 24500.0,
+      "correct": true,
+      "softmax_score": 0.9901452302532388,
+      "sigma_accept": true
+    },
+    {
+      "id": 62,
+      "pred": 48.0,
+      "gold": 48.0,
+      "correct": true,
+      "softmax_score": 0.9983891058970925,
+      "sigma_accept": true
+    },
+    {
+      "id": 63,
+      "pred": 57.0,
+      "gold": 57.0,
+      "correct": true,
+      "softmax_score": 0.9736826410318359,
+      "sigma_accept": true
+    },
+    {
+      "id": 64,
+      "pred": 16.0,
+      "gold": 16.0,
+      "correct": true,
+      "softmax_score": 0.9940068860573452,
+      "sigma_accept": false
+    },
+    {
+      "id": 65,
+      "pred": null,
+      "gold": 13.0,
+      "correct": false,
+      "softmax_score": 0.8941476627679621,
+      "sigma_accept": false
+    },
+    {
+      "id": 66,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "correct": true,
+      "softmax_score": 0.9993919589559278,
+      "sigma_accept": true
+    },
+    {
+      "id": 67,
+      "pred": 9.5,
+      "gold": 9.5,
+      "correct": true,
+      "softmax_score": 0.9871074235337137,
+      "sigma_accept": false
+    },
+    {
+      "id": 68,
+      "pred": 20000.0,
+      "gold": 20000.0,
+      "correct": true,
+      "softmax_score": 0.982275267926527,
+      "sigma_accept": false
+    },
+    {
+      "id": 69,
+      "pred": 74000.0,
+      "gold": 74000.0,
+      "correct": true,
+      "softmax_score": 0.9996595779994918,
+      "sigma_accept": true
+    },
+    {
+      "id": 70,
+      "pred": 1565938.0,
+      "gold": 1565938.0,
+      "correct": true,
+      "softmax_score": 0.9951748095773536,
+      "sigma_accept": false
+    },
+    {
+      "id": 71,
+      "pred": 198000.0,
+      "gold": 198000.0,
+      "correct": true,
+      "softmax_score": 0.9892201323849781,
+      "sigma_accept": false
+    },
+    {
+      "id": 72,
+      "pred": 17500.0,
+      "gold": 17500.0,
+      "correct": true,
+      "softmax_score": 0.999972962584407,
+      "sigma_accept": true
+    },
+    {
+      "id": 73,
+      "pred": 22.0,
+      "gold": 22.0,
+      "correct": true,
+      "softmax_score": 0.9999838295705993,
+      "sigma_accept": false
+    },
+    {
+      "id": 74,
+      "pred": 330264.0,
+      "gold": 330264.0,
+      "correct": true,
+      "softmax_score": 0.9705477681361114,
+      "sigma_accept": true
+    },
+    {
+      "id": 75,
+      "pred": 282000.0,
+      "gold": 282000.0,
+      "correct": true,
+      "softmax_score": 0.9997790493549615,
+      "sigma_accept": true
+    },
+    {
+      "id": 76,
+      "pred": 5.0,
+      "gold": null,
+      "correct": false,
+      "softmax_score": 0.9805919306865897,
+      "sigma_accept": false
+    },
+    {
+      "id": 77,
+      "pred": 17000.0,
+      "gold": 17000.0,
+      "correct": true,
+      "softmax_score": 0.9984725024391106,
+      "sigma_accept": false
+    },
+    {
+      "id": 78,
+      "pred": 30.0,
+      "gold": 30.0,
+      "correct": true,
+      "softmax_score": 0.993430613474595,
+      "sigma_accept": false
+    },
+    {
+      "id": 79,
+      "pred": 22.0,
+      "gold": 22.0,
+      "correct": true,
+      "softmax_score": 0.999930447585197,
+      "sigma_accept": false
+    },
+    {
+      "id": 80,
+      "pred": 25.0,
+      "gold": 25.0,
+      "correct": true,
+      "softmax_score": 0.9999677973607647,
+      "sigma_accept": false
+    },
+    {
+      "id": 81,
+      "pred": 50.0,
+      "gold": 50.0,
+      "correct": true,
+      "softmax_score": 0.9999115956488105,
+      "sigma_accept": true
+    },
+    {
+      "id": 82,
+      "pred": 385000.0,
+      "gold": 385000.0,
+      "correct": true,
+      "softmax_score": 0.9997577562311051,
+      "sigma_accept": true
+    },
+    {
+      "id": 83,
+      "pred": 23.0,
+      "gold": 23000.0,
+      "correct": false,
+      "softmax_score": 0.9741655625220739,
+      "sigma_accept": false
+    },
+    {
+      "id": 84,
+      "pred": 39.6,
+      "gold": 39.6,
+      "correct": false,
+      "softmax_score": 0.983111158248544,
+      "sigma_accept": false
+    },
+    {
+      "id": 85,
+      "pred": 197.45,
+      "gold": 197.45,
+      "correct": true,
+      "softmax_score": 0.9834242764420863,
+      "sigma_accept": true
+    },
+    {
+      "id": 86,
+      "pred": 22000.0,
+      "gold": 22000.0,
+      "correct": true,
+      "softmax_score": 0.9998328811569868,
+      "sigma_accept": true
+    },
+    {
+      "id": 87,
+      "pred": 40150.0,
+      "gold": 40150.0,
+      "correct": true,
+      "softmax_score": 0.9816622815483325,
+      "sigma_accept": true
+    },
+    {
+      "id": 88,
+      "pred": 47000.0,
+      "gold": 47000.0,
+      "correct": true,
+      "softmax_score": 0.9921935662929963,
+      "sigma_accept": true
+    },
+    {
+      "id": 89,
+      "pred": 40000.0,
+      "gold": 40000.0,
+      "correct": true,
+      "softmax_score": 0.9942446961212378,
+      "sigma_accept": false
+    },
+    {
+      "id": 90,
+      "pred": 29500.0,
+      "gold": 29500.0,
+      "correct": true,
+      "softmax_score": 0.9998464053615184,
+      "sigma_accept": false
+    },
+    {
+      "id": 91,
+      "pred": 21000.0,
+      "gold": 21.0,
+      "correct": false,
+      "softmax_score": 0.9925425169035351,
+      "sigma_accept": false
+    },
+    {
+      "id": 92,
+      "pred": 240.0,
+      "gold": 240.0,
+      "correct": true,
+      "softmax_score": 0.9802718825664779,
+      "sigma_accept": false
+    },
+    {
+      "id": 93,
+      "pred": 17999.0,
+      "gold": 17999.0,
+      "correct": true,
+      "softmax_score": 0.9999306033284021,
+      "sigma_accept": true
+    },
+    {
+      "id": 94,
+      "pred": 140063.0,
+      "gold": 140063.0,
+      "correct": false,
+      "softmax_score": 0.900583159154251,
+      "sigma_accept": false
+    },
+    {
+      "id": 95,
+      "pred": 61799.0,
+      "gold": 61799.0,
+      "correct": true,
+      "softmax_score": 0.9999086707549769,
+      "sigma_accept": true
+    },
+    {
+      "id": 96,
+      "pred": 41000.0,
+      "gold": 41000.0,
+      "correct": true,
+      "softmax_score": 0.9925727273931031,
+      "sigma_accept": false
+    },
+    {
+      "id": 97,
+      "pred": 55.0,
+      "gold": 55.0,
+      "correct": true,
+      "softmax_score": 0.9811116724362204,
+      "sigma_accept": true
+    },
+    {
+      "id": 98,
+      "pred": 250690.0,
+      "gold": 250690.0,
+      "correct": true,
+      "softmax_score": 0.9242056644493137,
+      "sigma_accept": true
+    },
+    {
+      "id": 99,
+      "pred": 75000.0,
+      "gold": 75000.0,
+      "correct": true,
+      "softmax_score": 0.9757732420558188,
+      "sigma_accept": false
+    }
+  ]
+}

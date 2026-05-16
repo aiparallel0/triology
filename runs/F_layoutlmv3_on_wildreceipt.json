@@ -1,0 +1,4737 @@
+{
+  "summary": {
+    "checkpoint": "Theivaprakasham/layoutlmv3-finetuned-wildreceipt",
+    "corpus": "WildReceipt",
+    "setup": "in-distribution",
+    "n": 472,
+    "batch_size": 32,
+    "wall_sec": 6.7,
+    "coverage_1.0_F1": 0.8199152542372882,
+    "coverage_sigma": 0.4533898305084746,
+    "sigma_F1_on_accepted": 0.9532710280373832,
+    "sigma_recall_on_correct": 0.5271317829457365,
+    "sigma_precision": 0.9532710280373832
+  },
+  "results": [
+    {
+      "id": 0,
+      "pred": 60.44,
+      "gold": 60.44,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 4.48
+    },
+    {
+      "id": 1,
+      "pred": 154.4,
+      "gold": 154.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1180,
+      "items_count": 14,
+      "tau": 24.65
+    },
+    {
+      "id": 2,
+      "pred": 6.69,
+      "gold": 6.69,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 3,
+      "pred": 58.9258,
+      "gold": 58.92,
+      "in_T": false,
+      "correct": true,
+      "T_size": 159,
+      "items_count": 8,
+      "tau": 70.0
+    },
+    {
+      "id": 4,
+      "pred": 70.34,
+      "gold": 70.34,
+      "in_T": true,
+      "correct": true,
+      "T_size": 774,
+      "items_count": 11,
+      "tau": 0.0
+    },
+    {
+      "id": 5,
+      "pred": 200.362,
+      "gold": 200.36,
+      "in_T": true,
+      "correct": true,
+      "T_size": 6289,
+      "items_count": 15,
+      "tau": 7.83
+    },
+    {
+      "id": 6,
+      "pred": 70.34,
+      "gold": 70.34,
+      "in_T": true,
+      "correct": true,
+      "T_size": 774,
+      "items_count": 11,
+      "tau": 0.0
+    },
+    {
+      "id": 7,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 42,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 8,
+      "pred": 23.95,
+      "gold": 23.95,
+      "in_T": true,
+      "correct": true,
+      "T_size": 77,
+      "items_count": 7,
+      "tau": 0.0
+    },
+    {
+      "id": 9,
+      "pred": 69.6,
+      "gold": 69.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 6.33
+    },
+    {
+      "id": 10,
+      "pred": 40.5,
+      "gold": 40.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 4.5
+    },
+    {
+      "id": 11,
+      "pred": 31.05,
+      "gold": 31.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 5,
+      "tau": 1.9
+    },
+    {
+      "id": 12,
+      "pred": 28.12,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 2.14
+    },
+    {
+      "id": 13,
+      "pred": 105.0,
+      "gold": 105.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 14,
+      "pred": 85.1285,
+      "gold": 85.12,
+      "in_T": false,
+      "correct": true,
+      "T_size": 127,
+      "items_count": 9,
+      "tau": 6.65
+    },
+    {
+      "id": 15,
+      "pred": 113.3578,
+      "gold": 113.35,
+      "in_T": false,
+      "correct": true,
+      "T_size": 683,
+      "items_count": 12,
+      "tau": 11.63
+    },
+    {
+      "id": 16,
+      "pred": 63.9063,
+      "gold": 63.92,
+      "in_T": false,
+      "correct": true,
+      "T_size": 139,
+      "items_count": 9,
+      "tau": 3.31
+    },
+    {
+      "id": 17,
+      "pred": 5.705,
+      "gold": 5.58,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.3
+    },
+    {
+      "id": 18,
+      "pred": 33.0,
+      "gold": 33.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 19,
+      "pred": 6.4,
+      "gold": 6.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 1.07
+    },
+    {
+      "id": 20,
+      "pred": 26.09,
+      "gold": 26.09,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 21,
+      "pred": 25.61,
+      "gold": 25.61,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 1.65
+    },
+    {
+      "id": 22,
+      "pred": null,
+      "gold": 2.24,
+      "in_T": false,
+      "correct": false,
+      "T_size": 2,
+      "items_count": 2,
+      "tau": 26.0
+    },
+    {
+      "id": 23,
+      "pred": 20.9,
+      "gold": 20.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 61,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 24,
+      "pred": 86.26,
+      "gold": 86.26,
+      "in_T": true,
+      "correct": true,
+      "T_size": 141,
+      "items_count": 10,
+      "tau": 6.76
+    },
+    {
+      "id": 25,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1743,
+      "items_count": 20,
+      "tau": 0.47
+    },
+    {
+      "id": 26,
+      "pred": 105.42,
+      "gold": 105.42,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.42
+    },
+    {
+      "id": 27,
+      "pred": 7.9,
+      "gold": 7.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 28,
+      "pred": 66.1866,
+      "gold": 66.18,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 4.21
+    },
+    {
+      "id": 29,
+      "pred": 118.05,
+      "gold": 118.05,
+      "in_T": false,
+      "correct": true,
+      "T_size": 47,
+      "items_count": 6,
+      "tau": 7.72
+    },
+    {
+      "id": 30,
+      "pred": 26.77,
+      "gold": 26.77,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 2.32
+    },
+    {
+      "id": 31,
+      "pred": 26.77,
+      "gold": 26.77,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 2.32
+    },
+    {
+      "id": 32,
+      "pred": 42.95,
+      "gold": 42.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 7,
+      "tau": 2.81
+    },
+    {
+      "id": 33,
+      "pred": 0.0,
+      "gold": 0.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 34,
+      "pred": 98.5089,
+      "gold": 98.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 8.9
+    },
+    {
+      "id": 35,
+      "pred": 48.3448,
+      "gold": 48.34,
+      "in_T": false,
+      "correct": true,
+      "T_size": 35,
+      "items_count": 6,
+      "tau": 2.44
+    },
+    {
+      "id": 36,
+      "pred": 134.999,
+      "gold": 134.999,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 12.273
+    },
+    {
+      "id": 37,
+      "pred": 67.31,
+      "gold": 67.31,
+      "in_T": false,
+      "correct": true,
+      "T_size": 35,
+      "items_count": 6,
+      "tau": 3.81
+    },
+    {
+      "id": 38,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 39,
+      "pred": 187.31,
+      "gold": 187.31,
+      "in_T": false,
+      "correct": true,
+      "T_size": 127,
+      "items_count": 7,
+      "tau": 15.47
+    },
+    {
+      "id": 40,
+      "pred": 4.274,
+      "gold": 4.7,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 41,
+      "pred": 0.0,
+      "gold": 0.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 42,
+      "pred": 193660.00129,
+      "gold": 193660.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 471,
+      "items_count": 12,
+      "tau": 17605.46
+    },
+    {
+      "id": 43,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 75,
+      "items_count": 7,
+      "tau": 11.8
+    },
+    {
+      "id": 44,
+      "pred": 90.009,
+      "gold": 90.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 124,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 45,
+      "pred": 2977.003572,
+      "gold": 3572.4,
+      "in_T": true,
+      "correct": false,
+      "T_size": 2353,
+      "items_count": 13,
+      "tau": 0.0
+    },
+    {
+      "id": 46,
+      "pred": 97.71,
+      "gold": 97.71,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 47,
+      "pred": 12.3612,
+      "gold": 12.36,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 0.81
+    },
+    {
+      "id": 48,
+      "pred": 26.5,
+      "gold": 26.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 43,
+      "items_count": 7,
+      "tau": 2.19
+    },
+    {
+      "id": 49,
+      "pred": 104.0,
+      "gold": 104.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 2.48
+    },
+    {
+      "id": 50,
+      "pred": 56.0856,
+      "gold": 56.08,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "items_count": 2,
+      "tau": 5.1
+    },
+    {
+      "id": 51,
+      "pred": 102.75102,
+      "gold": 102.75,
+      "in_T": false,
+      "correct": true,
+      "T_size": 233,
+      "items_count": 8,
+      "tau": 6.72
+    },
+    {
+      "id": 52,
+      "pred": 65.1965,
+      "gold": 65.19,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 53,
+      "pred": 5.99,
+      "gold": 5.99,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 54,
+      "pred": null,
+      "gold": 313.49,
+      "in_T": false,
+      "correct": false,
+      "T_size": 254,
+      "items_count": 11,
+      "tau": 23.49
+    },
+    {
+      "id": 55,
+      "pred": 32.0,
+      "gold": 32.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 56,
+      "pred": 50.005,
+      "gold": 50.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 57,
+      "pred": 18.9818,
+      "gold": 18.98,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 3,
+      "tau": 0.83
+    },
+    {
+      "id": 58,
+      "pred": 48.4,
+      "gold": 48.4,
+      "in_T": true,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 3.95
+    },
+    {
+      "id": 59,
+      "pred": 9.939,
+      "gold": 9.93,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.65
+    },
+    {
+      "id": 60,
+      "pred": 9.05,
+      "gold": 9.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.61
+    },
+    {
+      "id": 61,
+      "pred": 24.52,
+      "gold": 24.52,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1553,
+      "items_count": 14,
+      "tau": 1.11
+    },
+    {
+      "id": 62,
+      "pred": 12.0,
+      "gold": 12.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 63,
+      "pred": 45.85,
+      "gold": 45.85,
+      "in_T": true,
+      "correct": true,
+      "T_size": 57,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 64,
+      "pred": 3.81,
+      "gold": 3.81,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 65,
+      "pred": 9.25,
+      "gold": 9.25,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 80.0
+    },
+    {
+      "id": 66,
+      "pred": 5.29,
+      "gold": 5.29,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.4
+    },
+    {
+      "id": 67,
+      "pred": 85.9,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 57,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 68,
+      "pred": 1.251,
+      "gold": 1.25,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.11
+    },
+    {
+      "id": 69,
+      "pred": 10.75,
+      "gold": 11.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 95,
+      "items_count": 7,
+      "tau": 0.75
+    },
+    {
+      "id": 70,
+      "pred": 12.97,
+      "gold": 12.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.98
+    },
+    {
+      "id": 71,
+      "pred": 8.038,
+      "gold": 8.03,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.53
+    },
+    {
+      "id": 72,
+      "pred": 70.65,
+      "gold": 70.65,
+      "in_T": true,
+      "correct": true,
+      "T_size": 99,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 73,
+      "pred": 12.5112,
+      "gold": 12.51,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2027,
+      "items_count": 11,
+      "tau": 50.0
+    },
+    {
+      "id": 74,
+      "pred": 0.0,
+      "gold": 0.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 75,
+      "pred": 40.41,
+      "gold": 40.41,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 2.41
+    },
+    {
+      "id": 76,
+      "pred": 17.702,
+      "gold": 17.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 77,
+      "pred": 18.94,
+      "gold": 18.94,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 78,
+      "pred": 169.0,
+      "gold": 169.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 79,
+      "pred": 14.7,
+      "gold": 14.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 12,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 80,
+      "pred": 53.7853,
+      "gold": 53.78,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 8.59
+    },
+    {
+      "id": 81,
+      "pred": 1.07,
+      "gold": 1.07,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.08
+    },
+    {
+      "id": 82,
+      "pred": 84.1184,
+      "gold": 84.11,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 6.65
+    },
+    {
+      "id": 83,
+      "pred": 10.001,
+      "gold": 10.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 84,
+      "pred": 52.2762,
+      "gold": 62.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 9.93
+    },
+    {
+      "id": 85,
+      "pred": 44.0,
+      "gold": 44.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 86,
+      "pred": 5.005,
+      "gold": 5.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.28
+    },
+    {
+      "id": 87,
+      "pred": 88.19,
+      "gold": 88.19,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4572,
+      "items_count": 14,
+      "tau": 1.73
+    },
+    {
+      "id": 88,
+      "pred": 16.52,
+      "gold": 16.52,
+      "in_T": true,
+      "correct": true,
+      "T_size": 68,
+      "items_count": 11,
+      "tau": 0.0
+    },
+    {
+      "id": 89,
+      "pred": 305.0,
+      "gold": 305.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 228,
+      "items_count": 11,
+      "tau": 14.53
+    },
+    {
+      "id": 90,
+      "pred": 500.0,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 91,
+      "pred": 937.43937,
+      "gold": 937.43,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 74.44
+    },
+    {
+      "id": 92,
+      "pred": 30.473,
+      "gold": 30.473,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 2.223
+    },
+    {
+      "id": 93,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 94,
+      "pred": 20.92,
+      "gold": 20.92,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 4,
+      "tau": 1.0
+    },
+    {
+      "id": 95,
+      "pred": 43.67,
+      "gold": 43.67,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 2.57
+    },
+    {
+      "id": 96,
+      "pred": 17.4517,
+      "gold": 17.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 1.44
+    },
+    {
+      "id": 97,
+      "pred": 33.0233,
+      "gold": 33.02,
+      "in_T": true,
+      "correct": true,
+      "T_size": 13,
+      "items_count": 5,
+      "tau": 3.07
+    },
+    {
+      "id": 98,
+      "pred": 9.96,
+      "gold": 2.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 99,
+      "pred": 6.866,
+      "gold": 6.86,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.49
+    },
+    {
+      "id": 100,
+      "pred": 29.5,
+      "gold": 29.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 6,
+      "tau": 0.12
+    },
+    {
+      "id": 101,
+      "pred": 30.803,
+      "gold": 30.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 9,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 102,
+      "pred": 55.8055,
+      "gold": 55.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 3.24
+    },
+    {
+      "id": 103,
+      "pred": 393.0,
+      "gold": 393.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 20.44
+    },
+    {
+      "id": 104,
+      "pred": 11.98,
+      "gold": 11.98,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 0.68
+    },
+    {
+      "id": 105,
+      "pred": 42.28,
+      "gold": 42.28,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 5,
+      "tau": 3.32
+    },
+    {
+      "id": 106,
+      "pred": 32.6,
+      "gold": 32.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 2.37
+    },
+    {
+      "id": 107,
+      "pred": 5.78,
+      "gold": 5.78,
+      "in_T": true,
+      "correct": true,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 0.11
+    },
+    {
+      "id": 108,
+      "pred": 2.2,
+      "gold": 2.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.14
+    },
+    {
+      "id": 109,
+      "pred": 29.2129,
+      "gold": 29.21,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 2.23
+    },
+    {
+      "id": 110,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "items_count": 5,
+      "tau": 3.85
+    },
+    {
+      "id": 111,
+      "pred": 90.5281,
+      "gold": 90.52,
+      "in_T": true,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 9.0
+    },
+    {
+      "id": 112,
+      "pred": 136.5,
+      "gold": 136.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 2493,
+      "items_count": 20,
+      "tau": 15.0
+    },
+    {
+      "id": 113,
+      "pred": 136.95,
+      "gold": 136.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2493,
+      "items_count": 20,
+      "tau": 22.82
+    },
+    {
+      "id": 114,
+      "pred": 33.0,
+      "gold": 33.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 1.57
+    },
+    {
+      "id": 115,
+      "pred": 96.86,
+      "gold": 96.86,
+      "in_T": true,
+      "correct": true,
+      "T_size": 47,
+      "items_count": 6,
+      "tau": 8.81
+    },
+    {
+      "id": 116,
+      "pred": 65.36,
+      "gold": 65.36,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 2.61
+    },
+    {
+      "id": 117,
+      "pred": 672.60672,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 102.6
+    },
+    {
+      "id": 118,
+      "pred": 47.31,
+      "gold": 47.31,
+      "in_T": true,
+      "correct": true,
+      "T_size": 59,
+      "items_count": 6,
+      "tau": 3.61
+    },
+    {
+      "id": 119,
+      "pred": 19.3819,
+      "gold": 19.38,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 6,
+      "tau": 1.39
+    },
+    {
+      "id": 120,
+      "pred": 39.5039,
+      "gold": 39.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 3.59
+    },
+    {
+      "id": 121,
+      "pred": 4.24,
+      "gold": 4.24,
+      "in_T": false,
+      "correct": true,
+      "T_size": 8,
+      "items_count": 4,
+      "tau": 24.0
+    },
+    {
+      "id": 122,
+      "pred": 327.96,
+      "gold": 327.96,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 45.24
+    },
+    {
+      "id": 123,
+      "pred": 98.42,
+      "gold": 98.42,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 124,
+      "pred": 29.175,
+      "gold": 19.95,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 1.81
+    },
+    {
+      "id": 125,
+      "pred": 95.35,
+      "gold": 95.35,
+      "in_T": true,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 2.85
+    },
+    {
+      "id": 126,
+      "pred": 42.95,
+      "gold": 42.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 1.95
+    },
+    {
+      "id": 127,
+      "pred": 12.35,
+      "gold": 12.35,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 128,
+      "pred": 125.942,
+      "gold": 125.94,
+      "in_T": false,
+      "correct": true,
+      "T_size": 39,
+      "items_count": 6,
+      "tau": 8.24
+    },
+    {
+      "id": 129,
+      "pred": 0.0,
+      "gold": 0.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 130,
+      "pred": 22.2,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 131,
+      "pred": 58.95,
+      "gold": 58.95,
+      "in_T": true,
+      "correct": true,
+      "T_size": 55,
+      "items_count": 6,
+      "tau": 3.52
+    },
+    {
+      "id": 132,
+      "pred": 0.2,
+      "gold": 0.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 133,
+      "pred": 53.2,
+      "gold": 53.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 134,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 280,
+      "items_count": 9,
+      "tau": 0.0
+    },
+    {
+      "id": 135,
+      "pred": 200.0,
+      "gold": 200.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 136,
+      "pred": 114.95,
+      "gold": 114.95,
+      "in_T": true,
+      "correct": true,
+      "T_size": 153,
+      "items_count": 10,
+      "tau": 10.45
+    },
+    {
+      "id": 137,
+      "pred": 114.95,
+      "gold": 114.95,
+      "in_T": true,
+      "correct": true,
+      "T_size": 153,
+      "items_count": 10,
+      "tau": 10.45
+    },
+    {
+      "id": 138,
+      "pred": 96.7,
+      "gold": 96.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 383,
+      "items_count": 9,
+      "tau": 4.93
+    },
+    {
+      "id": 139,
+      "pred": 3.563,
+      "gold": 3.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 6,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 140,
+      "pred": 4.26,
+      "gold": 28.35,
+      "in_T": false,
+      "correct": false,
+      "T_size": 89,
+      "items_count": 7,
+      "tau": 0.0
+    },
+    {
+      "id": 141,
+      "pred": 30.94,
+      "gold": 30.94,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 2.49
+    },
+    {
+      "id": 142,
+      "pred": 54.7354,
+      "gold": 54.73,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 4.28
+    },
+    {
+      "id": 143,
+      "pred": 164.89,
+      "gold": 164.89,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 13.89
+    },
+    {
+      "id": 144,
+      "pred": null,
+      "gold": 278.88,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13167,
+      "items_count": 20,
+      "tau": 0.0
+    },
+    {
+      "id": 145,
+      "pred": null,
+      "gold": 278.88,
+      "in_T": false,
+      "correct": false,
+      "T_size": 13167,
+      "items_count": 20,
+      "tau": 0.0
+    },
+    {
+      "id": 146,
+      "pred": 99.3399,
+      "gold": 99.33,
+      "in_T": true,
+      "correct": true,
+      "T_size": 6275,
+      "items_count": 16,
+      "tau": 15.79
+    },
+    {
+      "id": 147,
+      "pred": 28.02,
+      "gold": 28.02,
+      "in_T": true,
+      "correct": true,
+      "T_size": 808,
+      "items_count": 11,
+      "tau": 0.0
+    },
+    {
+      "id": 148,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 149,
+      "pred": 137.0,
+      "gold": 137.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 150,
+      "pred": 20000.0,
+      "gold": 20000.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 82,
+      "items_count": 8,
+      "tau": 2301.0
+    },
+    {
+      "id": 151,
+      "pred": -3.29,
+      "gold": -3.29,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 152,
+      "pred": 23.0,
+      "gold": 23.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 1.87
+    },
+    {
+      "id": 153,
+      "pred": 43.8043,
+      "gold": 43.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 3.98
+    },
+    {
+      "id": 154,
+      "pred": 6.65,
+      "gold": 6.65,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.56
+    },
+    {
+      "id": 155,
+      "pred": 6.65,
+      "gold": 6.65,
+      "in_T": true,
+      "correct": true,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 0.56
+    },
+    {
+      "id": 156,
+      "pred": 19.2,
+      "gold": 19.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1758,
+      "items_count": 17,
+      "tau": 0.12
+    },
+    {
+      "id": 157,
+      "pred": 159.20159,
+      "gold": 159.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 158,
+      "pred": 119.88,
+      "gold": 119.88,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 19.98
+    },
+    {
+      "id": 159,
+      "pred": 990.0,
+      "gold": 990.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 90.0
+    },
+    {
+      "id": 160,
+      "pred": 1.455,
+      "gold": 1.455,
+      "in_T": false,
+      "correct": true,
+      "T_size": 90,
+      "items_count": 7,
+      "tau": 95.2
+    },
+    {
+      "id": 161,
+      "pred": 2.0,
+      "gold": 2.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 162,
+      "pred": 1108.0,
+      "gold": 1108.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 51,
+      "items_count": 7,
+      "tau": 44.35
+    },
+    {
+      "id": 163,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 164,
+      "pred": 1.05,
+      "gold": 1.05,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 165,
+      "pred": 34.85,
+      "gold": 34.85,
+      "in_T": true,
+      "correct": true,
+      "T_size": 26,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 166,
+      "pred": 1360.0,
+      "gold": 1360.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 167,
+      "pred": 44.5044,
+      "gold": 44.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 5.63
+    },
+    {
+      "id": 168,
+      "pred": 3.05,
+      "gold": 3.05,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.35
+    },
+    {
+      "id": 169,
+      "pred": 60.0,
+      "gold": 60.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 170,
+      "pred": 0.0,
+      "gold": 0.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 171,
+      "pred": null,
+      "gold": 12.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1275,
+      "items_count": 12,
+      "tau": 0.0
+    },
+    {
+      "id": 172,
+      "pred": 224.4,
+      "gold": 224.4,
+      "in_T": true,
+      "correct": true,
+      "T_size": 81,
+      "items_count": 7,
+      "tau": 20.4
+    },
+    {
+      "id": 173,
+      "pred": 109.98109,
+      "gold": 109.98,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 10.0
+    },
+    {
+      "id": 174,
+      "pred": 5.398,
+      "gold": 5.398,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 175,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 176,
+      "pred": 19.9519,
+      "gold": 19.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 177,
+      "pred": 2545.0,
+      "gold": 2545.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 178,
+      "pred": 6325.0,
+      "gold": 6325.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 825.0
+    },
+    {
+      "id": 179,
+      "pred": 354.0,
+      "gold": 354.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 27.0
+    },
+    {
+      "id": 180,
+      "pred": 290.0,
+      "gold": 290.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 35,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 181,
+      "pred": 115.0,
+      "gold": 115.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 161,
+      "items_count": 9,
+      "tau": 1.25
+    },
+    {
+      "id": 182,
+      "pred": 18.9018,
+      "gold": 18.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 183,
+      "pred": 20.4,
+      "gold": 20.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 3.26
+    },
+    {
+      "id": 184,
+      "pred": 30.21,
+      "gold": 30.21,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.71
+    },
+    {
+      "id": 185,
+      "pred": 40.004,
+      "gold": 40.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 186,
+      "pred": 76.08,
+      "gold": 76.08,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 187,
+      "pred": 37.98,
+      "gold": 37.98,
+      "in_T": true,
+      "correct": true,
+      "T_size": 2893,
+      "items_count": 16,
+      "tau": 0.0
+    },
+    {
+      "id": 188,
+      "pred": 297.00297,
+      "gold": 297.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 22,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 189,
+      "pred": 297.0,
+      "gold": 297.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 22,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 190,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 6,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 191,
+      "pred": 75.4,
+      "gold": 75.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 127,
+      "items_count": 7,
+      "tau": 6.85
+    },
+    {
+      "id": 192,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 193,
+      "pred": 0.11,
+      "gold": 0.11,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.01
+    },
+    {
+      "id": 194,
+      "pred": 2.07,
+      "gold": 2.07,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "items_count": 2,
+      "tau": 9.0
+    },
+    {
+      "id": 195,
+      "pred": 20.41,
+      "gold": 20.41,
+      "in_T": true,
+      "correct": true,
+      "T_size": 139,
+      "items_count": 8,
+      "tau": 4.53
+    },
+    {
+      "id": 196,
+      "pred": 82.0,
+      "gold": 82.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 143,
+      "items_count": 8,
+      "tau": 82.0
+    },
+    {
+      "id": 197,
+      "pred": 9.739,
+      "gold": 9.73,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 74.0
+    },
+    {
+      "id": 198,
+      "pred": 124.90124,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 11.35
+    },
+    {
+      "id": 199,
+      "pred": 495.0,
+      "gold": 495.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 207,
+      "items_count": 9,
+      "tau": 0.0
+    },
+    {
+      "id": 200,
+      "pred": 42.0,
+      "gold": 42.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 201,
+      "pred": 55.67,
+      "gold": 55.67,
+      "in_T": false,
+      "correct": true,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 3.64
+    },
+    {
+      "id": 202,
+      "pred": 20.0,
+      "gold": 20.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 203,
+      "pred": 17.76,
+      "gold": 17.76,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.16
+    },
+    {
+      "id": 204,
+      "pred": 100.0,
+      "gold": 63.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "items_count": 3,
+      "tau": 10.5
+    },
+    {
+      "id": 205,
+      "pred": 61.5661,
+      "gold": 61.56,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 4.56
+    },
+    {
+      "id": 206,
+      "pred": 61.5661,
+      "gold": 61.56,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 4.56
+    },
+    {
+      "id": 207,
+      "pred": 61.5661,
+      "gold": 61.56,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 4.56
+    },
+    {
+      "id": 208,
+      "pred": 61.56,
+      "gold": 61.56,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 4.56
+    },
+    {
+      "id": 209,
+      "pred": 65.66,
+      "gold": 65.66,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 4.3
+    },
+    {
+      "id": 210,
+      "pred": 11.9511,
+      "gold": 11.95,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 4,
+      "tau": 0.87
+    },
+    {
+      "id": 211,
+      "pred": 9.529,
+      "gold": 9.52,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.77
+    },
+    {
+      "id": 212,
+      "pred": 45.0045,
+      "gold": 45.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 42,
+      "items_count": 9,
+      "tau": 0.0
+    },
+    {
+      "id": 213,
+      "pred": 7.317,
+      "gold": 7.31,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 56.0
+    },
+    {
+      "id": 214,
+      "pred": null,
+      "gold": 288.4,
+      "in_T": false,
+      "correct": false,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 35.42
+    },
+    {
+      "id": 215,
+      "pred": 30.01,
+      "gold": 30.01,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 2.03
+    },
+    {
+      "id": 216,
+      "pred": 39.2839,
+      "gold": 39.28,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 2.57
+    },
+    {
+      "id": 217,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 1.48
+    },
+    {
+      "id": 218,
+      "pred": 85.0085,
+      "gold": 85.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 219,
+      "pred": 166.55,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 116,
+      "items_count": 9,
+      "tau": 0.0
+    },
+    {
+      "id": 220,
+      "pred": 5.6445,
+      "gold": 5.64,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.65
+    },
+    {
+      "id": 221,
+      "pred": 282.78,
+      "gold": 282.78,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 17.67
+    },
+    {
+      "id": 222,
+      "pred": 4.404,
+      "gold": 4.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 35.0
+    },
+    {
+      "id": 223,
+      "pred": 20.42,
+      "gold": 20.42,
+      "in_T": false,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 224,
+      "pred": 5.23,
+      "gold": 5.23,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.44
+    },
+    {
+      "id": 225,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 15.38
+    },
+    {
+      "id": 226,
+      "pred": 41.0041,
+      "gold": 41.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 103,
+      "items_count": 7,
+      "tau": 2.42
+    },
+    {
+      "id": 227,
+      "pred": null,
+      "gold": 9.22,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.74
+    },
+    {
+      "id": 228,
+      "pred": 180.0,
+      "gold": 180.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 94,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 229,
+      "pred": 25.71,
+      "gold": 25.71,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 6,
+      "tau": 1.85
+    },
+    {
+      "id": 230,
+      "pred": 14.1514,
+      "gold": 14.15,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 0.7
+    },
+    {
+      "id": 231,
+      "pred": 15.55,
+      "gold": 15.55,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.3
+    },
+    {
+      "id": 232,
+      "pred": 77.4377,
+      "gold": 77.43,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 7.04
+    },
+    {
+      "id": 233,
+      "pred": 21.95,
+      "gold": 21.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.24
+    },
+    {
+      "id": 234,
+      "pred": 27.2,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 55,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 235,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 14,
+      "items_count": 4,
+      "tau": 3.09
+    },
+    {
+      "id": 236,
+      "pred": 4.86,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 27,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 237,
+      "pred": 9.009,
+      "gold": 9.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 238,
+      "pred": null,
+      "gold": 5.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 239,
+      "pred": 88.957,
+      "gold": 70.62,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 4.62
+    },
+    {
+      "id": 240,
+      "pred": 129.15,
+      "gold": 129.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 5,
+      "tau": 5.25
+    },
+    {
+      "id": 241,
+      "pred": 24.5024,
+      "gold": 24.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 242,
+      "pred": null,
+      "gold": 661.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 132.2
+    },
+    {
+      "id": 243,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.78
+    },
+    {
+      "id": 244,
+      "pred": 83.0,
+      "gold": 83.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 37,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 245,
+      "pred": 261.00313,
+      "gold": 313.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 7,
+      "tau": 0.0
+    },
+    {
+      "id": 246,
+      "pred": 9.16,
+      "gold": 9.16,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.6
+    },
+    {
+      "id": 247,
+      "pred": 21.0021,
+      "gold": 21.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 2.74
+    },
+    {
+      "id": 248,
+      "pred": 0.0,
+      "gold": 0.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 249,
+      "pred": 200.0,
+      "gold": 200.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 250,
+      "pred": 154.4,
+      "gold": 154.4,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1180,
+      "items_count": 14,
+      "tau": 24.65
+    },
+    {
+      "id": 251,
+      "pred": 28.0,
+      "gold": 28.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 252,
+      "pred": 19.77,
+      "gold": 19.77,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.29
+    },
+    {
+      "id": 253,
+      "pred": 245.00245,
+      "gold": 245.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 24,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 254,
+      "pred": 59.0,
+      "gold": 59.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 255,
+      "pred": 27.02,
+      "gold": 27.02,
+      "in_T": true,
+      "correct": true,
+      "T_size": 43,
+      "items_count": 6,
+      "tau": 1.77
+    },
+    {
+      "id": 256,
+      "pred": 3.703,
+      "gold": 3.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 257,
+      "pred": 37.0137,
+      "gold": 37.01,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 258,
+      "pred": 14.0,
+      "gold": 14.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 259,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 63,
+      "items_count": 6,
+      "tau": 6.67
+    },
+    {
+      "id": 260,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 42,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 261,
+      "pred": 47.3447,
+      "gold": 47.34,
+      "in_T": true,
+      "correct": true,
+      "T_size": 181,
+      "items_count": 8,
+      "tau": 3.61
+    },
+    {
+      "id": 262,
+      "pred": 27.3,
+      "gold": 27.3,
+      "in_T": true,
+      "correct": true,
+      "T_size": 63,
+      "items_count": 7,
+      "tau": 1.3
+    },
+    {
+      "id": 263,
+      "pred": 197.70197,
+      "gold": 197.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 2963,
+      "items_count": 14,
+      "tau": 0.0
+    },
+    {
+      "id": 264,
+      "pred": 70.977,
+      "gold": 70.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 116,
+      "items_count": 8,
+      "tau": 2.97
+    },
+    {
+      "id": 265,
+      "pred": 72.95,
+      "gold": 72.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 57,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 266,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 267,
+      "pred": 317.14,
+      "gold": 317.14,
+      "in_T": true,
+      "correct": true,
+      "T_size": 26,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 268,
+      "pred": 29.2529,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 8,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 269,
+      "pred": 37.0137,
+      "gold": 37.01,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 270,
+      "pred": 318.0,
+      "gold": 318.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 39.05
+    },
+    {
+      "id": 271,
+      "pred": 112.73,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 106,
+      "items_count": 8,
+      "tau": 11.27
+    },
+    {
+      "id": 272,
+      "pred": null,
+      "gold": 70.32,
+      "in_T": false,
+      "correct": false,
+      "T_size": 5025,
+      "items_count": 20,
+      "tau": 6.1
+    },
+    {
+      "id": 273,
+      "pred": 2.68,
+      "gold": 2.68,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 274,
+      "pred": 10.805,
+      "gold": 10.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.71
+    },
+    {
+      "id": 275,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 8,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 276,
+      "pred": 14.8114,
+      "gold": 14.81,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 277,
+      "pred": 99.8299,
+      "gold": 99.82,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7640,
+      "items_count": 20,
+      "tau": 1.72
+    },
+    {
+      "id": 278,
+      "pred": 42.19,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 336,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 279,
+      "pred": 22.3522,
+      "gold": 22.35,
+      "in_T": true,
+      "correct": true,
+      "T_size": 957,
+      "items_count": 13,
+      "tau": 0.0
+    },
+    {
+      "id": 280,
+      "pred": 22.3522,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 957,
+      "items_count": 13,
+      "tau": 0.0
+    },
+    {
+      "id": 281,
+      "pred": 9.35,
+      "gold": 9.35,
+      "in_T": false,
+      "correct": true,
+      "T_size": 309,
+      "items_count": 9,
+      "tau": 78.0
+    },
+    {
+      "id": 282,
+      "pred": 172.47,
+      "gold": 172.47,
+      "in_T": true,
+      "correct": true,
+      "T_size": 363,
+      "items_count": 13,
+      "tau": 12.92
+    },
+    {
+      "id": 283,
+      "pred": 285.8,
+      "gold": 285.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 23.3
+    },
+    {
+      "id": 284,
+      "pred": 285.8,
+      "gold": 285.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 23.3
+    },
+    {
+      "id": 285,
+      "pred": 285.8,
+      "gold": 285.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 23.3
+    },
+    {
+      "id": 286,
+      "pred": 347.6,
+      "gold": 347.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 39,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 287,
+      "pred": 6.66,
+      "gold": 6.66,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.41
+    },
+    {
+      "id": 288,
+      "pred": 7.16,
+      "gold": 7.16,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.61
+    },
+    {
+      "id": 289,
+      "pred": 6.23,
+      "gold": 0.0,
+      "in_T": true,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 290,
+      "pred": 30.98,
+      "gold": 30.98,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 2.53
+    },
+    {
+      "id": 291,
+      "pred": 30.98,
+      "gold": 30.98,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 2.53
+    },
+    {
+      "id": 292,
+      "pred": 11.93,
+      "gold": 11.93,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 5,
+      "tau": 0.73
+    },
+    {
+      "id": 293,
+      "pred": 49.70192,
+      "gold": 49.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 47,
+      "items_count": 7,
+      "tau": 3.79
+    },
+    {
+      "id": 294,
+      "pred": 108.85,
+      "gold": 108.85,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 3,
+      "tau": 6.88
+    },
+    {
+      "id": 295,
+      "pred": 16.1,
+      "gold": 16.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.33
+    },
+    {
+      "id": 296,
+      "pred": 117.0,
+      "gold": 117.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 297,
+      "pred": 152.00152,
+      "gold": 152.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 44,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 298,
+      "pred": null,
+      "gold": 11.98,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 0.68
+    },
+    {
+      "id": 299,
+      "pred": 42.0,
+      "gold": 42.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2,
+      "items_count": 2,
+      "tau": 2.38
+    },
+    {
+      "id": 300,
+      "pred": 64.279,
+      "gold": 64.279,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4031,
+      "items_count": 12,
+      "tau": 9.315
+    },
+    {
+      "id": 301,
+      "pred": 110.8111,
+      "gold": 110.81,
+      "in_T": false,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 10.86
+    },
+    {
+      "id": 302,
+      "pred": 27.9927,
+      "gold": 27.99,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 303,
+      "pred": 2.19,
+      "gold": 2.19,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 304,
+      "pred": 5.55,
+      "gold": 5.55,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 305,
+      "pred": 19.5,
+      "gold": 19.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 2.24
+    },
+    {
+      "id": 306,
+      "pred": 46.0046,
+      "gold": 46.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 307,
+      "pred": 28.6528,
+      "gold": 28.65,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 2.49
+    },
+    {
+      "id": 308,
+      "pred": 14.87,
+      "gold": 14.87,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 309,
+      "pred": 10.791,
+      "gold": 10.79,
+      "in_T": false,
+      "correct": true,
+      "T_size": 408,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 310,
+      "pred": 50.25,
+      "gold": 50.25,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 3.29
+    },
+    {
+      "id": 311,
+      "pred": 213.05,
+      "gold": 213.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 3,
+      "tau": 12.05
+    },
+    {
+      "id": 312,
+      "pred": 122.10122,
+      "gold": 122.1,
+      "in_T": false,
+      "correct": true,
+      "T_size": 615,
+      "items_count": 16,
+      "tau": 15.28
+    },
+    {
+      "id": 313,
+      "pred": 19.7221,
+      "gold": 21.1,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 1.38
+    },
+    {
+      "id": 314,
+      "pred": 49.2549,
+      "gold": 49.25,
+      "in_T": false,
+      "correct": true,
+      "T_size": 299,
+      "items_count": 9,
+      "tau": 4.48
+    },
+    {
+      "id": 315,
+      "pred": 30.45,
+      "gold": 30.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 161,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 316,
+      "pred": 30.45,
+      "gold": 30.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 161,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 317,
+      "pred": 48.0,
+      "gold": 48.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 318,
+      "pred": 59.8,
+      "gold": 59.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 11,
+      "tau": 0.0
+    },
+    {
+      "id": 319,
+      "pred": 19.2019,
+      "gold": 19.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.42
+    },
+    {
+      "id": 320,
+      "pred": 76.5976,
+      "gold": 76.59,
+      "in_T": true,
+      "correct": true,
+      "T_size": 477,
+      "items_count": 11,
+      "tau": 0.0
+    },
+    {
+      "id": 321,
+      "pred": 11.65,
+      "gold": 11.65,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 5,
+      "tau": 0.9
+    },
+    {
+      "id": 322,
+      "pred": 139.05139,
+      "gold": 139.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 84,
+      "items_count": 7,
+      "tau": 11.05
+    },
+    {
+      "id": 323,
+      "pred": 169.95169,
+      "gold": 169.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 324,
+      "pred": 38.45,
+      "gold": 38.45,
+      "in_T": false,
+      "correct": true,
+      "T_size": 175,
+      "items_count": 8,
+      "tau": 3.5
+    },
+    {
+      "id": 325,
+      "pred": 44.5044,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 326,
+      "pred": 108.84108,
+      "gold": 108.84,
+      "in_T": true,
+      "correct": true,
+      "T_size": 315,
+      "items_count": 10,
+      "tau": 7.59
+    },
+    {
+      "id": 327,
+      "pred": 1.199,
+      "gold": 1.199,
+      "in_T": false,
+      "correct": true,
+      "T_size": 43,
+      "items_count": 7,
+      "tau": 78.44
+    },
+    {
+      "id": 328,
+      "pred": 85.22,
+      "gold": 85.22,
+      "in_T": true,
+      "correct": true,
+      "T_size": 518,
+      "items_count": 11,
+      "tau": 4.82
+    },
+    {
+      "id": 329,
+      "pred": null,
+      "gold": 971.0,
+      "in_T": false,
+      "correct": false,
+      "T_size": 59,
+      "items_count": 9,
+      "tau": 213.36
+    },
+    {
+      "id": 330,
+      "pred": 118.0,
+      "gold": 118.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 13.13
+    },
+    {
+      "id": 331,
+      "pred": 64.1364,
+      "gold": 64.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 3.63
+    },
+    {
+      "id": 332,
+      "pred": 16.63,
+      "gold": null,
+      "in_T": true,
+      "correct": false,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 1.27
+    },
+    {
+      "id": 333,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 334,
+      "pred": 811.60811,
+      "gold": 811.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2697,
+      "items_count": 14,
+      "tau": 65.19
+    },
+    {
+      "id": 335,
+      "pred": 24.9024,
+      "gold": 24.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 249,
+      "items_count": 8,
+      "tau": 1.41
+    },
+    {
+      "id": 336,
+      "pred": 13.4,
+      "gold": 13.4,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 337,
+      "pred": 248.6,
+      "gold": 248.6,
+      "in_T": true,
+      "correct": true,
+      "T_size": 96,
+      "items_count": 9,
+      "tau": 28.6
+    },
+    {
+      "id": 338,
+      "pred": 32.6,
+      "gold": 32.6,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.85
+    },
+    {
+      "id": 339,
+      "pred": 60.5,
+      "gold": 60.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 340,
+      "pred": 339.0,
+      "gold": 339.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 6.28
+    },
+    {
+      "id": 341,
+      "pred": 14.2014,
+      "gold": 14.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 0.93
+    },
+    {
+      "id": 342,
+      "pred": 12312.0,
+      "gold": 12312.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 127,
+      "items_count": 7,
+      "tau": 87.0
+    },
+    {
+      "id": 343,
+      "pred": 46.8,
+      "gold": 46.8,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 1.8
+    },
+    {
+      "id": 344,
+      "pred": 44.5044,
+      "gold": 44.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 71,
+      "items_count": 7,
+      "tau": 2.91
+    },
+    {
+      "id": 345,
+      "pred": 596.99,
+      "gold": 596.99,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 346,
+      "pred": 12.5012,
+      "gold": 12.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 347,
+      "pred": 10.701,
+      "gold": 10.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.7
+    },
+    {
+      "id": 348,
+      "pred": 124.0,
+      "gold": 124.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 349,
+      "pred": 17.99,
+      "gold": 17.99,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 2.72
+    },
+    {
+      "id": 350,
+      "pred": 8.51,
+      "gold": 8.51,
+      "in_T": true,
+      "correct": true,
+      "T_size": 26,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 351,
+      "pred": 25.67,
+      "gold": 25.67,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.9
+    },
+    {
+      "id": 352,
+      "pred": 29.2129,
+      "gold": 29.21,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 2.23
+    },
+    {
+      "id": 353,
+      "pred": 100.001,
+      "gold": 100.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 354,
+      "pred": 1.99,
+      "gold": 1.99,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 355,
+      "pred": 77.97,
+      "gold": 77.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 356,
+      "pred": 13.03,
+      "gold": 13.03,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.05
+    },
+    {
+      "id": 357,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.9
+    },
+    {
+      "id": 358,
+      "pred": 111.29111,
+      "gold": 111.29,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 8.33
+    },
+    {
+      "id": 359,
+      "pred": 77.97,
+      "gold": 77.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 360,
+      "pred": 95.63,
+      "gold": 95.63,
+      "in_T": false,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 7.69
+    },
+    {
+      "id": 361,
+      "pred": 35.18,
+      "gold": 35.18,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 2.83
+    },
+    {
+      "id": 362,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 246,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 363,
+      "pred": 26.5,
+      "gold": 26.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 8,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 364,
+      "pred": 2.67,
+      "gold": 2.67,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.23
+    },
+    {
+      "id": 365,
+      "pred": 7.02,
+      "gold": 7.02,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.44
+    },
+    {
+      "id": 366,
+      "pred": 5.94,
+      "gold": 5.94,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.39
+    },
+    {
+      "id": 367,
+      "pred": 52.97,
+      "gold": 52.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 45,
+      "items_count": 7,
+      "tau": 3.97
+    },
+    {
+      "id": 368,
+      "pred": 52.97,
+      "gold": 52.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 45,
+      "items_count": 7,
+      "tau": 3.97
+    },
+    {
+      "id": 369,
+      "pred": 12.00148,
+      "gold": 12.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 370,
+      "pred": 5.05,
+      "gold": 5.74,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 371,
+      "pred": 10.0,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 372,
+      "pred": 2.8,
+      "gold": 2.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 183,
+      "items_count": 8,
+      "tau": 66.66
+    },
+    {
+      "id": 373,
+      "pred": 89.42,
+      "gold": 89.42,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 5.46
+    },
+    {
+      "id": 374,
+      "pred": 1039.00885,
+      "gold": 1039.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 83,
+      "items_count": 9,
+      "tau": 43.37
+    },
+    {
+      "id": 375,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 243,
+      "items_count": 9,
+      "tau": 25.49
+    },
+    {
+      "id": 376,
+      "pred": 17.88,
+      "gold": 17.88,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 1.26
+    },
+    {
+      "id": 377,
+      "pred": 21.0,
+      "gold": 10.85,
+      "in_T": false,
+      "correct": false,
+      "T_size": 14,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 378,
+      "pred": null,
+      "gold": 1.4,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 379,
+      "pred": 117.0,
+      "gold": 117.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 380,
+      "pred": 63.9,
+      "gold": 63.9,
+      "in_T": true,
+      "correct": true,
+      "T_size": 242,
+      "items_count": 9,
+      "tau": 7.1
+    },
+    {
+      "id": 381,
+      "pred": 53.8253,
+      "gold": 53.82,
+      "in_T": false,
+      "correct": true,
+      "T_size": 95,
+      "items_count": 7,
+      "tau": 2.14
+    },
+    {
+      "id": 382,
+      "pred": 0.25,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.13
+    },
+    {
+      "id": 383,
+      "pred": 35.5035,
+      "gold": 35.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 24,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 384,
+      "pred": 11.42,
+      "gold": 11.42,
+      "in_T": false,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.87
+    },
+    {
+      "id": 385,
+      "pred": 10.301,
+      "gold": 10.3,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.6
+    },
+    {
+      "id": 386,
+      "pred": null,
+      "gold": 11.25,
+      "in_T": false,
+      "correct": false,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.92
+    },
+    {
+      "id": 387,
+      "pred": 15.62,
+      "gold": 15.62,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 1.32
+    },
+    {
+      "id": 388,
+      "pred": 27.1,
+      "gold": 27.1,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 3,
+      "tau": 2.2
+    },
+    {
+      "id": 389,
+      "pred": 719.20318,
+      "gold": 719.2,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 390,
+      "pred": 400.0,
+      "gold": 409.5,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 391,
+      "pred": 17.9,
+      "gold": 17.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.62
+    },
+    {
+      "id": 392,
+      "pred": 13.5,
+      "gold": 13.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 5,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 393,
+      "pred": 97.74,
+      "gold": 97.74,
+      "in_T": true,
+      "correct": true,
+      "T_size": 59,
+      "items_count": 6,
+      "tau": 7.24
+    },
+    {
+      "id": 394,
+      "pred": 37.79,
+      "gold": 37.79,
+      "in_T": true,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 2.05
+    },
+    {
+      "id": 395,
+      "pred": 66.49,
+      "gold": 66.49,
+      "in_T": true,
+      "correct": true,
+      "T_size": 120,
+      "items_count": 7,
+      "tau": 0.0
+    },
+    {
+      "id": 396,
+      "pred": 170.78,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 178,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 397,
+      "pred": 374.23,
+      "gold": 374.23,
+      "in_T": true,
+      "correct": true,
+      "T_size": 245,
+      "items_count": 10,
+      "tau": 10.23
+    },
+    {
+      "id": 398,
+      "pred": 14.0014,
+      "gold": 14.0,
+      "in_T": true,
+      "correct": true,
+      "T_size": 42,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 399,
+      "pred": 23.4523,
+      "gold": 23.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 1.33
+    },
+    {
+      "id": 400,
+      "pred": 226.6025,
+      "gold": 226.6,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 18.6
+    },
+    {
+      "id": 401,
+      "pred": 35.6235,
+      "gold": 35.62,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 2.02
+    },
+    {
+      "id": 402,
+      "pred": 10.86,
+      "gold": 10.86,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.9
+    },
+    {
+      "id": 403,
+      "pred": 35.47,
+      "gold": 35.47,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2295,
+      "items_count": 14,
+      "tau": 2.74
+    },
+    {
+      "id": 404,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 42,
+      "items_count": 6,
+      "tau": 0.0
+    },
+    {
+      "id": 405,
+      "pred": 217.50217,
+      "gold": 217.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 17.5
+    },
+    {
+      "id": 406,
+      "pred": 20.0,
+      "gold": 20.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.31
+    },
+    {
+      "id": 407,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 408,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 409,
+      "pred": 37.71,
+      "gold": 37.71,
+      "in_T": true,
+      "correct": true,
+      "T_size": 75,
+      "items_count": 8,
+      "tau": 3.74
+    },
+    {
+      "id": 410,
+      "pred": 52.15,
+      "gold": 52.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 411,
+      "pred": 52.15,
+      "gold": 52.15,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 0,
+      "tau": 0.0
+    },
+    {
+      "id": 412,
+      "pred": 16.24,
+      "gold": 16.24,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 413,
+      "pred": 16.75,
+      "gold": 16.75,
+      "in_T": true,
+      "correct": true,
+      "T_size": 100,
+      "items_count": 10,
+      "tau": 0.0
+    },
+    {
+      "id": 414,
+      "pred": 31.8,
+      "gold": 31.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 160,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 415,
+      "pred": 197.285,
+      "gold": 197.285,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 17.935
+    },
+    {
+      "id": 416,
+      "pred": 50.005,
+      "gold": 50.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 1.0
+    },
+    {
+      "id": 417,
+      "pred": 10.041,
+      "gold": 10.04,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 7,
+      "tau": 0.66
+    },
+    {
+      "id": 418,
+      "pred": 3.13,
+      "gold": 3.13,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.26
+    },
+    {
+      "id": 419,
+      "pred": 4.86,
+      "gold": 4.86,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.36
+    },
+    {
+      "id": 420,
+      "pred": 356.0,
+      "gold": 356.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 16.95
+    },
+    {
+      "id": 421,
+      "pred": null,
+      "gold": 6.16,
+      "in_T": false,
+      "correct": false,
+      "T_size": 11,
+      "items_count": 5,
+      "tau": 0.51
+    },
+    {
+      "id": 422,
+      "pred": 68.6668,
+      "gold": 68.66,
+      "in_T": true,
+      "correct": true,
+      "T_size": 41,
+      "items_count": 9,
+      "tau": 5.16
+    },
+    {
+      "id": 423,
+      "pred": 2424.39,
+      "gold": 2424.39,
+      "in_T": false,
+      "correct": true,
+      "T_size": 383,
+      "items_count": 9,
+      "tau": 108.85
+    },
+    {
+      "id": 424,
+      "pred": 25.85,
+      "gold": 25.85,
+      "in_T": false,
+      "correct": true,
+      "T_size": 24,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 425,
+      "pred": 3.033,
+      "gold": 3.03,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 0.15
+    },
+    {
+      "id": 426,
+      "pred": 34.5,
+      "gold": 34.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 243,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 427,
+      "pred": 34.5,
+      "gold": 34.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 243,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 428,
+      "pred": 34.5,
+      "gold": 34.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 243,
+      "items_count": 8,
+      "tau": 0.0
+    },
+    {
+      "id": 429,
+      "pred": 34.5,
+      "gold": 34.5,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 430,
+      "pred": 44.85,
+      "gold": 44.85,
+      "in_T": true,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 431,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 41,
+      "items_count": 7,
+      "tau": 0.0
+    },
+    {
+      "id": 432,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 47,
+      "items_count": 6,
+      "tau": 6.6
+    },
+    {
+      "id": 433,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 26,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 434,
+      "pred": 34.13,
+      "gold": 34.13,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 2.23
+    },
+    {
+      "id": 435,
+      "pred": 3.033,
+      "gold": 3.03,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.25
+    },
+    {
+      "id": 436,
+      "pred": 59.97,
+      "gold": 59.97,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 4.49
+    },
+    {
+      "id": 437,
+      "pred": 5.45,
+      "gold": 5.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 7,
+      "tau": 0.2
+    },
+    {
+      "id": 438,
+      "pred": 5.45,
+      "gold": 5.45,
+      "in_T": true,
+      "correct": true,
+      "T_size": 19,
+      "items_count": 7,
+      "tau": 0.2
+    },
+    {
+      "id": 439,
+      "pred": 7.29,
+      "gold": 7.29,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 0.0
+    },
+    {
+      "id": 440,
+      "pred": 1.481,
+      "gold": 1.48,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 441,
+      "pred": 34.8,
+      "gold": 34.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 2978,
+      "items_count": 16,
+      "tau": 0.0
+    },
+    {
+      "id": 442,
+      "pred": 23.26,
+      "gold": 23.26,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 1.74
+    },
+    {
+      "id": 443,
+      "pred": 3.213,
+      "gold": 3.21,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 444,
+      "pred": 23.7223,
+      "gold": 23.72,
+      "in_T": true,
+      "correct": true,
+      "T_size": 41,
+      "items_count": 6,
+      "tau": 1.24
+    },
+    {
+      "id": 445,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 11,
+      "items_count": 5,
+      "tau": 0.0
+    },
+    {
+      "id": 446,
+      "pred": null,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 8,
+      "items_count": 4,
+      "tau": 0.0
+    },
+    {
+      "id": 447,
+      "pred": 42.99,
+      "gold": 42.99,
+      "in_T": false,
+      "correct": true,
+      "T_size": 255,
+      "items_count": 8,
+      "tau": -50.0
+    },
+    {
+      "id": 448,
+      "pred": 19.0,
+      "gold": 19.0,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 449,
+      "pred": 64.2,
+      "gold": 64.2,
+      "in_T": true,
+      "correct": true,
+      "T_size": 40,
+      "items_count": 6,
+      "tau": 4.2
+    },
+    {
+      "id": 450,
+      "pred": 19.729,
+      "gold": 19.729,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 1.629
+    },
+    {
+      "id": 451,
+      "pred": 1.58,
+      "gold": 1.58,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.13
+    },
+    {
+      "id": 452,
+      "pred": 7.717,
+      "gold": 7.71,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 3,
+      "tau": 0.47
+    },
+    {
+      "id": 453,
+      "pred": 8.708,
+      "gold": 8.7,
+      "in_T": false,
+      "correct": true,
+      "T_size": 11,
+      "items_count": 4,
+      "tau": 1.39
+    },
+    {
+      "id": 454,
+      "pred": 28.95,
+      "gold": 28.95,
+      "in_T": false,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 1.64
+    },
+    {
+      "id": 455,
+      "pred": 16.7016,
+      "gold": 16.7,
+      "in_T": true,
+      "correct": true,
+      "T_size": 4,
+      "items_count": 3,
+      "tau": 0.0
+    },
+    {
+      "id": 456,
+      "pred": 28.17,
+      "gold": 28.17,
+      "in_T": true,
+      "correct": true,
+      "T_size": 47,
+      "items_count": 6,
+      "tau": 1.84
+    },
+    {
+      "id": 457,
+      "pred": 7.09,
+      "gold": 7.09,
+      "in_T": false,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 54.0
+    },
+    {
+      "id": 458,
+      "pred": 13.82,
+      "gold": 15.2,
+      "in_T": false,
+      "correct": false,
+      "T_size": 1,
+      "items_count": 2,
+      "tau": 1.38
+    },
+    {
+      "id": 459,
+      "pred": 24.8024,
+      "gold": 24.8,
+      "in_T": false,
+      "correct": true,
+      "T_size": 31,
+      "items_count": 5,
+      "tau": 2.25
+    },
+    {
+      "id": 460,
+      "pred": 12.6212,
+      "gold": 12.62,
+      "in_T": true,
+      "correct": true,
+      "T_size": 212,
+      "items_count": 9,
+      "tau": 0.0
+    },
+    {
+      "id": 461,
+      "pred": 14.9214,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 462,
+      "pred": 550.0,
+      "gold": null,
+      "in_T": false,
+      "correct": false,
+      "T_size": 15,
+      "items_count": 4,
+      "tau": 10.19
+    },
+    {
+      "id": 463,
+      "pred": 76.04,
+      "gold": 76.04,
+      "in_T": false,
+      "correct": true,
+      "T_size": 47,
+      "items_count": 6,
+      "tau": 5.53
+    },
+    {
+      "id": 464,
+      "pred": 9.29,
+      "gold": 9.29,
+      "in_T": true,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 0.61
+    },
+    {
+      "id": 465,
+      "pred": 18.4418,
+      "gold": 18.44,
+      "in_T": true,
+      "correct": true,
+      "T_size": 7,
+      "items_count": 3,
+      "tau": 1.04
+    },
+    {
+      "id": 466,
+      "pred": 36.53,
+      "gold": 36.53,
+      "in_T": true,
+      "correct": true,
+      "T_size": 23,
+      "items_count": 5,
+      "tau": 1.53
+    },
+    {
+      "id": 467,
+      "pred": 19.69,
+      "gold": 19.69,
+      "in_T": false,
+      "correct": true,
+      "T_size": 1,
+      "items_count": 1,
+      "tau": 1.07
+    },
+    {
+      "id": 468,
+      "pred": 77.5,
+      "gold": 77.5,
+      "in_T": true,
+      "correct": true,
+      "T_size": 349,
+      "items_count": 9,
+      "tau": 0.0
+    },
+    {
+      "id": 469,
+      "pred": 12.0512,
+      "gold": 12.05,
+      "in_T": true,
+      "correct": true,
+      "T_size": 3,
+      "items_count": 2,
+      "tau": 1.05
+    },
+    {
+      "id": 470,
+      "pred": 29.9,
+      "gold": 29.9,
+      "in_T": false,
+      "correct": true,
+      "T_size": 0,
+      "items_count": 1,
+      "tau": 0.0
+    },
+    {
+      "id": 471,
+      "pred": 58.73,
+      "gold": 58.73,
+      "in_T": true,
+      "correct": true,
+      "T_size": 15,
+      "items_count": 5,
+      "tau": 4.73
+    }
+  ]
+}
