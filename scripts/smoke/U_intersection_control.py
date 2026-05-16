@@ -231,13 +231,13 @@ def main():
     if pooled_res:
         OUT_TEX.parent.mkdir(parents=True, exist_ok=True)
         OUT_TEX.write_text(
-            f"\\newcommand{{\\ctrlLsigma}}{{{pooled_res['L_sigma']:.3f}}}\n"
-            f"\\newcommand{{\\ctrlLsigmaLo}}{{{pooled_res['L_sigma_CI'][0]:.3f}}}\n"
-            f"\\newcommand{{\\ctrlLsigmaHi}}{{{pooled_res['L_sigma_CI'][1]:.3f}}}\n"
-            f"\\newcommand{{\\ctrlLrand}}{{{pooled_res['L_random_mean']:.3f}}}\n"
-            f"\\newcommand{{\\ctrlLrandHi}}{{{pooled_res['L_random_CI'][1]:.3f}}}\n"
-            f"\\newcommand{{\\ctrlLcorr}}{{{pooled_res['L_correlated_mean']:.3f}}}\n"
-            f"\\newcommand{{\\ctrlLcorrHi}}{{{pooled_res['L_correlated_CI'][1]:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLsigma}}{{{pooled_res['L_sigma']:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLsigmaLo}}{{{pooled_res['L_sigma_CI'][0]:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLsigmaHi}}{{{pooled_res['L_sigma_CI'][1]:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLrand}}{{{pooled_res['L_random_mean']:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLrandHi}}{{{pooled_res['L_random_CI'][1]:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLcorr}}{{{pooled_res['L_correlated_mean']:.3f}}}\n"
+            f"\\renewcommand{{\\ctrlLcorrHi}}{{{pooled_res['L_correlated_CI'][1]:.3f}}}\n"
         )
     print(json.dumps(out, indent=2))
 

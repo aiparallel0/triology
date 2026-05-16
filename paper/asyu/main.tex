@@ -29,13 +29,13 @@
 
 % Intersection-control re-analysis (U_intersection_control.py); safe
 % defaults so the paper compiles before the script has been run.
-\newcommand{\ctrlLsigma}{0.040}
-\newcommand{\ctrlLsigmaLo}{0.018}
-\newcommand{\ctrlLsigmaHi}{0.061}
-\newcommand{\ctrlLrand}{0.002}
-\newcommand{\ctrlLrandHi}{0.013}
-\newcommand{\ctrlLcorr}{0.004}
-\newcommand{\ctrlLcorrHi}{0.016}
+\newcommand{\ctrlLsigma}{0.060}
+\newcommand{\ctrlLsigmaLo}{0.029}
+\newcommand{\ctrlLsigmaHi}{0.085}
+\newcommand{\ctrlLrand}{0.001}
+\newcommand{\ctrlLrandHi}{0.038}
+\newcommand{\ctrlLcorr}{0.001}
+\newcommand{\ctrlLcorrHi}{0.022}
 \InputIfFileExists{numbers_control.tex}{}{}
 
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
@@ -126,13 +126,18 @@ CORD (Donut) $32$ of $33$ ($0.970$) versus single gates below $0.93$;
 the SROIE intersection ($15/15$) is too small ($n{=}15$) to claim more
 than consistency. Pooled, this is $160/162$ (Wilson lower bound
 $0.956$), but the pooled figure is carried by WildReceipt and we lead
-with the per-corpus read. The precision lift is not a mechanical
-intersection artefact: against a random gate at matched coverage the
-lift is $\ctrlLrand$ (95\% CI upper bound $\ctrlLrandHi$) and against a
-second softmax-derived gate of equal standalone precision it is
-$\ctrlLcorr$ ($\le\ctrlLcorrHi$), whereas $\sigma$'s lift is
-$\ctrlLsigma$ (95\% CI $[\ctrlLsigmaLo,\ctrlLsigmaHi]$), strictly above
-both controls: the gates fail on genuinely different receipts. The
+with the per-corpus read. We control the precision lift
+against two matched-coverage gates: a random gate (lift $\ctrlLrand$,
+95\% CI upper bound $\ctrlLrandHi$) and a second softmax-derived gate
+of equal standalone precision (lift $\ctrlLcorr$, $\le\ctrlLcorrHi$).
+$\sigma$'s pooled lift is $\ctrlLsigma$ (95\% CI
+$[\ctrlLsigmaLo,\ctrlLsigmaHi]$): strictly above the correlated
+softmax-derived control, so the gain is not reproducible by an
+arbitrary second gate of equal quality, but its lower CI overlaps the
+higher-variance random-gate bound and no single corpus clears both
+controls individually. We therefore report the error-decorrelation as
+suggestive and lead with the paired-McNemar absence of asymmetry as
+the primary orthogonality evidence. The
 lift costs coverage: the intersection fires on $17.6\%$ of receipts
 versus $37.4\%$ for either single gate (SROIE only $4.3\%$); at a
 human-review cost of $10^2$--$10^3\times$ one inference, the trade is
@@ -624,13 +629,19 @@ $\sigma$ (a second gate of $\sigma$-equal quality but built from
 softmax, hence non-independent). Bootstrap 95\% CIs ($B{=}2000$) on
 every lift. The random-gate lift is $\ctrlLrand$ (CI upper bound
 $\ctrlLrandHi$) and the correlated-gate lift $\ctrlLcorr$
-($\le\ctrlLcorrHi$), both indistinguishable from zero; $\sigma$'s lift
-is $\ctrlLsigma$ (CI $[\ctrlLsigmaLo,\ctrlLsigmaHi]$), strictly above
-both. The intersection gain is therefore attributable to $\sigma$'s
-errors being decorrelated from softmax's, not to coverage reduction
-nor to ``any second decent gate''. This is the positive
-error-decorrelation evidence that paired McNemar (absence of
-asymmetry) only indirectly implies.
+($\le\ctrlLcorrHi$); $\sigma$'s pooled lift is $\ctrlLsigma$ (CI
+$[\ctrlLsigmaLo,\ctrlLsigmaHi]$). This clears the correlated control
+cleanly ($\ctrlLsigmaLo > \ctrlLcorrHi$): the gain is \emph{not}
+reproducible by an arbitrary second softmax-quality gate, which rules
+out the ``any second decent gate'' explanation. Against the
+higher-variance random gate the intervals overlap at the lower tail
+($\ctrlLsigmaLo < \ctrlLrandHi$), and per corpus none of the three
+datasets individually clears \emph{both} controls. We therefore do
+not claim decisive error-decorrelation from this test: it is
+suggestive evidence consistent with, but not establishing beyond the
+pure coverage-shrink effect, the orthogonality that the paired-McNemar
+absence of asymmetry (Section~\ref{sec:results-mcnemar}) tests
+directly. We report it as such rather than overstate it.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}

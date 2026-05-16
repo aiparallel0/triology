@@ -20,11 +20,13 @@
 \definecolor{grey}{HTML}{888888}
 
 % Intersection-control re-analysis; safe defaults until U runs.
-\newcommand{\ctrlLsigma}{0.040}
-\newcommand{\ctrlLsigmaLo}{0.018}
-\newcommand{\ctrlLsigmaHi}{0.061}
-\newcommand{\ctrlLrandHi}{0.013}
-\newcommand{\ctrlLcorrHi}{0.016}
+\newcommand{\ctrlLsigma}{0.060}
+\newcommand{\ctrlLsigmaLo}{0.029}
+\newcommand{\ctrlLsigmaHi}{0.085}
+\newcommand{\ctrlLrand}{0.001}
+\newcommand{\ctrlLrandHi}{0.038}
+\newcommand{\ctrlLcorr}{0.001}
+\newcommand{\ctrlLcorrHi}{0.022}
 \InputIfFileExists{numbers_control.tex}{}{}
 
 \title{Can we trust AI when it reads a receipt?}
@@ -422,7 +424,7 @@
 \end{tikzpicture}
 \end{center}
 \vspace{0.6em}
-\begin{center}{\large \textbf{\textcolor{ok}{Only $\sigma$ clears both controls}} --- the lift is real orthogonality, not a coverage artefact.}\end{center}
+\begin{center}{\large \textbf{$\sigma$ clears the copy-of-softmax control} --- not reproducible by another softmax-quality gate. Against the noisier random gate the margins overlap, so we call this \textbf{suggestive}, not proof.}\end{center}
 \vfill
 \end{frame}
 
