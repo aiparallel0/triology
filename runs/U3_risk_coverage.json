@@ -1,0 +1,54 @@
+{
+  "per_corpus": {
+    "CORD": {
+      "n": 200,
+      "aurc_softmax": 0.05803963042785931,
+      "aurc_sigma_gated": 0.013514251852482478,
+      "dAURC_mean": 0.044525378575376834,
+      "dAURC_ci": [
+        -0.00852019597202254,
+        0.13632913172538252
+      ],
+      "p_sigma_not_better": 0.10975,
+      "dominates": false
+    },
+    "SROIE": {
+      "n": 347,
+      "aurc_softmax": 0.024189237074070287,
+      "aurc_sigma_gated": 0.06553911716816004,
+      "dAURC_mean": -0.04134988009408975,
+      "dAURC_ci": [
+        -0.10221606317950636,
+        0.01155301983918803
+      ],
+      "p_sigma_not_better": 0.9405,
+      "dominates": false
+    },
+    "WildReceipt": {
+      "n": 472,
+      "aurc_softmax": 0.02559779897075385,
+      "aurc_sigma_gated": 0.021998529789302057,
+      "dAURC_mean": 0.0035992691814517933,
+      "dAURC_ci": [
+        -0.017952520564765102,
+        0.030893378883915572
+      ],
+      "p_sigma_not_better": 0.39525,
+      "dominates": false
+    }
+  },
+  "pooled": {
+    "n": 1019,
+    "aurc_softmax": 0.054424216226276335,
+    "aurc_sigma_gated": 0.027016884722088685,
+    "dAURC_mean": 0.02740733150418765,
+    "dAURC_ci": [
+      0.0016045899770525222,
+      0.058864727858316805
+    ],
+    "p_sigma_not_better": 0.018,
+    "dominates": true
+  },
+  "method": "matched-coverage risk-coverage; paired bootstrap on dAURC = AURC_softmax - AURC_sigma_gated.",
+  "verdict": "Pooled AURC: softmax-alone=0.054 vs sigma-gated=0.027; dAURC=0.027 CI[0.002, 0.059] p=0.018. sigma-gating DOMINATES softmax-alone at matched coverage. Per-corpus dominance on: NONE individually."
+}

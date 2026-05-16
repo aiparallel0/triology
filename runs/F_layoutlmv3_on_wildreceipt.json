@@ -5,7 +5,7 @@
     "setup": "in-distribution",
     "n": 472,
     "batch_size": 32,
-    "wall_sec": 6.7,
+    "wall_sec": 8.0,
     "coverage_1.0_F1": 0.8199152542372882,
     "coverage_sigma": 0.4533898305084746,
     "sigma_F1_on_accepted": 0.9532710280373832,
