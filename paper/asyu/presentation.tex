@@ -9,6 +9,12 @@
 
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\makeatletter
+\let\orig@includegraphics\includegraphics
+\renewcommand{\includegraphics}[2][]{%
+  \IfFileExists{#2}{\orig@includegraphics[#1]{#2}}%
+  {\fbox{\rule{0pt}{6em}\quad\itshape figure pending (run: make figures)\quad}}}
+\makeatother
 \usepackage{tikz}
 \usepackage{xcolor}
 \usetikzlibrary{shapes,arrows.meta,positioning,fit,backgrounds,decorations.pathreplacing,calc,patterns}
@@ -18,6 +24,7 @@
 \definecolor{sig}{HTML}{1f77b4}
 \definecolor{smx}{HTML}{ff7f0e}
 \definecolor{grey}{HTML}{888888}
+\definecolor{shred}{HTML}{d62728}
 
 % Intersection-control re-analysis; safe defaults until U runs.
 \newcommand{\ctrlLsigma}{0.060}

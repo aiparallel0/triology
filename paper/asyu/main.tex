@@ -4,6 +4,16 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
+% Compile-resilience: matplotlib figures are generated from runs/ JSON
+% by the figures/*.py scripts (make figures). If a figure PDF is not
+% yet built, render a labelled placeholder instead of failing the
+% whole document, so the paper is always reviewable.
+\makeatletter
+\let\orig@includegraphics\includegraphics
+\renewcommand{\includegraphics}[2][]{%
+  \IfFileExists{#2}{\orig@includegraphics[#1]{#2}}%
+  {\fbox{\rule{0pt}{6em}\quad\itshape figure pending (run: make figures)\quad}}}
+\makeatother
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
