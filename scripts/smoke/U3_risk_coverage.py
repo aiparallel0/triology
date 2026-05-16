@@ -165,9 +165,11 @@ def main():
         soft = " ".join(f"({c:.3f},{rs:.3f})" for c, rs, _ in pooled_res["points"])
         sig = " ".join(f"({c:.3f},{rg:.3f})" for c, _, rg in pooled_res["points"])
         OUT_CURVE.write_text(
-            "% pooled risk-coverage coordinates (auto-generated)\n"
-            f"\\newcommand{{\\rcCurveSoft}}{{{soft}}}\n"
-            f"\\newcommand{{\\rcCurveSig}}{{{sig}}}\n")
+            "% pooled risk-coverage coordinates (auto-generated).\n"
+            "% \\renewcommand: main.tex pre-defines safe defaults, this\n"
+            "% file overrides them (cf. numbers_control.tex).\n"
+            f"\\renewcommand{{\\rcCurveSoft}}{{{soft}}}\n"
+            f"\\renewcommand{{\\rcCurveSig}}{{{sig}}}\n")
     print(json.dumps(out, indent=2))
 
 

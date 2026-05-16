@@ -148,9 +148,23 @@ def main():
             gt = json.loads(ex["ground_truth"]).get("gt_parse", {})
         except Exception:
             gt = {}
-        gold_total = parse_money((gt.get("total") or {}).get("total_price"))
+        # CORD train/validation (unlike test) sometimes encode `total`
+        # and `sub_total` as a LIST of dicts rather than a single dict.
+        # Collapse to one dict so .get() is always valid.
+        def _as_dict(v):
+            if isinstance(v, dict):
+                return v
+            if isinstance(v, list):
+                m = {}
+                for e in v:
+                    if isinstance(e, dict):
+                        m.update(e)
+                return m
+            return {}
+        total_d = _as_dict(gt.get("total"))
+        gold_total = parse_money(total_d.get("total_price"))
         money = cord_money_lines(gt.get("menu"))
-        sub = gt.get("sub_total") or {}
+        sub = _as_dict(gt.get("sub_total"))
         tau = ((parse_money(sub.get("tax_price")) or 0.0)
                + (parse_money(sub.get("service_price")) or 0.0)
                - (parse_money(sub.get("discount_price")) or 0.0))
