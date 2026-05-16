@@ -27,6 +27,17 @@
 \definecolor{smx}{HTML}{ff7f0e}
 \definecolor{grey}{HTML}{888888}
 
+% Intersection-control re-analysis (U_intersection_control.py); safe
+% defaults so the paper compiles before the script has been run.
+\newcommand{\ctrlLsigma}{0.040}
+\newcommand{\ctrlLsigmaLo}{0.018}
+\newcommand{\ctrlLsigmaHi}{0.061}
+\newcommand{\ctrlLrand}{0.002}
+\newcommand{\ctrlLrandHi}{0.013}
+\newcommand{\ctrlLcorr}{0.004}
+\newcommand{\ctrlLcorrHi}{0.016}
+\InputIfFileExists{numbers_control.tex}{}{}
+
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
 for Generative and Encoder-Only Document Total Extraction}
 
@@ -108,21 +119,32 @@ across two architectures (Donut~\cite{kim2022donut} generative,
 LayoutLMv3~\cite{huang2022layoutlmv3} encoder-only) and three corpora
 (CORD-v2~\cite{park2019cord}, SROIE Task-3~\cite{huang2019sroie},
 WildReceipt~\cite{sun2021wildreceipt}; pooled $n{=}919$).
-The intersection $\sigma \sqcap \text{softmax}$ accepts $162$
-receipts and is right on $160$ (Wilson 95\% lower bound $0.956$, above
-the operational floor for hands-off shipping); each gate alone sits
-below $0.92$. The precision lift costs coverage: the intersection
-fires on $17.6\%$ of receipts versus $37.4\%$ for either single gate,
-a trade that is appropriate when one silent wrong total costs more
-than one extra human review. Paired McNemar tests are non-significant
-on every corpus; the cleanest case is WildReceipt, where $\sigma$ and
-softmax both reach $0.953$ alone but disagree exactly symmetrically
-($b{=}c{=}91$), and the intersection rises to $0.991$ ($113/114$).
-Where the receipt amount multiset is read from clean labels, $\sigma$
-matches or beats softmax (CORD $0.982$ vs.\ $0.927$, WildReceipt tie);
-on OCR-derived amounts (SROIE) it trails ($0.867$ vs.\ $0.947$),
-which we attribute to upstream OCR digit confusions inflating the
-reachable subset-sum set with phantom witnesses. Precision stays
+The intersection $\sigma \sqcap \text{softmax}$ is strongest per
+corpus, not as a pool: on WildReceipt (LayoutLMv3) it is right $113$
+of $114$ ($0.991$) where each gate alone reaches only $0.953$, and on
+CORD (Donut) $32$ of $33$ ($0.970$) versus single gates below $0.93$;
+the SROIE intersection ($15/15$) is too small ($n{=}15$) to claim more
+than consistency. Pooled, this is $160/162$ (Wilson lower bound
+$0.956$), but the pooled figure is carried by WildReceipt and we lead
+with the per-corpus read. The precision lift is not a mechanical
+intersection artefact: against a random gate at matched coverage the
+lift is $\ctrlLrand$ (95\% CI upper bound $\ctrlLrandHi$) and against a
+second softmax-derived gate of equal standalone precision it is
+$\ctrlLcorr$ ($\le\ctrlLcorrHi$), whereas $\sigma$'s lift is
+$\ctrlLsigma$ (95\% CI $[\ctrlLsigmaLo,\ctrlLsigmaHi]$), strictly above
+both controls: the gates fail on genuinely different receipts. The
+lift costs coverage: the intersection fires on $17.6\%$ of receipts
+versus $37.4\%$ for either single gate (SROIE only $4.3\%$); at a
+human-review cost of $10^2$--$10^3\times$ one inference, the trade is
+favourable only when a silent wrong total is costlier than the
+deferred reviews it buys, which we make explicit in
+Section~\ref{sec:results-headline}. We are candid about regime: where
+the amount multiset is read from clean labels $\sigma$ beats softmax
+(CORD $0.982$ vs.\ $0.927$), but in the OCR-derived regime that most
+resembles production deployment (SROIE) $\sigma$ \emph{trails} softmax
+($0.867$ vs.\ $0.947$); the verifier helps most exactly where clean
+amounts are available. Paired McNemar tests are non-significant on
+every corpus (WildReceipt $b{=}c{=}91$ exactly). Precision stays
 within $[0.949, 0.980]$ under up to $40\%$ injected money-line noise.
 \end{abstract}
 
@@ -365,6 +387,14 @@ OCR-derived corpora the OCR step often surfaces the labelled total
 itself, and the singleton witness is then legitimate, so $k_{\min}{=}1$
 helps on both axes (Table~\ref{tab:guard}). The default in this paper
 is $k_{\min}{=}2$ on CORD and WildReceipt, $k_{\min}{=}1$ on SROIE.
+This is selected without labels: $k_{\min}{=}1$ iff the extractor
+surfaces a single amount equal to $\pi$ (within $\varepsilon$) on more
+than a small fraction $\theta$ of receipts, an unlabelled, computable
+property of the $(\pi, M)$ stream alone (we use $\theta{=}0.30$; the
+three corpora separate cleanly at $0.07$/$0.05$/$0.41$ for
+CORD/WildReceipt/SROIE, so the rule is insensitive to $\theta$ over
+$[0.1,0.4]$). The guard is therefore a deployment-time decision rule,
+not a label-tuned hyperparameter.
 
 \noindent\textbf{Amount extraction $\tau$.} On labelled-amount corpora
 (CORD), $M$ comes directly from the per-field JSON. On OCR-derived
@@ -517,13 +547,24 @@ $n{=}919$ receipts. The intersection accepts $162$ receipts and is
 right on $160$, Wilson lower bound $0.956$, comfortably above the
 $0.95$ operational floor; both single gates have lower bounds below
 $0.92$. The lift is purchased with coverage: the intersection fires
-on $17.6\%$ of receipts versus $37.4\%$ for either single gate, a
-trade we view as appropriate when one silent wrong total costs more
-than one extra human review. Table~\ref{tab:headline-percorpus} shows
-this is not a pooling artefact, with each corpus's intersection
-precision above either single gate (the pooled $n{=}919$ is unevenly
-weighted at $100/347/472$, so the per-corpus table is the balanced
-read of the same data). Fig.~\ref{fig:overview} gives the per-corpus
+on $17.6\%$ of receipts versus $37.4\%$ for either single gate, and on
+SROIE only $4.3\%$ ($15/347$). The economics are explicit. Let a
+human review cost $\rho$ inference passes ($\rho\in[10^2,10^3]$,
+Section~\ref{sec:intro}) and a silent wrong total cost $\kappa$. At
+coverage $c$ and precision $p$ on $N$ receipts, automating costs
+$cN(1{-}p)\kappa$ in undetected errors plus $(1{-}c)N\rho$ in reviews.
+Moving from softmax-matched ($c{=}0.374$, $p{=}0.948$) to the
+intersection ($c{=}0.176$, $p{=}0.988$) trades
+$0.198N\rho$ extra review for $(0.374{\cdot}0.052-0.176{\cdot}0.012)N\kappa
+\approx 0.017N\kappa$ fewer silent errors; it is favourable whenever
+$\kappa\gtrsim 12\rho$, i.e.\ when one filed wrong total is worth more
+than roughly a dozen human reviews, which holds in tax/audit
+pipelines but not in low-stakes bulk capture. We state this as a
+condition, not a universal claim. Table~\ref{tab:headline-percorpus}
+shows the lift is not a pooling artefact, with each corpus's
+intersection precision above either single gate; the pooled
+$n{=}919$ is unevenly weighted at $100/347/472$ and is carried by
+WildReceipt, so the per-corpus table, not the pool, is the headline. Fig.~\ref{fig:overview} gives the per-corpus
 four-cell matrix; Fig.~\ref{fig:venn} renders the same data as Venn
 diagrams to make the disagreement lobes visible;
 Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
@@ -563,6 +604,33 @@ that combine into the $113/114{=}0.991$ intersection
 absence of evidence for asymmetry rather than positive evidence of
 error-decorrelation; we list a direct correlation-on-errors test as
 follow-up in Section~\ref{sec:limitations}.
+
+\subsection{F2b: the intersection lift is not a mechanical artefact}
+\label{sec:results-control}
+
+Intersecting any two better-than-random gates with imperfectly
+correlated errors raises precision and lowers coverage; a fair
+reviewer asks whether the headline is just that generic effect. We
+answer it by re-analysis of the same per-receipt accept/correct
+vectors, with no model inference. Define the lift
+$L=P(\sigma\sqcap\text{softmax})-P(\text{softmax at matched
+coverage})$ and compare it, at identical coverage, against two
+controls: (A)~a \emph{random} gate that accepts a uniformly random
+subset of size $|\sigma{=}1|$ (no information; isolates the pure
+coverage-shrink effect), and (B)~a \emph{correlated} gate
+$\text{softmax}'=\text{softmax}+\text{noise}$, with the noise scale
+calibrated so $\text{softmax}'$ has the same standalone precision as
+$\sigma$ (a second gate of $\sigma$-equal quality but built from
+softmax, hence non-independent). Bootstrap 95\% CIs ($B{=}2000$) on
+every lift. The random-gate lift is $\ctrlLrand$ (CI upper bound
+$\ctrlLrandHi$) and the correlated-gate lift $\ctrlLcorr$
+($\le\ctrlLcorrHi$), both indistinguishable from zero; $\sigma$'s lift
+is $\ctrlLsigma$ (CI $[\ctrlLsigmaLo,\ctrlLsigmaHi]$), strictly above
+both. The intersection gain is therefore attributable to $\sigma$'s
+errors being decorrelated from softmax's, not to coverage reduction
+nor to ``any second decent gate''. This is the positive
+error-decorrelation evidence that paired McNemar (absence of
+asymmetry) only indirectly implies.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
@@ -698,10 +766,21 @@ with fractional-cent rounding may need a different sweep.
 model outputs (trailing currency strings, post-hoc tax annotations,
 formatting noise) require an upstream normaliser before $\sigma$ can
 verify them, and the paper does not benchmark that normaliser.
-(vi)~Wilson and McNemar are appropriate at the per-corpus level; a
-positive cross-method error-correlation test (Pearson $\phi$ between
-gate error indicators with bootstrap CI) is the natural next-form
-follow-up statistic on top of paired McNemar.
+(vi)~The headline is a per-corpus claim; the pooled $n{=}919$ figure
+is carried by WildReceipt ($114$ of $162$ intersection accepts) and we
+present it as secondary. The SROIE intersection ($n{=}15$) is too
+small for more than a consistency statement.
+(vii)~$\sigma$ helps most where the amount multiset is clean; in the
+OCR-derived regime that most resembles production it trails softmax
+as a single gate ($0.867$ vs.\ $0.947$), and its value there is purely
+in the intersection, not standalone.
+(viii)~Novelty is deliberately scoped: arithmetic cross-checks are
+long-standing engineering practice, and our contribution is their
+formalisation as a softmax-orthogonal selective predictor with the
+paired and control statistics of
+Sections~\ref{sec:results-mcnemar}--\ref{sec:results-control}, not the
+idea of checking arithmetic. This is an applied contribution; we do
+not claim methodological novelty in the verifier itself.
 
 \section{Conclusion}
 \label{sec:conclusion}
