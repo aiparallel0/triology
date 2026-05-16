@@ -81,24 +81,56 @@ def load_img(img_field):
 
 
 def main():
+    import gc
+    from concurrent.futures import ThreadPoolExecutor
+    BATCH = int(os.environ.get("DONUT_BATCH", "32"))
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cuda.matmul.allow_tf32 = True
+    DTYPE = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
     processor = DonutProcessor.from_pretrained(CKPT)
-    model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
+    model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=DTYPE).to("cuda").eval()
     ds = load_dataset("naver-clova-ix/cord-v2", split="test", trust_remote_code=True)
     print(f"CORD-v2 test size: {len(ds)}")
+    pad_id = processor.tokenizer.pad_token_id
+    dec_one = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
+                                  return_tensors="pt").input_ids
 
-    results, t0 = [], time.time()
-    for i, ex in enumerate(ds):
+    # Parallel image preload, then batched autoregressive decode.
+    def _load(idx):
+        try: return (idx, load_img(ds[idx]["image"]))
+        except Exception: return None
+    with ThreadPoolExecutor(max_workers=8) as ex_:
+        loaded = [x for x in ex_.map(_load, range(len(ds))) if x is not None]
+
+    t0 = time.time()
+    text_by_idx = {}
+    i, bs = 0, BATCH
+    print(f"Batched DONUT (batch={BATCH}, {DTYPE}) on {len(loaded)} images...")
+    while i < len(loaded):
+        chunk = loaded[i:i+bs]
         try:
-            img = load_img(ex["image"])
-        except Exception as e:
-            print(f"  skip {i}: {e}"); continue
-        px = processor(img, return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
-        dec = processor.tokenizer("<s_cord-v2>", add_special_tokens=False,
-                                  return_tensors="pt").input_ids.to("cuda")
-        with torch.inference_mode():
-            out = model.generate(px, decoder_input_ids=dec, max_length=512, num_beams=1,
-                                  pad_token_id=processor.tokenizer.pad_token_id)
-        text = processor.batch_decode(out, skip_special_tokens=False)[0]
+            px = processor([im for _, im in chunk], return_tensors="pt").pixel_values.to("cuda", dtype=DTYPE)
+            dec = dec_one.repeat(len(chunk), 1).to("cuda")
+            with torch.inference_mode():
+                out = model.generate(px, decoder_input_ids=dec, max_length=512,
+                                     num_beams=1, use_cache=True, pad_token_id=pad_id)
+            for (idx, _), txt in zip(chunk, processor.batch_decode(out, skip_special_tokens=False)):
+                text_by_idx[idx] = txt
+            i += bs
+        except torch.cuda.OutOfMemoryError:
+            gc.collect(); torch.cuda.empty_cache()
+            if bs > 1:
+                bs = max(1, bs // 2); continue
+            text_by_idx[chunk[0][0]] = ""; i += 1
+        if (i // max(bs, 1)) % 5 == 0:
+            gc.collect(); torch.cuda.empty_cache()
+            print(f"  {min(i, len(loaded))}/{len(loaded)} elapsed={time.time()-t0:.0f}s")
+
+    results = []
+    for i, ex in enumerate(ds):
+        if i not in text_by_idx:
+            continue
+        text = text_by_idx[i]
         pred = parse_donut_total(text)
 
         try:

@@ -39,7 +39,7 @@ CKPT = os.environ.get("DONUT_SROIE_CKPT", "philschmid/donut-base-sroie")
 DATA = Path(os.environ.get("SROIE_DATA", "data/sroie_canonical"))
 OUT = Path("runs/A_donut_cord_on_sroie.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
-BATCH = int(os.environ.get("DONUT_BATCH", "8"))
+BATCH = int(os.environ.get("DONUT_BATCH", "32"))
 MAX_MONEY = 15
 MAX_TAU_CANDIDATES = 8
 TAU_CAP = 10000.0
@@ -245,33 +245,46 @@ def main():
         sroie_ocr = {p.stem: [] for p in paths}
 
     print(f"Loading {CKPT}...")
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cuda.matmul.allow_tf32 = True
+    DTYPE = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
     processor = DonutProcessor.from_pretrained(CKPT)
-    model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=torch.float16).to("cuda").eval()
+    model = VisionEncoderDecoderModel.from_pretrained(CKPT, torch_dtype=DTYPE).to("cuda").eval()
     start_id = model.config.decoder_start_token_id
     if start_id is None:
         start_id = processor.tokenizer.convert_tokens_to_ids(["<s>"])[0]
 
-    items = []
-    for p in paths:
-        try: items.append((p.stem, Image.open(p).convert("RGB")))
-        except Exception: continue
+    from concurrent.futures import ThreadPoolExecutor
+    def _open(p):
+        try: return (p.stem, Image.open(p).convert("RGB"))
+        except Exception: return None
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        items = [x for x in ex.map(_open, paths) if x is not None]
 
-    print(f"Batched DONUT (batch={BATCH}) on {len(items)} images...")
+    print(f"Batched DONUT (batch={BATCH}, {DTYPE}) on {len(items)} images...")
     t1 = time.time()
     all_text = []
-    for i in range(0, len(items), BATCH):
-        batch = items[i:i+BATCH]
-        px = processor([im for _, im in batch], return_tensors="pt").pixel_values.to("cuda", dtype=torch.float16)
-        with torch.inference_mode():
-            out = model.generate(
-                px, max_length=512, num_beams=1,
-                pad_token_id=processor.tokenizer.pad_token_id,
-                decoder_start_token_id=start_id,
-            )
-        all_text.extend(processor.batch_decode(out, skip_special_tokens=False))
-        if (i // BATCH + 1) % 5 == 0:
+    i, bs = 0, BATCH
+    while i < len(items):
+        batch = items[i:i+bs]
+        try:
+            px = processor([im for _, im in batch], return_tensors="pt").pixel_values.to("cuda", dtype=DTYPE)
+            with torch.inference_mode():
+                out = model.generate(
+                    px, max_length=512, num_beams=1, use_cache=True,
+                    pad_token_id=processor.tokenizer.pad_token_id,
+                    decoder_start_token_id=start_id,
+                )
+            all_text.extend(processor.batch_decode(out, skip_special_tokens=False))
+            i += bs
+        except torch.cuda.OutOfMemoryError:
             gc.collect(); torch.cuda.empty_cache()
-            print(f"  {min(i+BATCH, len(items))}/{len(items)} elapsed={time.time()-t1:.0f}s")
+            if bs > 1:
+                bs = max(1, bs // 2); continue
+            all_text.append(""); i += 1
+        if (i // max(bs, 1)) % 5 == 0:
+            gc.collect(); torch.cuda.empty_cache()
+            print(f"  {min(i, len(items))}/{len(items)} elapsed={time.time()-t1:.0f}s")
     print(f"DONUT done in {time.time()-t1:.1f}s")
 
     results = []

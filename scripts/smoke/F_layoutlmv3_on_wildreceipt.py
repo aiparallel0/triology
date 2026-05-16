@@ -15,7 +15,8 @@ WILD_URL = "https://download.openmmlab.com/mmocr/data/wildreceipt.tar"
 WILD_DIR = Path("data/wildreceipt")
 OUT = Path("runs/F_layoutlmv3_on_wildreceipt.json")
 OUT.parent.mkdir(parents=True, exist_ok=True)
-BATCH = 16
+import os as _os
+BATCH = int(_os.environ.get("LLMV3_BATCH", "32"))
 MAX_MONEY = 20
 
 
@@ -103,6 +104,8 @@ def main():
     TOT_ID, TAX_ID, PRC_ID = cls["Total_value"], cls["Tax_value"], cls["Prod_price_value"]
 
     print(f"Loading {CKPT}...")
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cuda.matmul.allow_tf32 = True
     processor = LayoutLMv3Processor.from_pretrained(CKPT, apply_ocr=False)
     model = LayoutLMv3ForTokenClassification.from_pretrained(CKPT).to("cuda").eval()
     id2label = model.config.id2label
@@ -144,7 +147,8 @@ def main():
             return_tensors="pt", padding=True, truncation=True, max_length=512,
         )
         inputs = {k: v.to("cuda") for k, v in encoding.items()}
-        with torch.inference_mode():
+        _amp = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        with torch.inference_mode(), torch.autocast("cuda", dtype=_amp):
             out = model(**inputs)
         preds = out.logits.argmax(-1).cpu().tolist()
         for b_idx in range(len(batch)):
