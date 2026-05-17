@@ -22,6 +22,11 @@
 \usepackage{underscore}
 \usepackage{tikz}
 \usepackage{hyperref}
+% Root-cause overflow prevention: microtype (protrusion + expansion)
+% removes the large majority of overfull boxes; emergencystretch lets
+% TeX resolve the remainder instead of overrunning the column.
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
 \usetikzlibrary{shapes,arrows.meta,positioning,fit,backgrounds,decorations.pathreplacing,calc,patterns}
 
 % Quiet hyperref complaints about $\sigma$ in section titles
