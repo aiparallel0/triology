@@ -48,507 +48,511 @@
 \newcommand{\orthPhiP}{0.0002}
 \InputIfFileExists{numbers_orth.tex}{}{}
 
+\newcommand{\bigq}[1]{\begin{center}{\Large #1}\end{center}}
+\newcommand{\keybox}[1]{\begin{center}\colorbox{grey!15}{\parbox{0.92\linewidth}{\centering #1}}\end{center}}
+\newcommand{\plain}[1]{\textit{\textcolor{sig}{Plain words:} #1}}
+
 \title{Can we trust AI when it reads a receipt?}
-\subtitle{A free second opinion for confident-but-wrong models}
+\subtitle{Explained from zero --- only basic arithmetic assumed}
 \author{ASYU 2026}
 \date{}
 
 \begin{document}
 
-% ============== SLIDE 1: TITLE ==============
 \frame{\titlepage}
 
-% ============== SLIDE 2: WHAT IS AN AI MODEL ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Huge\textbf{First, what is an AI model?}}
-\end{center}
-\vspace{1.5em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0,>=Stealth,thick]
-\draw[fill=sig!10,thick,rounded corners=8pt] (-1.5,-1.2) rectangle (1.5,1.2);
-\node[font=\Large\bfseries] at (0,0) {AI};
-\draw[->,very thick] (-3.0,0.6) -- (-1.7,0.6);
-\node[anchor=east,font=\large] at (-3.0,0.6) {input};
-\draw[->,very thick] (1.7,0.6) -- (3.0,0.6);
-\node[anchor=west,font=\large] at (3.0,0.6) {output};
-\end{tikzpicture}
-\end{center}
-\vspace{1.5em}
-\begin{center}\large\emph{a program that learns patterns from thousands of examples}\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 3: AI READS RECEIPTS ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Huge\textbf{Every day, AI reads}}\\[0.4em]
-{\Huge\textbf{\textbf{billions} of receipts.}}
-\end{center}
-\vspace{2em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0,>=Stealth,thick]
-\draw[fill=grey!10,thick,rounded corners=4pt] (-0.7,-1.8) rectangle (0.7,1.8);
-\draw[fill=white,thick] (-0.55,-1.4) rectangle (0.55,1.6);
-\node[font=\tiny\bfseries] at (0,1.1) {RECEIPT};
-\foreach \y in {0.7,0.5,0.3,0.1,-0.1,-0.3,-0.5,-0.7,-0.9}{\draw[grey!50](-0.45,\y)--(0.45,\y);}
-\node[font=\tiny] at (0,-1.65) {$\bullet$};
-\draw[->,thick,>=Stealth] (0.9,0) -- (2.6,0);
-\node[draw,rounded corners=4pt,fill=sig!20,minimum width=2cm,minimum height=1.6cm,thick] at (3.7,0) {\large\textbf{AI}};
-\draw[->,thick,>=Stealth] (4.8,0) -- (6.4,0);
-\node[font=\Huge,text=sig] at (7.8,0) {\textbf{\$58.40}};
-\end{tikzpicture}
-\end{center}
-\vfill
-\begin{center}\small Tax filings.\quad Expense reports.\quad Audits.\quad Bookkeeping.\end{center}
-\end{frame}
-
-% ============== SLIDE 4: COST OF BEING WRONG ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Huge\textbf{What if the AI is wrong?}}
-\end{center}
-\vspace{1.5em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0]
-\node[font=\Large] at (-4,1) {AI said:};
-\node[font=\huge,text=sig] at (-4,0) {\textbf{\$58.40}};
-\node[font=\Huge,text=bad] at (0,0.5) {$\neq$};
-\node[font=\Large] at (4,1) {Real total:};
-\node[font=\huge,text=ok] at (4,0) {\textbf{\$48.40}};
-\node[font=\Large] at (0,-2.0) {\textbf{\textcolor{bad}{Wrong tax. Wrong audit. Real money lost.}}};
-\end{tikzpicture}
-\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 5: THE QUESTION ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Huge\textbf{Can we tell when to trust the AI?}}\\[2em]
-\end{center}
-\begin{center}
-\begin{tikzpicture}
-\node[draw,rounded corners=8pt,fill=grey!10,thick,text width=11cm,align=center,minimum height=2cm] at (0,0) {
-{\Large That's what this paper is about.}
-};
-\end{tikzpicture}
-\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 6: TODAY'S METHOD (PLAIN ENG) ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large\textbf{Today's standard method:}}\\[0.3em]
-{\Huge\textbf{\textcolor{smx}{ask the AI ``how sure are you?''}}}
-\end{center}
-\vspace{1.5em}
-\begin{center}
-\begin{tikzpicture}[scale=1.1,>=Stealth,thick]
-\node[draw,rounded corners=4pt,fill=sig!20,minimum width=2.5cm,minimum height=1.4cm,thick] (m) at (-3,0) {\large\textbf{AI}};
-\draw[->,thick,>=Stealth] (m.east) -- (-0.5,0);
-\node[anchor=west,font=\Large] at (-0.4,0.5) {``\$58.40''};
-\node[anchor=west,font=\Large,text=smx] at (-0.4,-0.5) {\textbf{97\% sure}};
-\end{tikzpicture}
-\end{center}
+\begin{frame}{How to read these slides}
+\begin{itemize}
+\item This deck assumes \textbf{only basic mathematics} (adding,
+multiplying, fractions, ``bigger/smaller''). Nothing else.
+\item Every technical word used in the paper is \textbf{defined here
+before it is used}: logarithm, variance, correlation, p-value,
+bootstrap, AUROC, McNemar, subset-sum, softmax, distribution shift.
+\item Each idea gets its own slide, in small steps.
+\item The honest results --- including what \emph{did not} work --- are
+stated plainly. Numbers shown are the real measured values.
+\end{itemize}
 \vspace{1em}
-\begin{center}\small\emph{(In AI lingo: ``softmax confidence''. Same idea, fancier name.)}\end{center}
-\vfill
+\keybox{If at any slide you are lost, the previous slide is enough to
+continue. Nothing later needs more than what came before.}
 \end{frame}
 
-% ============== SLIDE 7: WHAT IS SOFTMAX ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large\textbf{What is softmax, in 1 sentence?}}\\[1em]
-\end{center}
-\begin{center}
-\begin{tikzpicture}
-\node[draw,rounded corners=8pt,fill=smx!15,thick,text width=12cm,align=center,minimum height=2.5cm] at (0,0) {
-\Large A number from 0 to 1 the AI produces about\\
-\Large \emph{its own} answer, how sure it is.\\[0.5em]
-\large \textbf{1.0} = totally sure.\quad \textbf{0.5} = coin flip.\quad \textbf{0.0} = no idea.
-};
-\end{tikzpicture}
-\end{center}
-\vfill
-\begin{center}\small For the modern era of neural document AI, this has been the only trust signal practitioners had.\end{center}
-\end{frame}
-
-% ============== SLIDE 8: THE BUG ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Huge\textbf{\textcolor{bad}{The catch:}}}\\[0.4em]
-{\Large the AI can be \textbf{confidently wrong.}}
-\end{center}
-\vspace{1.5em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0,>=Stealth,thick]
-\node[draw,rounded corners=4pt,fill=sig!20,minimum width=2.5cm,minimum height=1.4cm,thick] (m) at (-4.5,0) {\large\textbf{AI}};
-\draw[->,thick,>=Stealth] (m.east) -- (-2.7,0);
-\node[font=\Large] at (0,0.6) {``\$58.40''};
-\node[font=\Large,text=smx] at (0,-0.3) {\textbf{97\% sure}};
-\node[font=\Large] at (4,0.6) {Real:};
-\node[font=\Large,text=ok] at (4,-0.3) {\textbf{\$48.40}};
-\node[font=\Large,text=bad] at (0,-2.2) {\textbf{Confident. And wrong.}};
-\end{tikzpicture}
-\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 9: OUR IDEA ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Huge\textbf{Our idea:}}\\[1.2em]
-{\Huge\textbf{Don't trust the AI.}}\\[0.5em]
-{\Huge\textbf{\textcolor{ok}{Trust the math on the receipt.}}}
-\end{center}
-\vfill
-\begin{center}\small The receipt has every number. If they add up to the AI's answer, the AI is right.\end{center}
-\end{frame}
-
-% ============== SLIDE 10: MEET SIGMA ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large\textbf{Meet $\sigma$ (``sigma'')}}\\[1em]
-{\large our new verifier}
-\end{center}
-\vspace{1.5em}
-\begin{center}
-\begin{tikzpicture}
-\node[draw,rounded corners=8pt,fill=ok!15,thick,text width=11cm,align=center,minimum height=2.2cm] at (0,0)
-  {\Large $\sigma$ asks one question:\\[0.5em]
-   \textbf{\Large Do any numbers on the receipt}\\
-   \textbf{\Large add up to the AI's answer?}};
-\end{tikzpicture}
-\end{center}
+% ===================================================================
+\section{Part 0 --- the everyday problem}
+% ===================================================================
+\begin{frame}{The one-sentence problem}
+\bigq{A computer reads a receipt and says the total is \textbf{\$58.40}.}
 \vspace{1em}
-\begin{center}
-\large If \textbf{\textcolor{ok}{yes}}: accept. \quad If \textbf{\textcolor{bad}{no}}: reject and ask a human.
-\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 11: HOW SIGMA WORKS STEP BY STEP ==============
-\begin{frame}{}
-\begin{center}
-{\Large\textbf{How $\sigma$ works, step by step}}
-\end{center}
-\vspace{0.4em}
-\begin{center}
-\begin{tikzpicture}[scale=0.78,every node/.style={font=\footnotesize},>=Stealth,thick]
-\node[draw,rounded corners=4pt,fill=grey!10,thick,minimum width=2.6cm,minimum height=1.6cm] (s1) at (0,0) {};
-\node[font=\bfseries] at (0,0.4) {1. Read receipt};
-\node[text width=2.4cm,align=center] at (0,-0.2) {\scriptsize\{\$3.20, \$8.50,\\ \$6.00, \$30.70,\\ \$10.00\}};
-
-\node[draw,rounded corners=4pt,fill=grey!10,thick,minimum width=2.6cm,minimum height=1.6cm] (s2) at (3.3,0) {};
-\node[font=\bfseries] at (3.3,0.4) {2. Try subsets};
-\node[text width=2.4cm,align=center] at (3.3,-0.2) {\scriptsize all combos\\\scriptsize via DP};
-
-\node[draw,rounded corners=4pt,fill=grey!10,thick,minimum width=2.6cm,minimum height=1.6cm] (s3) at (6.6,0) {};
-\node[font=\bfseries] at (6.6,0.4) {3. Sum match?};
-\node[text width=2.4cm,align=center] at (6.6,-0.2) {\scriptsize$\sum = \$58.40$?\\ \scriptsize within \$0.02?};
-
-\node[draw,rounded corners=4pt,fill=ok!20,thick,minimum width=2.6cm,minimum height=1.6cm] (s4) at (9.9,0) {};
-\node[font=\bfseries,text=ok] at (9.9,0.4) {4. Accept};
-\node[text width=2.4cm,align=center,text=ok] at (9.9,-0.2) {\scriptsize\checkmark};
-
-\draw[->,very thick] (s1) -- (s2);
-\draw[->,very thick] (s2) -- (s3);
-\draw[->,very thick] (s3) -- (s4);
-\end{tikzpicture}
-\end{center}
-\vspace{0.5em}
-\begin{center}\small The math trick: a \emph{$0/1$-knapsack DP}, a textbook algorithm that builds a table\\\small of every reachable subset sum in microseconds, then looks up the answer. Same family\\\small of algorithm used in puzzle and packing problems.\end{center}
-\end{frame}
-
-% ============== SLIDE 12: SIGMA IN ACTION ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-\begin{tikzpicture}[scale=0.85]
-\draw[fill=white,thick,rounded corners=2pt] (0,0) rectangle (4,5);
-\draw (0.3,4.5) -- (3.7,4.5);
-\node at (2,4.75) {\small\bfseries RECEIPT};
-\node[anchor=west,text=ok] at (0.3,3.95) {\small Coffee \hfill \$3.20 \checkmark};
-\node[anchor=west,text=ok] at (0.3,3.45) {\small Sandwich \hfill \$8.50 \checkmark};
-\node[anchor=west,text=ok] at (0.3,2.95) {\small Salad \hfill \$6.00 \checkmark};
-\node[anchor=west,text=ok] at (0.3,2.45) {\small Pasta \hfill \$30.70 \checkmark};
-\draw (0.3,1.95) -- (3.7,1.95);
-\node[anchor=west,text=ok] at (0.3,1.35) {\small Tax \hfill \$10.00 \checkmark};
-\draw[thick] (0.3,0.85) -- (3.7,0.85);
-\node[anchor=west] at (0.3,0.35) {\small\bfseries TOTAL \hfill \$58.40};
-\draw[->,very thick,>=Stealth,sig] (4.3,2.5) -- (5.5,2.5);
-\node[text=sig,font=\large] at (9,3.7) {$3.20 + 8.50 + 6.00$};
-\node[text=sig,font=\large] at (9,3.05) {$+\, 30.70 + 10.00$};
-\draw[->,thick,>=Stealth] (9,2.4) -- (9,1.6);
-\node[text=ok,font=\Huge] at (9,1.0) {\textbf{= \$58.40}};
-\node[text=ok,font=\Large] at (9,0.2) {\textbf{accept \checkmark}};
-\end{tikzpicture}
-\end{center}
-\vspace{0.5em}
-\begin{center}\small No subset adds up? $\sigma$ rejects, regardless of how sure the AI is.\end{center}
-\end{frame}
-
-% ============== SLIDE 13: TWO INDEPENDENT SIGNALS ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large \textbf{Two signals. Two different blind spots.}}
-\end{center}
+\bigq{\textbf{Should we believe it?}}
 \vspace{1em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0]
-\node[draw,rounded corners=6pt,fill=smx!15,thick,text width=5.5cm,align=center,minimum height=2.6cm] at (-3.5,0)
-  {\Large \textbf{softmax}\\[0.5em]
-   \small the \emph{AI} judging\\ \emph{itself}\\[0.3em]
-   \small\emph{(can be confident + wrong)}};
-\node[draw,rounded corners=6pt,fill=ok!15,thick,text width=5.5cm,align=center,minimum height=2.6cm] at (3.5,0)
-  {\Large \textbf{$\sigma$}\\[0.5em]
-   \small the \emph{math} judging\\ the AI\\[0.3em]
-   \small\emph{(doesn't read the AI at all)}};
-\end{tikzpicture}
-\end{center}
+\plain{That single question is the whole paper. Everything else is
+about answering it well.}
+\end{frame}
+
+\begin{frame}{Why it matters}
+\begin{itemize}
+\item Receipts feed tax filing, expense reports, audits, accounting.
+\item A wrong total is not noticed at the time --- it is filed,
+trusted, and discovered weeks later, if ever.
+\item Billions of receipts are read by computers. Small error rates
+become large amounts of money.
+\end{itemize}
 \vspace{1em}
-\begin{center}{\Large \textbf{\textcolor{ok}{These two signals fail on \emph{different} receipts.}}}\end{center}
-\vfill
+\keybox{We want an automatic ``\textcolor{bad}{do not trust this
+one}'' alarm, so a human checks only the risky receipts.}
 \end{frame}
 
-% ============== SLIDE 14: TOGETHER (VENN) ==============
-\begin{frame}{}
-\begin{center}
-{\Large \textbf{Use both. Accept only when \emph{both} agree.}}
-\end{center}
-\vspace{0.5em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0]
-\fill[smx!30,opacity=0.7] (-1.5,0) circle (2.2);
-\fill[sig!30,opacity=0.7] (1.5,0) circle (2.2);
-\node[text=smx,font=\Large\bfseries] at (-3.2,0) {softmax};
-\node[text=sig,font=\Large\bfseries] at (3.2,0) {$\sigma$};
-\node[align=center,font=\small] at (-2.1,0) {softmax\\ only};
-\node[align=center,text=ok,font=\Large\bfseries] at (0,0) {BOTH};
-\node[align=center,font=\small] at (2.1,0) {$\sigma$\\ only};
-\node[font=\Large] at (0,-2.9) {\textbf{Intersection $\Rightarrow$ \textcolor{ok}{near-perfect precision}}};
-\end{tikzpicture}
-\end{center}
-\end{frame}
-
-% ============== SLIDE 15: BIG NUMBER ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large Per corpus, when \textbf{both} AIs agree:}\\[1.0em]
-{\Large WildReceipt \textbf{\textcolor{ok}{113/114}} \quad CORD \textbf{\textcolor{ok}{32/33}}}\\[0.3em]
-{\large (SROIE 15/15, but $n{=}15$ --- consistency only)}\\[1.0em]
-{\large Pooled $n{=}919$: \textbf{\textcolor{ok}{98.8\%}} (160/162), Wilson LB \textbf{95.6\%}}\\[0.3em]
-{\small We lead with per-corpus; the pool is carried by WildReceipt.}\\[0.8em]
-{\large Either signal alone: \emph{below 0.92.}}
-\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 16: 3 CORPORA, 2 AIs ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-{\Large\textbf{Three datasets. Two AI architectures. Same answer.}}
-\end{center}
-\vspace{1.5em}
-\begin{center}
-\begin{tikzpicture}[scale=0.9]
-\node[draw,rounded corners=4pt,fill=sig!15,thick,minimum width=2.4cm,minimum height=1.4cm] at (-4,0) {CORD-v2};
-\node[font=\small] at (-4,-1) {$n{=}100$};
-\node[draw,rounded corners=4pt,fill=sig!15,thick,minimum width=2.4cm,minimum height=1.4cm] at (0,0) {SROIE};
-\node[font=\small] at (0,-1) {$n{=}347$};
-\node[draw,rounded corners=4pt,fill=sig!15,thick,minimum width=2.4cm,minimum height=1.4cm] at (4,0) {WildReceipt};
-\node[font=\small] at (4,-1) {$n{=}472$};
-\node[text=ok,font=\bfseries] at (-4,1.5) {Donut};
-\node[text=ok,font=\bfseries] at (0,1.5) {Donut};
-\node[text=ok,font=\bfseries] at (4,1.5) {LayoutLMv3};
-\node[font=\Large] at (0,-2.3) {\textbf{Pooled $n = 919$}};
-\end{tikzpicture}
-\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 17: FIG_OVERVIEW ==============
-\begin{frame}{}
-\begin{center}\includegraphics[width=0.95\linewidth]{figures/fig_overview.pdf}\end{center}
-\begin{center}{\Large \textbf{Hatched bar (both agree) wins on every corpus.}}\end{center}
-\end{frame}
-
-% ============== SLIDE 18: VENN ==============
-\begin{frame}{}
-\begin{center}\includegraphics[width=0.85\linewidth]{figures/fig_accept_venn.pdf}\end{center}
-\begin{center}\large The \emph{middle} of each Venn $=$ both signals agree. Always more precise.\end{center}
-\end{frame}
-
-% ============== SLIDE 19: WILDRECEIPT STRIKING CASE ==============
-\begin{frame}{}
-\vfill
-\begin{center}{\Large \textbf{The striking case: WildReceipt}}\end{center}
-\vspace{1em}
-\begin{center}
-\begin{tikzpicture}[scale=1.1]
-\draw[fill=smx!40] (0,0) rectangle (2,3.2);
-\node[font=\bfseries] at (1,3.55) {softmax};
-\node at (1,-0.45) {\Large \textbf{0.953}};
-\node[font=\Large] at (3.2,1.6) {$+$};
-\draw[fill=sig!40] (4.4,0) rectangle (6.4,3.2);
-\node[font=\bfseries] at (5.4,3.55) {$\sigma$};
-\node at (5.4,-0.45) {\Large \textbf{0.953}};
-\node[font=\Large] at (7.6,1.6) {$=$};
-\draw[fill=ok!50,pattern=north east lines,pattern color=ok] (8.8,0) rectangle (10.8,3.33);
-\node[font=\bfseries] at (9.8,3.55) {both};
-\node at (9.8,-0.45) {\Large\bfseries\textcolor{ok}{0.991}};
-\end{tikzpicture}
-\end{center}
-\vspace{1em}
-\begin{center}{\Large \textbf{Equal alone. Different mistakes. Together: 113 / 114.}}\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 19b: IS IT A STATISTICAL ARTEFACT? ==============
-\begin{frame}{}
-\vfill
-\begin{center}{\Large \textbf{``Doesn't intersecting \emph{any} two gates raise precision?''}}\end{center}
-\vspace{0.6em}
-\begin{center}{\large Fair challenge. So we ran two controls at the \emph{same} coverage.}\end{center}
-\vspace{1.0em}
-\begin{center}
-\begin{tikzpicture}[scale=0.95]
-\node[draw,rounded corners=4pt,fill=grey!12,thick,text width=3.8cm,align=center,minimum height=3.0cm] at (-5.2,0)
-  {\textbf{Random gate}\\[0.3em]\scriptsize accepts a random
-   same-size set (no information)\\[0.3em]
-   lift $\le \ctrlLrandHi$\\[0.2em]\scriptsize $\approx$ zero};
-\node[draw,rounded corners=4pt,fill=grey!12,thick,text width=3.8cm,align=center,minimum height=3.0cm] at (0,0)
-  {\textbf{Copy-of-softmax}\\[0.3em]\scriptsize a 2nd gate built
-   \emph{from} softmax, same quality as $\sigma$\\[0.3em]
-   lift $\le \ctrlLcorrHi$\\[0.2em]\scriptsize $\approx$ zero};
-\node[draw,rounded corners=4pt,fill=ok!18,thick,text width=3.8cm,align=center,minimum height=3.0cm] at (5.2,0)
-  {\textbf{$\sigma$ (ours)}\\[0.3em]\scriptsize an \emph{independent}
-   arithmetic check\\[0.3em]
-   lift $\mathbf{\ctrlLsigma}$\\[0.2em]\scriptsize CI
-   $[\ctrlLsigmaLo,\ctrlLsigmaHi]$};
-\end{tikzpicture}
-\end{center}
-\vspace{0.6em}
-\begin{center}{\large On the \emph{paired} test $\sigma$ beats \textbf{both} controls (random $p\,{=}\,\orthDrandP$, copy-of-softmax $p\,{=}\,\orthDcorrP$) and rejects softmax's wrong receipts directly ($\phi\,{=}\,\orthPhi$, $p\,{=}\,\orthPhiP$). \textbf{Pooled orthogonality holds}; per-corpus power is limited to WildReceipt.}\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 19c: HONEST ABOUT THE REGIME ==============
-\begin{frame}{}
-\vfill
-\begin{center}{\Large \textbf{Where $\sigma$ is honest about itself}}\end{center}
-\vspace{1.0em}
-\begin{center}
-\begin{tikzpicture}[scale=1.0]
-\node[draw,rounded corners=6pt,fill=ok!15,thick,text width=11.5cm,align=center,minimum height=1.5cm] at (0,1.3)
-  {\textbf{Clean amounts (CORD labels):} $\sigma$ \emph{beats} softmax
-   alone --- $0.982$ vs.\ $0.927$.};
-\node[draw,rounded corners=6pt,fill=shred!12,thick,text width=11.5cm,align=center,minimum height=1.7cm] at (0,-1.1)
-  {\textbf{OCR amounts (SROIE) --- the production-like regime:}
-   $\sigma$ \emph{trails} softmax alone ($0.867$ vs.\ $0.947$). Its
-   value there is only \emph{in combination}, not standalone.};
-\end{tikzpicture}
-\end{center}
-\vspace{0.6em}
-\begin{center}\small We say this in the paper too: the win is the \emph{independent second opinion}, not a better single gate.\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 20: COST ==============
-\begin{frame}{}
-\vfill
-\begin{center}{\Large \textbf{How expensive is $\sigma$?}}\end{center}
-\vspace{1em}
-\begin{center}
-\begin{tikzpicture}
-\draw[fill=smx!50] (0,0) rectangle (12,1.4);
-\node[font=\large] at (6,2.0) {AI inference};
-\node[font=\Large] at (6,0.7) {$\sim$\,175 ms};
-\draw[fill=ok!60] (0,-1.6) rectangle (0.002,-0.2);
-\node[anchor=west,font=\large] at (0.4,-0.9) {$\sigma$ verifier $\sim$\,1.5 $\mu$s};
-\end{tikzpicture}
-\end{center}
-\vspace{1em}
-\begin{center}\small \emph{175 ms} $\approx$ a single blink. \emph{1.5 $\mu$s} $\approx$ a millionth of a second.\end{center}
-\vspace{0.6em}
-\begin{center}{\Huge \textbf{\textcolor{ok}{0.0016\%}}}\\[0.3em]{\Large of total time. Effectively free.}\end{center}
-\vfill
-\end{frame}
-
-% ============== SLIDE 21: BEFORE / AFTER ==============
-\begin{frame}{}
-\vfill
-\begin{center}
-\begin{tikzpicture}[scale=1.0]
-\node[draw,rounded corners=6pt,fill=smx!15,thick,text width=6cm,align=center,minimum height=3cm] at (-4.2,0)
-  {\textbf{\Large Before this paper}\\[0.3em]
-   {\Large Longstanding default}\\[0.4em]
-   {\large One signal:}\\
-   {\large softmax confidence}\\[0.3em]
-   {\small confidently wrong $\Rightarrow$ silently wrong}};
-\node[draw,rounded corners=6pt,fill=ok!15,thick,text width=6cm,align=center,minimum height=3cm] at (4.2,0)
-  {\textbf{\Large After this paper}\\[0.3em]
-   {\Large Today}\\[0.4em]
-   {\large Two signals:}\\
-   {\large softmax \emph{+} $\sigma$ math check}\\[0.3em]
-   {\small both agree $\Rightarrow$ near-perfect precision}};
-\draw[->,very thick,>=Stealth] (-0.9,0) -- (0.9,0);
-\end{tikzpicture}
-\end{center}
-\vfill
-\begin{center}{\large \textbf{The longstanding default finally has a peer-reviewed \emph{partner}.}}\end{center}
-\end{frame}
-
-% ============== SLIDE 22: WHY THIS MATTERS ==============
-\begin{frame}{}
-\vfill
-\begin{center}{\Large\textbf{Why this matters in the real world}}\end{center}
-\vspace{1em}
-\begin{center}
-\begin{tikzpicture}[scale=0.95]
-\node[draw,rounded corners=4pt,fill=sig!10,thick,text width=4cm,align=center,minimum height=1.6cm] at (-4.5,1.2) {\textbf{Tax filings}};
-\node[draw,rounded corners=4pt,fill=sig!10,thick,text width=4cm,align=center,minimum height=1.6cm] at (0,1.2) {\textbf{Expense reports}};
-\node[draw,rounded corners=4pt,fill=sig!10,thick,text width=4cm,align=center,minimum height=1.6cm] at (4.5,1.2) {\textbf{Audit logs}};
-\node[draw,rounded corners=4pt,fill=sig!10,thick,text width=4cm,align=center,minimum height=1.6cm] at (-2.25,-1.0) {\textbf{Bookkeeping}};
-\node[draw,rounded corners=4pt,fill=sig!10,thick,text width=4cm,align=center,minimum height=1.6cm] at (2.25,-1.0) {\textbf{Insurance claims}};
-\end{tikzpicture}
-\end{center}
+% ===================================================================
+\section{Part 1 --- what an ``AI model'' is}
+% ===================================================================
+\begin{frame}{What is an ``AI model''? (no jargon)}
+\plain{A model is just a \textbf{function}: you put something in, you
+get something out.}
 \vspace{0.8em}
-\begin{center}\small Expensify, Concur, QuickBooks, SAP Concur: \textbf{millions of receipts/day}.\\\small A silently wrong total = real audit risk, real money, real regulatory exposure.\end{center}
-\vfill
+\begin{itemize}
+\item In: a picture of a receipt.
+\item Out: text fields, including \texttt{total = \$58.40}.
+\end{itemize}
+\vspace{0.8em}
+It was \emph{built} by showing it thousands of example receipts with
+the correct answers, and automatically tuning millions of internal
+numbers until it usually answers correctly. That tuning is
+``training''. We treat the trained model as a fixed black box.
 \end{frame}
 
-% ============== SLIDE 23: TAKE-HOME ==============
-\begin{frame}{}
-\vfill
-\begin{center}{\Huge\textbf{Take-home}}\end{center}
+\begin{frame}{Two model families we use (just names)}
+\begin{itemize}
+\item \textbf{Donut}: reads the receipt image and \emph{writes the
+answer out one character at a time}, like a person typing. Called
+``generative''.
+\item \textbf{LayoutLMv3}: looks at each word on the page and
+\emph{labels} it (``this word is the total''). Called
+``encoder-only''.
+\end{itemize}
 \vspace{1em}
-\begin{center}
-\begin{tikzpicture}
-\node[draw,rounded corners=8pt,fill=ok!10,thick,text width=12.5cm,align=center,minimum height=3.5cm] at (0,0) {
-\Large If the receipt's own math doesn't back up the AI's number,\\[0.4em]
-\Large \textbf{don't trust the AI.}\\[0.8em]
-\large Softmax-only confidence $\to$ softmax \emph{plus} arithmetic.\\[0.3em]
-\large \textbf{\textcolor{ok}{98.8\% precision. 0.0016\% latency.}}
-};
-\end{tikzpicture}
-\end{center}
-\vfill
-\begin{center}\large \emph{Thank you.\quad Questions?}\end{center}
+\keybox{We test on both so a finding is not a quirk of one design.}
+\end{frame}
+
+\begin{frame}{Probability = a number between 0 and 1}
+\plain{A probability is just a fraction of certainty.}
+\begin{itemize}
+\item $1.0$ = totally sure. \quad $0.5$ = coin flip. \quad $0.0$ = no
+chance.
+\item $0.97$ means ``pretty sure''. $0.30$ means ``probably not''.
+\end{itemize}
+\vspace{1em}
+That is all ``probability'' will ever mean in this talk: a sureness
+dial from 0 to 1.
+\end{frame}
+
+\begin{frame}{Softmax / ``confidence'': the model's own sureness}
+When the model produces an answer it also produces a number from 0 to
+1 about \emph{its own} answer: ``how sure am I?''. The machinery that
+makes that number is called \textbf{softmax}; the number is the
+model's \textbf{confidence}.
+\vspace{1em}
+\keybox{\textbf{softmax confidence} = the model grading its own
+homework. For 30+ years this self-grade was the only ``should I trust
+it?'' signal practitioners had.}
+\end{frame}
+
+\begin{frame}{The catch: confidently wrong}
+\begin{columns}
+\column{0.55\linewidth}
+\begin{itemize}
+\item Model says \textbf{\$58.40}, ``\textcolor{smx}{97\% sure}''.
+\item Real total: \textbf{\$48.40}.
+\item It is \emph{sure} and \emph{wrong} at the same time.
+\end{itemize}
+\column{0.42\linewidth}
+\keybox{A self-grade can be confidently wrong. We need a check that
+does \emph{not} ask the model about itself.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{``Distribution shift'': trained here, used there}
+\plain{The model learns the patterns of the receipts it was trained
+on. Deployed receipts may look different (other shops, countries,
+layouts). That mismatch is called \textbf{distribution shift}.}
+\vspace{1em}
+\begin{itemize}
+\item Trained on Indonesian restaurant receipts (a set called
+\textbf{CORD}).
+\item Used on Malaysian shop receipts (\textbf{SROIE}) or English
+receipts (\textbf{WildReceipt}).
+\end{itemize}
+Under shift, models fail more --- and often \emph{silently}.
+\end{frame}
+
+\begin{frame}{The three receipt collections (``datasets'')}
+\begin{itemize}
+\item \textbf{CORD}: Indonesian restaurant receipts. The ``home''
+data.
+\item \textbf{SROIE}: Malaysian shop receipts. ``Away'' data.
+\item \textbf{WildReceipt}: English receipts. A third ``away'' set,
+read by the other model family (LayoutLMv3).
+\end{itemize}
+\vspace{1em}
+\keybox{A ``dataset'' is just a labelled pile of examples: each
+receipt plus its true total.}
+\end{frame}
+
+% ===================================================================
+\section{Part 2 --- our idea, in one picture}
+% ===================================================================
+\begin{frame}{The idea: don't ask the AI --- ask the receipt}
+\bigq{The receipt already contains every line-item price.}
+\vspace{0.6em}
+\bigq{If some of them add up to the predicted total, the answer is
+arithmetically consistent. If \emph{nothing} adds up, be suspicious.}
+\vspace{0.6em}
+\plain{We call this arithmetic check \textbf{$\sigma$} (the Greek
+letter ``sigma'', traditionally used for ``sum'').}
+\end{frame}
+
+\begin{frame}{``Subset-sum'': do some items add to the total?}
+Receipt line prices: \;\texttt{3.00, 5.50, 2.00, 48.40, 1.40}.\\
+Predicted total: \;\texttt{\$48.40}.
+\vspace{0.8em}
+\begin{itemize}
+\item Question $\sigma$ asks: can I pick \emph{some} of these numbers
+that sum exactly to the predicted total (within a cent)?
+\item Here: $48.40$ itself works $\Rightarrow$ \textcolor{ok}{consistent}.
+\item If predicted were \$58.40 and no subset sums to it
+$\Rightarrow$ \textcolor{bad}{flag it}.
+\end{itemize}
+\keybox{This ``does any subset add up?'' question is the classic
+\textbf{subset-sum} problem. A short standard procedure answers it
+exactly in microseconds.}
+\end{frame}
+
+\begin{frame}{Why $\sigma$ is interesting: it never looks at the AI}
+\begin{itemize}
+\item softmax: the AI grading itself (inside the model).
+\item $\sigma$: arithmetic on the document (outside the model).
+\end{itemize}
+\vspace{1em}
+\keybox{Two \emph{independent} opinions. The whole paper is about
+whether combining an inside-opinion and an outside-opinion beats
+either alone --- and by how much, honestly measured.}
+\end{frame}
+
+% ===================================================================
+\section{Part 3 --- the measuring vocabulary (from zero)}
+% ===================================================================
+\begin{frame}{We must \emph{measure}. First, four plain words}
+\begin{itemize}
+\item \textbf{Accept / abstain}: a gate either accepts an answer (``I
+trust it'') or abstains (``send to a human'').
+\item \textbf{Coverage}: the fraction of receipts the gate accepts.
+\item \textbf{Correct}: the accepted answer matched the true total.
+\item \textbf{Precision}: among accepted answers, the fraction that
+were correct.
+\end{itemize}
+\vspace{0.8em}
+\keybox{High precision but low coverage = ``I only vouch for a few,
+but those few I am almost always right about.''}
+\end{frame}
+
+\begin{frame}{Average and median (the two ``typical value'' words)}
+\begin{itemize}
+\item \textbf{Average (mean)}: add the numbers, divide by how many.
+\item \textbf{Median}: line the numbers up, take the middle one.
+Robust to a few wild values.
+\end{itemize}
+\vspace{1em}
+\keybox{Both answer ``what is a typical value here?''. We use whichever
+is less misleading for the quantity at hand.}
+\end{frame}
+
+\begin{frame}{Correlation: do two numbers move together?}
+\plain{If when one number is big the other tends to be big, they are
+\textbf{positively correlated}. If one big means the other small,
+\textbf{negatively correlated}. If unrelated, \textbf{near zero}.}
+\vspace{0.8em}
+A correlation is itself a number from $-1$ to $+1$:
+\begin{itemize}
+\item $+1$ = move perfectly together, $-1$ = perfectly opposite,
+$0$ = unrelated.
+\end{itemize}
+``Spearman'' correlation is the same idea using \emph{rankings}
+(1st, 2nd, 3rd\dots) instead of raw values --- safer when scales
+differ.
+\end{frame}
+
+\begin{frame}{$\phi$ (phi): correlation for yes/no outcomes}
+When the two things are yes/no (e.g.\ ``did $\sigma$ fail?'' and
+``did softmax fail?''), the same $-1\ldots+1$ correlation idea has a
+special name, \textbf{$\phi$}.
+\vspace{0.8em}
+\keybox{$\phi \approx 0$ between two error-flags means the two methods
+\emph{fail on different receipts} --- exactly the property that makes
+combining them useful.}
+\end{frame}
+
+\begin{frame}{What does ``significant'' mean? The luck question}
+Any measured difference could be a fluke of which receipts we happened
+to test. So we always ask:
+\bigq{``If there were \emph{no real effect}, how often would pure luck
+produce a result this big?''}
+That ``how often by luck'' fraction is the \textbf{p-value}.
+\begin{itemize}
+\item p $=0.05$: luck would do this 1 time in 20. \quad p $=0.001$:
+1 in 1000.
+\item Small p $\Rightarrow$ unlikely to be luck $\Rightarrow$ we call
+it \textbf{statistically significant}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Permutation test: measuring luck by shuffling}
+How do we get a p-value without heavy theory? We \emph{simulate luck}:
+\begin{enumerate}
+\item Randomly shuffle the labels (break any real link on purpose).
+\item Re-measure the effect on the shuffled data.
+\item Repeat thousands of times $\Rightarrow$ a pile of ``pure luck''
+results.
+\item p = fraction of luck-results as big as the real one.
+\end{enumerate}
+\keybox{Honest and assumption-free: we literally show how rare the
+real result is compared to chance.}
+\end{frame}
+
+\begin{frame}{Bootstrap: how sure are we of a number?}
+We measured, say, a lift of $0.05$ on \emph{these} receipts. Would
+other receipts give the same? The \textbf{bootstrap}:
+\begin{enumerate}
+\item Make a new fake sample by drawing receipts at random (with
+repeats) from the ones we have.
+\item Re-measure. Repeat thousands of times.
+\item The spread of those re-measurements shows how shaky the number
+is.
+\end{enumerate}
+\keybox{The middle 95\% of those re-measurements is the
+\textbf{95\% confidence interval} --- a plain ``we're fairly sure the
+true value is in this range''.}
+\end{frame}
+
+\begin{frame}{Reading a confidence interval}
+``Lift $=0.05$, 95\% CI $[0.02,\,0.08]$'' means:
+\begin{itemize}
+\item Best estimate: $0.05$.
+\item Plausible range: $0.02$ to $0.08$.
+\item The range \emph{excludes 0} $\Rightarrow$ there is probably a
+real positive effect.
+\item If the range \emph{included 0}, we could not rule out ``nothing''.
+\end{itemize}
+\keybox{Interval excludes 0 = real; interval straddles 0 = not shown.}
+\end{frame}
+
+\begin{frame}{AUROC: one number for ``can this score separate A from B?''}
+Give every receipt a risk score. Pick one truly-bad and one truly-good
+receipt at random. \textbf{AUROC} = the chance the bad one gets the
+higher risk score.
+\begin{itemize}
+\item $1.0$ = perfect separation. \quad $0.5$ = useless (coin flip).
+\item $0.8$ = fairly good. $0.98$ = excellent.
+\end{itemize}
+\keybox{AUROC turns ``is this score any good at telling apart two
+groups?'' into a single 0.5--1.0 grade.}
+\end{frame}
+
+\begin{frame}{McNemar: comparing two methods on the \emph{same} items}
+Run two methods on the same receipts. Look only at the receipts where
+they \emph{disagree}:
+\begin{itemize}
+\item If disagreements are lopsided (one method right far more often)
+$\to$ methods differ.
+\item If disagreements are balanced $\to$ ``no asymmetry'': the
+methods are not simply better/worse, they are differently-wrong.
+\end{itemize}
+\keybox{For us, ``no asymmetry'' is good: it means $\sigma$ and
+softmax are not the same gate in disguise.}
+\end{frame}
+
+% ===================================================================
+\section{Part 4 --- the experiments, in plain words}
+% ===================================================================
+\begin{frame}{The experiment pipeline (names you will see)}
+We run each model on each dataset and record, per receipt:
+softmax confidence, whether $\sigma$ accepts, and whether the answer
+was actually correct. The scripts are just labels:
+\begin{itemize}
+\item \textbf{B, MB} = Donut on CORD (home). \quad \textbf{A, M} =
+Donut on SROIE (away).
+\item \textbf{F, MF2} = LayoutLMv3 on WildReceipt (other model).
+\item \textbf{U, U2, U3} = the analyses that compare the gates.
+\end{itemize}
+\keybox{No model is re-run for the analyses --- U/U2/U3 only
+re-read the recorded per-receipt yes/no/correct table.}
+\end{frame}
+
+\begin{frame}{Headline measurement: the intersection precision lift}
+``Intersection'' = accept only when \emph{both} $\sigma$ and softmax
+are happy.
+\vspace{0.6em}
+\begin{itemize}
+\item On \textbf{WildReceipt}: both-agree is right $113$ of $114$ =
+\textcolor{ok}{$0.991$}, where each signal \emph{alone} is only
+$0.953$.
+\item On \textbf{CORD}: both-agree $32$ of $33$ = $0.970$, single
+gates below $0.93$.
+\item On \textbf{SROIE}: $15/15$, but $n{=}15$ is too small to claim
+more than ``consistent''.
+\end{itemize}
+\keybox{Where both opinions agree, the answer is almost always right
+--- visibly higher than either opinion by itself.}
+\end{frame}
+
+\begin{frame}{The fair objection (and why U/U2 exist)}
+\plain{A sceptic says: ``Intersecting \emph{any} two decent filters
+raises precision and lowers coverage. Your gain might be that generic
+shrink, not real independence.''}
+\vspace{1em}
+\keybox{So we must prove $\sigma$'s mistakes are genuinely
+\emph{decorrelated} from softmax's --- not just ``another filter''.
+That is what U and U2 test.}
+\end{frame}
+
+\begin{frame}{Two control gates (the honest comparison)}
+We compare $\sigma$ against two fake ``placebo'' gates at the same
+coverage:
+\begin{itemize}
+\item \textbf{Random gate}: accepts a random subset. Carries no
+information --- isolates the pure ``shrinking coverage'' effect.
+\item \textbf{Correlated gate}: a second gate \emph{built from
+softmax} with the same standalone quality as $\sigma$. Tests ``would
+any second good softmax-like gate do as well?''
+\end{itemize}
+\keybox{$\sigma$ must beat \emph{both} placebos to claim it adds
+genuinely independent information.}
+\end{frame}
+
+\begin{frame}{U: the first (too-strict) test}
+U asked: does $\sigma$'s confidence interval lie \emph{entirely
+above} both placebos' intervals?
+\begin{itemize}
+\item That non-overlap rule is known to be \emph{over-strict}: two
+ranges can overlap while the real difference is still significant.
+\item U said ``not cleanly separated''.
+\end{itemize}
+\keybox{Lesson learned mid-project: U used the wrong test. The fix was
+not to soften the claim --- it was to run the \emph{correct} test.}
+\end{frame}
+
+\begin{frame}{U2: the correct test (paired difference)}
+U2 measures the \emph{difference} directly, receipt-by-receipt, with a
+bootstrap, plus a permutation test of error-decorrelation $\phi$.
+\vspace{0.6em}
+\keybox{Pooled result: $\sigma$'s lift over the random gate
+$=\orthDrand$ (p $=\orthDrandP$); over the correlated gate
+$=\orthDcorr$ (p $=\orthDcorrP$); error-decorrelation
+$\phi=\orthPhi$, permutation p $=\orthPhiP$. Verdict:
+\textcolor{ok}{\textbf{\orthEarned}}.}
+\vspace{0.4em}
+\plain{In words: $\sigma$'s mistakes really are decorrelated from
+softmax's --- this is established, not merely suggested.}
+\end{frame}
+
+\begin{frame}{What ``\orthEarned'' honestly does and does not mean}
+\begin{itemize}
+\item \textbf{Does}: the \emph{statistical orthogonality} is real and
+reproducible (very small luck-probability, beats both placebos).
+\item \textbf{Does not}: it is a \emph{small} effect, and broken out
+per dataset it is individually clear only on WildReceipt; on CORD and
+SROIE the per-dataset test is not significant.
+\end{itemize}
+\keybox{We claim the orthogonality. We do \emph{not} claim it is large
+or that every dataset shows it alone. Both halves are stated.}
+\end{frame}
+
+\begin{frame}{U3: is it operationally \emph{useful}? (honest null)}
+``Risk--coverage'': sweep how much you accept; plot how much risk
+remains. Compare softmax-alone vs.\ $\sigma$-gated at equal coverage.
+\begin{itemize}
+\item Pooled: the difference is tiny and its interval \emph{includes
+zero} (not significant).
+\item Reason: both already sit at \emph{near-zero error} here --- there
+is almost no risk left to remove, so the test has no room to show a
+gain.
+\end{itemize}
+\keybox{We keep this null stated. It bounds the \emph{operational}
+payoff; it does not weaken the orthogonality claim, which is a
+different question.}
+\end{frame}
+
+\begin{frame}{Where the operational gain can appear}
+A risk reduction can only show up where there is real error to
+reduce.
+\begin{itemize}
+\item WildReceipt --- the one regime with appreciable base error --- is
+exactly where $\sigma$-gating is individually favourable.
+\item Where the model is already almost always right (CORD home
+turf), no gate can improve much.
+\end{itemize}
+\keybox{Honest scope: orthogonality established; operational benefit
+expected (and seen) only when base error is non-trivial.}
+\end{frame}
+
+% ===================================================================
+\section{Part 5 --- honest summary}
+% ===================================================================
+\begin{frame}{What this paper claims --- exactly}
+\begin{itemize}
+\item[\textcolor{ok}{$\checkmark$}] A document-side arithmetic check
+$\sigma$ is \emph{statistically softmax-orthogonal}: its errors are
+decorrelated from the model's confidence (U2: p $=\orthPhiP$, beats
+two placebos).
+\item[\textcolor{ok}{$\checkmark$}] Where both agree, precision is
+visibly higher (e.g.\ WildReceipt $0.991$ vs $0.953$).
+\item[\textcolor{ok}{$\checkmark$}] Works across two model families
+and three datasets; McNemar shows no asymmetry.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{What this paper does \emph{not} claim (kept stated)}
+\begin{itemize}
+\item[\textcolor{bad}{$\times$}] Not a large effect --- the pooled
+lift is small.
+\item[\textcolor{bad}{$\times$}] Not significant per-dataset on CORD
+or SROIE (only WildReceipt individually).
+\item[\textcolor{bad}{$\times$}] No proven risk--coverage gain pooled
+(near-zero base error leaves no headroom).
+\end{itemize}
+\keybox{Stating the limits \emph{is} the contribution's credibility.
+We neither inflate nor disown them.}
+\end{frame}
+
+\begin{frame}{One-slide takeaway}
+\bigq{The model's self-confidence is one opinion. Arithmetic on the
+receipt is a genuinely \emph{independent} second opinion.}
+\vspace{0.8em}
+\bigq{Their disagreements do not line up (proven, small p) --- so
+combining them is principled, and where it matters most (real error),
+it visibly helps.}
+\vspace{0.8em}
+\plain{Honest, reproducible, and exactly scoped --- no more, no less.}
+\end{frame}
+
+\begin{frame}{Glossary (everything in one place)}
+\scriptsize
+\begin{columns}
+\column{0.5\linewidth}
+\textbf{probability}: sureness 0--1.\\
+\textbf{softmax / confidence}: model grading itself.\\
+\textbf{distribution shift}: used on data unlike training.\\
+\textbf{$\sigma$}: subset-sum arithmetic check on the receipt.\\
+\textbf{subset-sum}: do some line items add to the total?\\
+\textbf{coverage}: fraction accepted.\\
+\textbf{precision}: of accepted, fraction correct.
+\column{0.5\linewidth}
+\textbf{correlation/$\phi$}: do two things move together ($-1..1$).\\
+\textbf{p-value}: chance pure luck makes this.\\
+\textbf{permutation test}: get p by shuffling.\\
+\textbf{bootstrap / CI}: resample to get a sure-range.\\
+\textbf{AUROC}: 0.5--1 grade for separating two groups.\\
+\textbf{McNemar}: paired comparison via disagreements.\\
+\textbf{orthogonal}: errors decorrelated $\Rightarrow$ independent.
+\end{columns}
 \end{frame}
 
 \end{document}
