@@ -178,6 +178,40 @@ become large amounts of money.
 one}'' alarm, so a human checks only the risky receipts.}
 \end{frame}
 
+\begin{frame}{Why it matters \emph{operationally} (three concrete reasons)}
+\begin{itemize}
+\item \textbf{Silent failures are the expensive ones.} A
+plausible-looking wrong total is filed unchallenged and propagates
+for weeks before an audit catches it.
+\item \textbf{Human review is costly.} Sending a receipt to a person
+costs roughly $100$ to $1000$ times one machine inference. The whole
+point of automation is to defer to people only when truly needed.
+\item \textbf{Regulation increasingly demands it.} The EU AI Act,
+FDA software-as-a-medical-device style continuous-monitoring rules,
+and financial-services model-risk rules push for a documented,
+per-prediction trust signal. A check computed on the document, not
+the model, produces a separate audit trail.
+\end{itemize}
+\keybox{So a trust signal is not a nicety: it is an operational and
+increasingly a regulatory requirement.}
+\end{frame}
+
+\begin{frame}{``Selective prediction'': the standard mitigation}
+\plain{Instead of forcing the model to answer every receipt, we let
+it \textbf{defer}: say ``I am not sure, send this one to a human''.}
+\vspace{0.6em}
+\begin{itemize}
+\item This is a long-studied idea called \textbf{selective
+prediction} (or learning with a reject option).
+\item Every deployment then needs one thing: a \emph{signal} that
+decides accept-versus-defer for each receipt.
+\item Until now, in neural receipt reading, that signal has been
+softmax confidence, and \emph{only} softmax confidence.
+\end{itemize}
+\keybox{This paper adds a second, independent signal for that exact
+accept-versus-defer decision.}
+\end{frame}
+
 % ===================================================================
 \section{Part 1: what an ``AI model'' is}
 % ===================================================================
@@ -314,6 +348,50 @@ whether combining an inside-opinion and an outside-opinion beats
 either alone, and by how much, honestly measured.}
 \end{frame}
 
+\begin{frame}{The $\sigma$ gate, written out exactly}
+\plain{Same idea as the previous slide, now precise. Let $\pi$ be
+the model's predicted total and $M=\{m_1,\dots,m_n\}$ the multiset
+of money amounts visible on the receipt.}
+\vspace{0.4em}
+\begin{itemize}
+\item Reachable set: every sum you can make from a subset of $M$ of
+size at least $k_{\min}$:
+\[
+T(M)=\Big\{\textstyle\sum_{i\in S} m_i \;\Big|\;
+   S\subseteq\{1,\dots,n\},\; |S|\ge k_{\min}\Big\}.
+\]
+\item $\sigma$ \textbf{accepts} $\pi$ exactly when some reachable sum
+is within tolerance $\varepsilon$ of $\pi$:
+$\inf_{t\in T(M)}|t-\pi|\le\varepsilon$.
+\item We use $\varepsilon=0.02$ (two cents) throughout. Amounts are
+stored as integer cents, so there are no floating-point surprises.
+\end{itemize}
+\keybox{On a well-formed receipt a witness exists \emph{by
+construction}: the total really is a sum of visible amounts. Where
+no subset closes (hidden discount, unprinted service charge), $\sigma$
+rejects, and we localise its losses to exactly those violations.}
+\end{frame}
+
+\begin{frame}{Getting the amounts $M$ off the page (extraction $\tau$)}
+\plain{$\sigma$ needs the list of money amounts. Where that list
+comes from differs by corpus, and we are explicit about it.}
+\begin{itemize}
+\item \textbf{CORD} (labelled fields): $M$ is read directly from the
+per-field JSON. Clean amounts.
+\item \textbf{SROIE} (OCR text): a \emph{multi-candidate} extractor.
+When a line is ambiguous (tax \emph{rate} vs.\ tax \emph{amount}) we
+keep \emph{both} readings as candidates and accept $\pi$ if
+\emph{any} candidate set yields a witness (on average $3.12$
+candidates per receipt).
+\item \textbf{WildReceipt} (per-token labels): $M$ comes from the
+\texttt{Prod\_price\_value} token annotations.
+\end{itemize}
+\keybox{Composition with softmax: at a coverage budget, the softmax
+gate accepts the top fraction by confidence; we match it to
+$\sigma$'s coverage on that corpus. The intersection accepts iff
+\emph{both} fire.}
+\end{frame}
+
 \begin{frame}{Why ``softmax-orthogonal'' is the precise claim}
 \plain{``Orthogonal'' here means: the two signals can be wrong, but
 they tend to be wrong on \emph{different} receipts.}
@@ -329,6 +407,46 @@ line up. That non-alignment is the whole reason combining helps.
 \keybox{$\sigma$ checks \emph{arithmetic on the page}, not
 \emph{model confidence}. That is why it is orthogonal: it cannot
 inherit softmax's mistakes, because it never reads softmax.}
+\end{frame}
+
+\begin{frame}{The bigger principle (receipts are just one instance)}
+\plain{The contribution is not an arithmetic trick special to
+receipts. It is a general selective-prediction principle:}
+\vspace{0.5em}
+\keybox{\emph{When a task's output must obey a checkable structural
+rule, a deterministic checker of that rule is a trust signal
+statistically independent of the model's softmax, because its errors
+come from the document's structure, not the decoder's internal
+scores.}}
+\vspace{0.5em}
+\begin{itemize}
+\item Receipts: the total is a subset sum of line items (our clean
+instance).
+\item The same idea applies to balancing tables, schemas with
+referential constraints, code with a compiler/type check, logic with
+a solver.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Where this sits next to existing work}
+\begin{itemize}
+\item \textbf{Softmax-based signals} (per-token probability,
+sample-based semantic divergence) all read the \emph{model}. $\sigma$
+is not a new softmax recipe: it is a different \emph{signal} that
+never reads the model.
+\item \textbf{Industrial prior art.} Arithmetic cross-checks of
+totals are common engineering practice (a decade in expense
+software). The gap we fill is the \emph{peer-reviewed analysis} of
+such a check as a softmax-orthogonal selective predictor with paired
+statistics across two architectures, not the act of checking
+arithmetic.
+\item \textbf{Conformal prediction} gives calibrated coverage but no
+verifier-style precision gate. It is complementary and stackable:
+conformal calibrates from past prediction-truth pairs; $\sigma$
+verifies one prediction against the document's own arithmetic.
+\end{itemize}
+\keybox{Novelty is deliberately scoped to the formalisation and the
+statistics, not to the idea of checking arithmetic.}
 \end{frame}
 
 % ===================================================================
@@ -512,6 +630,50 @@ more than ``consistent''.
 visibly higher than either opinion by itself.}
 \end{frame}
 
+\begin{frame}{The pooled headline table (all $n{=}\poolN$, real numbers)}
+\plain{Precision = fraction correct among accepted. The intersection
+lower bound clears the $0.95$ ``ship without a human'' floor; both
+single gates do not.}
+\vspace{0.3em}
+\begin{center}\small
+\begin{tabular}{lrrcc}
+\hline
+Gate & $n_{\text{acc}}$ & $n_{\text{corr}}$ & Precision & 95\% CI \\
+\hline
+$\sigma$ & 386 & 365 & 0.946 & [0.918, 0.964] \\
+softmax (matched) & 386 & 368 & 0.953 & [0.927, 0.970] \\
+$\sigma\sqcap$ softmax & \poolIntA & \poolIntC &
+  \textbf{0.989} & \textbf{[0.961, 0.997]} \\
+$\sigma$-only & 202 & 183 & 0.906 & [0.858, 0.939] \\
+softmax-only & 202 & 186 & 0.921 & [0.875, 0.951] \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.3em}
+\keybox{Intersection right $\poolIntC$ of $\poolIntA$, Wilson lower
+bound \textcolor{ok}{$\rgPoolWil$}. Each gate's \emph{exclusive}
+accept slice ($\sigma$-only, softmax-only) is below $0.93$: the lift
+is real, not a relabelling of one good gate.}
+\end{frame}
+
+\begin{frame}{The lift is bought with coverage (the trade, with numbers)}
+\begin{itemize}
+\item Intersection fires on only \textbf{$18.1\%$} of receipts versus
+\textbf{$38.1\%$} for either single gate (SROIE only $4.3\%$, $15/347$).
+\item Economics: with human review costing $\rho$ inferences
+($\rho\in[100,1000]$) and one silent wrong total costing $\kappa$,
+moving from softmax-matched ($c{=}0.381,\,p{=}0.954$) to the
+intersection ($c{=}0.181,\,p{=}0.989$) buys
+$\approx 0.0155 N\kappa$ fewer silent errors for $0.200 N\rho$ extra
+review.
+\item Favourable whenever $\kappa\gtrsim 13\rho$: one filed wrong
+total worth more than roughly a dozen reviews. True in tax/audit
+pipelines, \emph{not} in low-stakes bulk capture.
+\end{itemize}
+\keybox{This is a \emph{condition}, not a universal claim: the trade
+is only worth it when a silent wrong total is genuinely expensive.}
+\end{frame}
+
 \begin{frame}{Per-corpus first, pooled second (the honest framing)}
 \plain{We deliberately lead with the \emph{per-corpus} results, not the
 single pooled number, and we say why.}
@@ -587,6 +749,35 @@ where the sample is large enough to show it: stated honestly, not
 softened.}
 \end{frame}
 
+\begin{frame}{The paired McNemar table (the real $b$, $c$, $p$)}
+\plain{$b$ = receipts $\sigma$ accepts correctly that softmax does
+not; $c$ = the reverse. We want \emph{balanced} (no asymmetry):
+that is the signature of differently-wrong, combinable gates.}
+\vspace{0.3em}
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\hline
+Set & $b$ & $c$ & $\chi^2$ & $p$-value \\
+\hline
+\textbf{Pooled} & \poolMcB & \poolMcC & \poolMcChi & \poolMcP \\
+CORD-v2 (Donut) & 44 & 41 & 0.047 & 0.828 \\
+SROIE (Donut) & 50 & 56 & 0.236 & 0.627 \\
+WildReceipt (LayoutLMv3) & 91 & 91 & 0.005 & 0.941 \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.3em}
+\begin{itemize}
+\item Discordant cells are large in \emph{both} directions on every
+corpus: no gate dominates which examples it gets right.
+\item WildReceipt is the cleanest: $b{=}c{=}91$ \emph{exactly},
+two equal-size disjoint correct slices that combine into $113/114$.
+\end{itemize}
+\keybox{Honest caveat: McNemar non-rejection is \emph{absence of
+evidence for asymmetry}, not positive proof of decorrelation. The
+direct $\phi$ test (next sections) supplies the positive evidence.}
+\end{frame}
+
 \begin{frame}{One knob, set \emph{per corpus} without labels ($k_{\min}$)}
 \plain{$\sigma$ must reject a lone line item that just happens to
 equal the total (a coincidence, not a real ``it adds up''). The knob
@@ -601,7 +792,68 @@ own amount, so a single-item match is legitimate ($k_{\min}{=}1$).
 \keybox{So it is \textbf{not} a flat global $k_{\min}{=}2$: the rule is
 $k_{\min}{=}2$ on CORD and WildReceipt, $k_{\min}{=}1$ on SROIE,
 \emph{decided without using any labels} (purely from how often a single
-amount equals the prediction).}
+amount equals the prediction). The corpora separate cleanly at
+$0.07/0.05/0.41$, so the rule is insensitive to the threshold.}
+\end{frame}
+
+\begin{frame}{Cardinality-guard ablation (SROIE, the real numbers)}
+\plain{What if we force $k_{\min}$ fixed instead of using the rule?
+On the OCR regime, dropping the guard ($k_{\min}{=}1$) wins on
+\emph{both} axes, because the printed total is a legitimate
+single-line match there.}
+\vspace{0.3em}
+\begin{center}\small
+\begin{tabular}{lrr}
+\hline
+Setting (SROIE, $n{=}347$) & Coverage & Precision \\
+\hline
+$k_{\min}{=}1$ (no guard) & 0.161 & 0.929 \\
+$k_{\min}{=}2$ (guard on) & 0.029 & 0.900 \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.3em}
+\keybox{Honest scope note: this ablation uses the
+\emph{single-scalar} extractor with $k_{\min}$ forced fixed, so its
+accept set differs from the SROIE headline ($n{=}73$, precision
+$0.863$), which uses the multi-candidate extractor. These are
+different extractor configurations, not three answers to one
+experiment.}
+\end{frame}
+
+\begin{frame}{Noise robustness (CORD, $40\%$ injected noise, real numbers)}
+\plain{We deliberately corrupt money lines and re-measure. Coverage
+falls sharply, but precision does \emph{not}.}
+\vspace{0.3em}
+\begin{center}\small
+\begin{tabular}{lrrl}
+\hline
+CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
+\hline
+0.00 & 0.267 & 0.957 & [0.957, 0.957] \\
+0.10 & 0.208 & 0.949 & [0.942, 0.962] \\
+0.20 & 0.160 & 0.964 & [0.940, 0.986] \\
+0.40 & 0.091 & 0.980 & [0.940, 1.000] \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{0.3em}
+\keybox{$\sigma$ precision stays in $[0.949,\,0.980]$ under up to
+$40\%$ injected money-line noise (10 seeds, bootstrap CI). The
+verifier degrades by \emph{abstaining more}, not by accepting
+wrong answers: the safe failure direction.}
+\end{frame}
+
+\begin{frame}{The tolerance $\varepsilon$ barely matters here (and why)}
+\begin{itemize}
+\item Sweeping $\varepsilon$ from $0.01$ up to $5.00$ on CORD
+returns the \emph{identical} (coverage, precision) at every value.
+\item Reason: the reachable subset sums on CORD are spaced more than
+\$5.00 apart, so any tolerance below that resolves the exact same
+witness set. It is sparsity of $T(M)$, not luck.
+\end{itemize}
+\keybox{$\varepsilon{=}0.02$ is a safe default, not a tuned knob:
+the result is stable across two orders of magnitude of tolerance.}
 \end{frame}
 
 \begin{frame}{How fast is $\sigma$? (honestly, and with its limits)}
@@ -732,6 +984,45 @@ turf), no gate can improve much.
 expected (and seen) only when base error is non-trivial.}
 \end{frame}
 
+\begin{frame}{The per-corpus picture, as a figure}
+\begin{center}
+\includegraphics[width=0.78\textwidth]{figures/fig_overview.pdf}
+\end{center}
+\vspace{-0.3em}
+\plain{$\sigma$ (blue), matched-coverage softmax (orange), the
+intersection (hatched), and the $\sigma$-only slice, per corpus. The
+intersection exceeds either single gate on WildReceipt and SROIE, and
+exceeds the matched-coverage softmax gate on CORD. WildReceipt is the
+cleanest: equal at $0.953$ alone, $0.991$ intersected.}
+\end{frame}
+
+\begin{frame}{The accept-set overlap, as a figure}
+\begin{center}
+\includegraphics[width=0.62\textwidth]{figures/fig_accept_venn.pdf}
+\end{center}
+\vspace{-0.3em}
+\plain{Which receipts each gate accepts. The intersection (where both
+fire) is the small, high-precision core; each gate's exclusive slice
+is the lower-precision remainder. The picture is the cost-coverage
+trade made visual.}
+\end{frame}
+
+\begin{frame}{The deployment recipe (four steps)}
+\plain{Nothing here re-trains a model. It wraps an existing one.}
+\begin{enumerate}
+\item Pick any KIE model; get its predicted total $\pi$ and softmax
+confidence $s$ per receipt.
+\item Extract the amount multiset $M$ (labelled fields if available;
+OCR plus the multi-candidate extractor otherwise).
+\item Run $\sigma$ at $\varepsilon{=}0.02$, with $k_{\min}{=}2$ on
+labelled corpora and $k_{\min}{=}1$ on OCR (the label-free rule).
+\item Accept iff $\sigma{=}1$ \emph{and} $s\ge$ a fixed-coverage
+softmax threshold; otherwise defer to a human.
+\end{enumerate}
+\keybox{$\sigma$ adds microseconds and a separate, document-side
+audit trail to any existing extractor.}
+\end{frame}
+
 % ===================================================================
 \section{Part 5: honest summary}
 % ===================================================================
@@ -768,6 +1059,33 @@ one $\varepsilon$, the $k_{\min}$ rule), not a new algorithm.
 \end{itemize}
 \keybox{Stating the limits \emph{is} the contribution's credibility.
 We neither inflate nor disown them.}
+\end{frame}
+
+\begin{frame}{The full limitations list (verbatim in spirit)}
+\scriptsize
+\begin{itemize}
+\item[(i)] $\sigma$ needs an arithmetic closure: it applies to
+totals, subtotals, taxes, \emph{not} vendor/date/address.
+\item[(ii)] One field, two backbones, three corpora. Multi-field
+$\sigma$ is journal work.
+\item[(iii)] The cardinality-guard inversion is measured directly
+only on SROIE; the CORD-side claim is structural, not measured.
+\item[(iv)] $\varepsilon{=}0.02$ assumes integer-cent inputs;
+fractional-cent rounding jurisdictions may need a different sweep.
+\item[(v)] $\sigma$ assumes $\pi$ is a parsed numeric scalar;
+format-hallucinated outputs need an upstream normaliser we do
+\emph{not} benchmark.
+\item[(vi)] The headline is per-corpus; the pooled $n{=}\poolN$ is
+carried by WildReceipt ($114$ of $184$ accepts) and is secondary.
+SROIE ($n{=}15$) is a consistency statement only.
+\item[(vii)] $\sigma$ helps most where amounts are clean; in the
+production-like OCR regime it trails softmax as a single gate
+($0.863$ vs.\ $0.945$), useful there only in the intersection.
+\item[(viii)] Novelty is scoped: arithmetic cross-checks are
+long-standing practice. The contribution is the formalisation plus
+the paired/control statistics, \emph{not} a new algorithm.
+\end{itemize}
+\keybox{All eight are stated in the paper and stated here, unsoftened.}
 \end{frame}
 
 \begin{frame}{One-slide takeaway}
