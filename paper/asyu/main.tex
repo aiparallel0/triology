@@ -147,6 +147,16 @@
 \newcommand{\rgAFiveAvail}{yes}
 \InputIfFileExists{numbers_percorpus_rigor.tex}{}{}
 
+\newcommand{\latMedian}{NA}
+\newcommand{\latMean}{NA}
+\newcommand{\latPNineFive}{NA}
+\newcommand{\latPNineNine}{NA}
+\newcommand{\latMax}{NA}
+\newcommand{\latN}{NA}
+\newcommand{\latUnit}{\ensuremath{\mu}s}
+\newcommand{\latHardware}{CPU}
+\InputIfFileExists{numbers_latency.tex}{}{}
+
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
 for Generative and Encoder-Only Document Total Extraction}
 
@@ -217,9 +227,10 @@ way~\cite{guo2017calibration}: a model can score 0.97 and still be
 wrong. We propose sigma, an arithmetic verifier that ignores the model
 and asks the receipt directly: does any subset of the visible line
 amounts sum to the predicted total? The check is a textbook
-0/1-knapsack dynamic program at a median of 5 microseconds per
-receipt (p99 547 microseconds, max 791 over 347 SROIE receipts),
-under 0.01 percent of end-to-end Donut inference at the median. The witness
+0/1-knapsack dynamic program measured at a median of \latMedian{}
+\latUnit{} per receipt (p99 \latPNineNine{}, max \latMax{} \latUnit{}
+over \latN{} CPU-timed receipts): microsecond-scale, hence negligible
+against the hundreds of ms a neural extractor takes on GPU. The witness
 exists by construction on well-formed receipts; where it does not
 (rounding-only lines, post-subtotal discounts, hidden service charges)
 sigma silently rejects valid totals, and we localise its losses to
@@ -317,7 +328,8 @@ $\pi$ iff some subset $S\subseteq M$ with $|S|\geq k_{\min}$ sums to
 $\pi$ within tolerance $\varepsilon$. The witness exists by
 construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
-program (DP), with sub-millisecond $p_{99}$ latency.
+program (DP), with measured sub-millisecond $p_{99}$ latency
+(Sec.~\ref{sec:results-robust}).
 
 \noindent\textbf{Why this matters operationally.}
 (i)~Silent failures are the expensive failure mode: a plausible-looking
@@ -427,8 +439,9 @@ $\sigma$ accepts $\pi$ iff $\inf_{t\in T(M)}|t-\pi|\leq\varepsilon$:
 some subset of receipt amounts sums to the predicted total within
 $\varepsilon$. $T(M)$ is computed by a textbook $0/1$-knapsack
 DP. Amounts are stored as integer cents to avoid floating-point
-surprises. Empirically the per-receipt DP has median $5\,\mu$s and
-$p_{99}{=}547\,\mu$s (Fig.~\ref{fig:latency}).
+surprises. Measured on CPU the per-receipt DP has median
+\latMedian~\latUnit{} and $p_{99}$ of \latPNineNine~\latUnit{}
+(Fig.~\ref{fig:latency}).
 
 \noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on
 whether the total typically appears on the receipt as a labelled
@@ -822,22 +835,23 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 
 \begin{figure}[t]
 \centering
-\begin{tikzpicture}[scale=0.70,every node/.style={font=\footnotesize}]
-\draw[fill=smx!50,draw=smx!80,thick] (0,0.4) rectangle (10.5,1.4);
-\node at (5.25,1.7) {Donut generate};
-\node at (5.25,0.9) {\large $\sim$\,175\,ms};
-
-\draw[fill=ok!60,draw=ok!80,thick] (0,-1.0) rectangle (0.0009,-0.4);
-\draw[->,thick] (1.0,-0.7) -- (0.05,-0.7);
-\node[anchor=west] at (1.05,-0.7) {$\sigma$ verifier median $5\,\mu$s};
-
-\node at (5.25,-1.9) [font=\Large,text=ok]{\textbf{$<0.01\%$}};
-\node at (5.25,-2.4) [font=\small]{of total inference time at the median: $\sigma$ is operationally free};
+\begin{tikzpicture}[scale=0.58,every node/.style={font=\scriptsize}]
+\draw[->,thick] (0,0) -- (8.7,0)
+  node[right]{\latUnit{}, log};
+\foreach \x/\l in {0.5/1,2.5/10,4.5/100,6.5/1000} {
+  \draw (\x,0.08) -- (\x,-0.08) node[below]{\l};}
+\fill[ok!75] (1.7,0) circle (2.6pt);
+\node[above,text=ok] at (1.7,0.12) {med \latMedian};
+\fill[ok!55] (5.2,0) circle (2.6pt);
+\node[below] at (5.2,-0.13) {$p_{99}\,\latPNineNine$};
+\fill[smx!75] (6.0,0) circle (2.6pt);
+\node[above] at (6.0,0.12) {max \latMax};
 \end{tikzpicture}
-\caption{$\sigma$ adds under $0.01\%$ to Donut inference at the median
-(5\,$\mu$s vs.\ $\sim$175\,ms) and under $0.5\%$ at $p_{99}$. Median
-$5\,\mu$s, $p_{99}{=}547\,\mu$s, $\max{=}791\,\mu$s over $n{=}347$
-SROIE receipts.}
+\caption{Measured standalone per-receipt $\sigma$ DP latency
+(\latUnit{}): median \latMedian{}, $p_{99}$ \latPNineNine{}, max
+\latMax{}, over $\latN{}$ SROIE${+}$WildReceipt receipts, single
+thread CPU (\latHardware). Microsecond scale; end-to-end ratio not
+measured on this CPU-only host.}
 \label{fig:latency}
 \end{figure}
 
@@ -851,10 +865,14 @@ reachable set: adjacent reachable subset sums on CORD are spaced by
 more than $\$5.00$, so any tolerance below that resolves the same
 witness set.
 
-\noindent\textbf{Latency.} Per-receipt $\sigma$ DP over $n{=}347$ SROIE
-receipts: median $5\,\mu$s, $p_{99}{=}547\,\mu$s, $\max{=}791\,\mu$s;
-against $\sim$175\,ms Donut generate this is $\mathbf{<0.01\%}$ at the
-median (Fig.~\ref{fig:latency}), so the gate is operationally free.
+\noindent\textbf{Latency.} We measured the exact headline $\sigma$ DP
+($\varepsilon{=}0.02$, $k_{\min}$ rule) standalone on CPU over the
+$\latN{}$ real per-receipt amount counts across SROIE${+}$WildReceipt
+(single-thread, $200$ repeats, per-receipt minimum; \latHardware):
+median \latMedian~\latUnit{}, $p_{99}$ \latPNineNine~\latUnit{}, max
+\latMax~\latUnit{} (Fig.~\ref{fig:latency}). Microsecond scale, hence
+negligible against neural inference (hundreds of ms on GPU); the
+end-to-end ratio was not measured here, so we claim no percentage.
 
 \section{Discussion}
 \label{sec:discussion}
