@@ -201,9 +201,7 @@ for Generative and Encoder-Only Document Total Extraction}
 \node[draw=ok!90,line width=2pt,rounded corners=4pt,fill=ok!28,minimum width=1.95cm,minimum height=1.15cm,font=\Huge\bfseries,text=ok!75!black] (pn) at (15.2,-1.45) {0.989};
 \draw[->,thick,grey!55] (old.east) -- (po.west);
 \draw[->,line width=1.6pt,ok!85] (new.east) -- (pn.west);
-\node at (15.2,-2.62) [font=\footnotesize\bfseries,text=ok!70!black]{precision when both fire};
-
-\node at (8.0,-2.95) [font=\small,align=center,text width=15cm]{\emph{Pooled n=1019 receipts, CORD (test+validation) + SROIE + WildReceipt, Donut + LayoutLMv3. Intersection precision 0.989 (Wilson lower bound 0.961); either signal alone, below 0.92.}};
+\node at (15.2,-2.40) [font=\footnotesize\bfseries,text=ok!70!black]{precision when both fire};
 \end{tikzpicture}
 \caption{\textbf{The contribution in one figure.} An AI reads a
 receipt and predicts a total. In standard practice the only ``should I
@@ -576,12 +574,12 @@ case: equal at $0.953$ alone, $0.991$ in intersection.}
 \node at (4.6,1.5) [font=\LARGE\bfseries,text=grey!70] {=};
 
 \begin{scope}[on background layer]
-\node[circle,fill=ok!12,minimum size=1.9cm] at (5.9,3.55) {};
+\node[circle,fill=ok!12,minimum size=2.0cm] at (5.9,3.55) {};
 \end{scope}
 \draw[fill=ok!60,draw=ok!95,line width=1.6pt,pattern=north east lines,pattern color=ok!95] (5.2,0) rectangle (6.6,3.30);
 \draw[ok!95,line width=1.6pt] (5.2,3.30) rectangle (6.6,0);
 \node at (5.9,-0.38) [text=ok,font=\bfseries] {both};
-\node at (5.9,3.62) [text=ok!70!black,font=\Huge\bfseries] {0.991};
+\node at (5.9,3.55) [text=ok!70!black,font=\LARGE\bfseries] {0.991};
 
 \node at (3.3,-1.05) [text=ok!70!black,font=\bfseries,align=center]{\textbf{113 / 114} correct in the joint slice};
 \end{tikzpicture}
