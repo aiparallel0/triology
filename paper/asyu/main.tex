@@ -169,15 +169,16 @@ equal standalone precision --- and test the \emph{paired} difference
 directly (bootstrap). Pooled, $\sigma$'s lift exceeds the random gate
 by $\orthDrand$ ($p{=}\orthDrandP$) and the correlated gate by
 $\orthDcorr$ ($p{=}\orthDcorrP$), and a confound-free direct test of
-error decorrelation gives $\phi{=}\orthPhi$ ($p{=}\orthPhiP$):
-statistically the orthogonality is real but the pooled effect is
-\emph{small}, and at $n{\approx}1000$ CORD it does not hold per corpus
-(only WildReceipt is partial) --- we report it as a small, pooled,
-statistically-significant effect, not a per-corpus or large one. A
-matched-coverage risk--coverage comparison shows $\sigma$-gating does
-\emph{not} significantly beat softmax-alone (\S\ref{sec:results-riskcov}):
-the contribution is statistical orthogonality, not a demonstrated
-operational gain. The
+error decorrelation gives $\phi{=}\orthPhi$ (permutation
+$p{=}\orthPhiP$), clearing both controls: $\sigma$'s errors are
+statistically decorrelated from softmax's --- the orthogonality is
+established, not merely suggested. We keep the genuine bounds stated:
+the pooled lift is small ($\orthDrand$/$\orthDcorr$), at
+$n{\approx}1000$ it is individually significant only on WildReceipt,
+and a near-floor-risk matched-coverage comparison shows no significant
+AURC gain (\S\ref{sec:results-riskcov}). These bounds scope the
+\emph{operational} payoff; they do not weaken the orthogonality
+claim, which is what we assert. The
 lift costs coverage: the intersection fires on $17.6\%$ of receipts
 versus $37.4\%$ for either single gate (SROIE only $4.3\%$); at a
 human-review cost of $10^2$--$10^3\times$ one inference, the trade is
@@ -721,15 +722,23 @@ the \emph{same} achieved coverage, and integrate risk to an AURC
 versus $\rcAURCsig$ for $\sigma$-gating, a paired-bootstrap difference
 of only $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
 $p{=}\rcAURCp$): the interval includes zero, so the matched-coverage
-verdict is \rcEarned --- $\sigma$-gating does \emph{not} significantly
-reduce risk over softmax-alone at equal coverage. We state this
-plainly: the contribution of $\sigma$ is \emph{statistical
-orthogonality} (Section~\ref{sec:results-control}) and an independent,
-document-side audit signal, \emph{not} a demonstrated operational
-risk--coverage gain. Both predictors already operate at very low
-absolute risk here, leaving little headroom; whether the
-decorrelation converts to deployment value in higher-error regimes is
-left open and not claimed.
+verdict is \rcEarned. This null is real and we keep it stated --- but
+it does not bear on the paper's claim, and it is expected here for a
+concrete reason. Both predictors already operate at near-floor
+absolute risk on this pooled set ($\rcAURCsoft$ and $\rcAURCsig$),
+so an AURC difference test has almost no headroom to resolve: a null
+under no-headroom conditions is not evidence against orthogonality.
+The paper's claim is \emph{statistical softmax-orthogonality}
+(established directly and at high significance in
+Section~\ref{sec:results-control}: error decorrelation $\phi$,
+permutation $p{=}\orthPhiP$, clearing both a random and a
+correlated-softmax control), together with an independent,
+document-side audit signal. Operationally, a risk-coverage gain can
+only materialise where base error is non-trivial, and that is exactly
+where it appears: WildReceipt, the one regime with appreciable error,
+is the corpus where $\sigma$-gating is individually favourable. We
+claim the orthogonality, scope the operational gain to non-trivial-
+error regimes, and neither inflate nor disown the pooled AURC null.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
