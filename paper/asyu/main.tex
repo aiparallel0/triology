@@ -834,16 +834,16 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.58,every node/.style={font=\scriptsize}]
-\draw[->,thick] (0,0) -- (8.7,0)
+\draw[->,thick] (0,0) -- (8.6,0)
   node[right]{\latUnit{}, log};
-\foreach \x/\l in {0.5/1,2.5/10,4.5/100,6.5/1000} {
+\foreach \x/\l in {0.5/1,2.9/10,5.3/100,7.7/1000} {
   \draw (\x,0.08) -- (\x,-0.08) node[below]{\l};}
-\fill[ok!75] (1.7,0) circle (2.6pt);
-\node[above,text=ok] at (1.7,0.12) {med \latMedian};
-\fill[ok!55] (5.2,0) circle (2.6pt);
-\node[below] at (5.2,-0.13) {$p_{99}\,\latPNineNine$};
-\fill[smx!75] (6.0,0) circle (2.6pt);
-\node[above] at (6.0,0.12) {max \latMax};
+\fill[ok!75] (1.96,0) circle (2.6pt);
+\node[above,text=ok] at (1.96,0.12) {med \latMedian};
+\fill[ok!55] (6.49,0) circle (2.6pt);
+\node[below] at (6.49,-0.13) {$p_{99}\,\latPNineNine$};
+\fill[smx!75] (7.35,0) circle (2.6pt);
+\node[above] at (7.35,0.12) {max \latMax};
 \end{tikzpicture}
 \caption{Measured standalone per-receipt $\sigma$ DP latency
 (\latUnit{}): median \latMedian{}, $p_{99}$ \latPNineNine{}, max
