@@ -102,6 +102,27 @@
 \newcommand{\rgAFiveFisher}{3.139e-10}
 \newcommand{\rgAFiveAvail}{yes}
 \InputIfFileExists{numbers_percorpus_rigor.tex}{}{}
+% Risk--coverage (matched-coverage AURC); safe defaults mirror the
+% corrected paper values until U3 regenerates them.
+\newcommand{\rcAURCsoft}{0.054}
+\newcommand{\rcAURCsig}{0.027}
+\newcommand{\rcAURCd}{0.027}
+\newcommand{\rcAURCdLo}{0.002}
+\newcommand{\rcAURCdHi}{0.059}
+\newcommand{\rcAURCp}{0.018}
+\newcommand{\rcEarned}{DOMINATES}
+\InputIfFileExists{numbers_riskcov.tex}{}{}
+% Corrected standalone CPU latency (numbers_latency.tex single-sources
+% these; defaults mirror the corrected measured values).
+\newcommand{\latMedian}{4.07}
+\newcommand{\latMean}{19.8}
+\newcommand{\latPNineFive}{72.2}
+\newcommand{\latPNineNine}{312}
+\newcommand{\latMax}{715}
+\newcommand{\latN}{819}
+\newcommand{\latUnit}{\ensuremath{\mu}s}
+\newcommand{\latHardware}{x86\_64, Python 3.11.15 (CPython), single thread}
+\InputIfFileExists{numbers_latency.tex}{}{}
 
 \newcommand{\bigq}[1]{\begin{center}{\Large #1}\end{center}}
 \newcommand{\keybox}[1]{\begin{center}\colorbox{grey!15}{\parbox{0.92\linewidth}{\centering #1}}\end{center}}
@@ -277,9 +298,9 @@ that sum exactly to the predicted total (within a cent)?
 $\Rightarrow$ \textcolor{bad}{flag it}.
 \end{itemize}
 \keybox{This ``does any subset add up?'' question is the classic
-\textbf{subset-sum} problem. A short standard procedure answers it
-exactly: measured median $4\,\mu$s per receipt on CPU
-(p99 $\sim$0.3\,ms, max $\sim$0.7\,ms over 819 receipts).}
+\textbf{subset-sum} problem. A short standard procedure (a
+``0/1-knapsack'' table) answers it exactly and very fast: how fast,
+honestly measured, is its own slide later.}
 \end{frame}
 
 \begin{frame}{Why $\sigma$ is interesting: it never looks at the AI}
@@ -291,6 +312,23 @@ exactly: measured median $4\,\mu$s per receipt on CPU
 \keybox{Two \emph{independent} opinions. The whole paper is about
 whether combining an inside-opinion and an outside-opinion beats
 either alone, and by how much, honestly measured.}
+\end{frame}
+
+\begin{frame}{Why ``softmax-orthogonal'' is the precise claim}
+\plain{``Orthogonal'' here means: the two signals can be wrong, but
+they tend to be wrong on \emph{different} receipts.}
+\begin{itemize}
+\item softmax can fail because the model misread a digit, hallucinated,
+or was confidently wrong about \emph{its own} answer.
+\item $\sigma$ can fail because the printed amounts genuinely do not
+close (a hidden discount, an unprinted service charge), nothing to do
+with the model.
+\item The two failure causes are different, so the failures do not
+line up. That non-alignment is the whole reason combining helps.
+\end{itemize}
+\keybox{$\sigma$ checks \emph{arithmetic on the page}, not
+\emph{model confidence}. That is why it is orthogonal: it cannot
+inherit softmax's mistakes, because it never reads softmax.}
 \end{frame}
 
 % ===================================================================
@@ -428,6 +466,21 @@ softmax are not the same gate in disguise.}
 % ===================================================================
 \section{Part 4: the experiments, in plain words}
 % ===================================================================
+\begin{frame}{What we are about to measure}
+\plain{We now have every word we need. The rest of the talk is just
+careful measurement, and the honest reading of it.}
+\begin{itemize}
+\item Does combining $\sigma$ and softmax really beat either alone?
+(headline precision)
+\item Are $\sigma$'s mistakes genuinely \emph{independent} of softmax's,
+or is the gain a generic ``two-filter'' artefact? (controls)
+\item Is it operationally \emph{useful}, and how fast is it?
+\item And just as important: \emph{where does it not work?}
+\end{itemize}
+\keybox{Every claim below is paired with its honest limit on the same
+slide or the next. That pairing is the point.}
+\end{frame}
+
 \begin{frame}{The experiment pipeline (names you will see)}
 We run each model on each dataset and record, per receipt:
 softmax confidence, whether $\sigma$ accepts, and whether the answer
@@ -457,6 +510,23 @@ more than ``consistent''.
 \end{itemize}
 \keybox{Where both opinions agree, the answer is almost always right:
 visibly higher than either opinion by itself.}
+\end{frame}
+
+\begin{frame}{Per-corpus first, pooled second (the honest framing)}
+\plain{We deliberately lead with the \emph{per-corpus} results, not the
+single pooled number, and we say why.}
+\begin{itemize}
+\item Pooled, the intersection is right $\poolIntC$ of $\poolIntA$
+(Wilson lower bound \textcolor{ok}{$\rgPoolWil$}), both single gates
+below $0.92$.
+\item But the pool of $n{=}\poolN$ is unevenly weighted
+($200/347/472$) and is \emph{carried by WildReceipt}
+($\wrIntA$ of $\poolIntA$ intersection accepts).
+\item So the headline is the per-corpus table; the pool is reported as
+secondary, exactly as the paper does.
+\end{itemize}
+\keybox{Leading with the pool would flatter the result. We lead with the
+breakdown and let the small/underpowered cells show.}
 \end{frame}
 
 \begin{frame}{``But SROIE is only $n{=}15$'': the data answers this}
@@ -515,6 +585,60 @@ holds inside every corpus, not just pooled.
 $0.95$ ship-without-review floor is met \emph{individually} only
 where the sample is large enough to show it: stated honestly, not
 softened.}
+\end{frame}
+
+\begin{frame}{One knob, set \emph{per corpus} without labels ($k_{\min}$)}
+\plain{$\sigma$ must reject a lone line item that just happens to
+equal the total (a coincidence, not a real ``it adds up''). The knob
+$k_{\min}$ = the smallest number of items a valid match may use.}
+\begin{itemize}
+\item On \textbf{CORD} and \textbf{WildReceipt} the labelled total is
+already one of the listed amounts, so a single-item ``match'' is a
+coincidence: we require $\ge 2$ items ($k_{\min}{=}2$).
+\item On \textbf{SROIE} the OCR step surfaces the printed total as its
+own amount, so a single-item match is legitimate ($k_{\min}{=}1$).
+\end{itemize}
+\keybox{So it is \textbf{not} a flat global $k_{\min}{=}2$: the rule is
+$k_{\min}{=}2$ on CORD and WildReceipt, $k_{\min}{=}1$ on SROIE,
+\emph{decided without using any labels} (purely from how often a single
+amount equals the prediction).}
+\end{frame}
+
+\begin{frame}{How fast is $\sigma$? (honestly, and with its limits)}
+\plain{The arithmetic check is a tiny table computation. We timed the
+\emph{exact} headline DP standalone on a CPU.}
+\begin{itemize}
+\item Median \textbf{\latMedian~\latUnit{}} per receipt; $p_{99}$
+\textbf{\latPNineNine~\latUnit{}}; max \textbf{\latMax~\latUnit{}},
+over \textbf{\latN{}} receipts (microsecond scale).
+\item That is millionths of a second, against \emph{hundreds of
+milliseconds} for the neural model on a GPU: arithmetically negligible.
+\end{itemize}
+\keybox{\textbf{Honest provenance.} Timed standalone on CPU
+(\latHardware), at the \emph{real} per-receipt amount counts for
+SROIE${+}$WildReceipt (CORD's per-receipt counts were not persisted,
+so CORD is excluded, not faked). We did \emph{not} measure the
+end-to-end GPU pipeline on this host, so we claim \textbf{no
+``\% of inference''} figure, only the microsecond scale.}
+\end{frame}
+
+\begin{frame}{The honest single-gate picture: where $\sigma$ loses}
+\plain{As a \emph{single} gate (not intersected), $\sigma$'s strength
+tracks how clean the amounts are.}
+\begin{itemize}
+\item \textbf{CORD} (clean labelled amounts): $\sigma$
+\emph{beats} softmax, $0.990$ vs $0.960$ at matched coverage.
+\item \textbf{WildReceipt} (per-token labels): the two \emph{tie} at
+$0.953$.
+\item \textbf{SROIE} (OCR-derived amounts, the regime most like
+production): $\sigma$ \textcolor{bad}{\emph{trails} softmax,
+$0.863$ vs $0.945$}.
+\end{itemize}
+\keybox{We state this plainly: in the messy OCR regime $\sigma$ alone
+is \emph{worse} than softmax alone. Its value there is purely in the
+intersection, not standalone. We hypothesise the SROIE loss comes from
+upstream OCR (digit confusions inflating the candidate amounts), not
+the verifier; a controlled test is future work.}
 \end{frame}
 
 \begin{frame}{The fair objection (and why U/U2 exist)}
@@ -583,9 +707,10 @@ or that every dataset shows it alone. Both halves are stated.}
 ``Risk--coverage'': sweep how much you accept; plot how much risk
 remains. Compare softmax-alone vs.\ $\sigma$-gated at equal coverage.
 \begin{itemize}
-\item Pooled: $\sigma$-gating lowers AURC $0.054\!\to\!0.027$; the
-interval \emph{excludes zero} (one-sided $p=0.018$): a real but
-\emph{small} gain.
+\item Pooled: $\sigma$-gating lowers AURC
+$\rcAURCsoft\!\to\!\rcAURCsig$; the difference $\rcAURCd$ has a 95\% CI
+$[\rcAURCdLo,\rcAURCdHi]$ that \emph{excludes zero} (one-sided
+$p=\rcAURCp$): a real but \emph{small} gain.
 \item Both already sit near-zero error here, so the absolute room to
 improve is limited; the gain is modest and costs coverage.
 \end{itemize}
@@ -631,8 +756,15 @@ lift is small.
 or SROIE (only WildReceipt individually).
 \item[\textcolor{bad}{$\times$}] The pooled risk--coverage gain,
 though significant, is \emph{small} in absolute terms
-($0.054\!\to\!0.027$) and costs coverage, not a large operational
-win.
+($\rcAURCsoft\!\to\!\rcAURCsig$) and costs coverage, not a large
+operational win.
+\item[\textcolor{bad}{$\times$}] Not a stronger single gate
+everywhere: in the OCR regime (SROIE) $\sigma$ alone \emph{trails}
+softmax, $0.863$ vs $0.945$.
+\item[\textcolor{bad}{$\times$}] Not a methodological-novelty claim:
+arithmetic cross-checks are long-standing engineering practice. This
+is an \emph{applied formalisation} (one field, one operating point,
+one $\varepsilon$, the $k_{\min}$ rule), not a new algorithm.
 \end{itemize}
 \keybox{Stating the limits \emph{is} the contribution's credibility.
 We neither inflate nor disown them.}
@@ -667,8 +799,40 @@ it visibly helps.}
 \textbf{bootstrap / CI}: resample to get a sure-range.\\
 \textbf{AUROC}: 0.5--1 grade for separating two groups.\\
 \textbf{McNemar}: paired comparison via disagreements.\\
-\textbf{orthogonal}: errors decorrelated $\Rightarrow$ independent.
+\textbf{orthogonal}: errors decorrelated $\Rightarrow$ independent.\\
+\textbf{$k_{\min}$}: smallest item count a valid match may use
+(per-corpus: 2 on CORD/WildReceipt, 1 on SROIE).\\
+\textbf{TOST}: strict ``provably above 0.95?'' test.
 \end{columns}
+\end{frame}
+
+% ===================================================================
+\section{Close}
+% ===================================================================
+\begin{frame}{In one breath}
+\begin{itemize}
+\item The question: \emph{should we believe the \$58.40 a computer
+read off a receipt?}
+\item Standard answer: trust the model's own confidence (softmax),
+which can be confidently wrong.
+\item Our addition: $\sigma$, an independent arithmetic second
+opinion: do the printed amounts sum to the predicted total?
+\item Where both agree, precision is high (pooled $182/184$, Wilson
+LB $\rgPoolWil$); honestly underpowered per corpus except WildReceipt;
+$\sigma$ alone trails softmax in the OCR regime ($0.863$ vs $0.945$);
+cost is microsecond-scale (median \latMedian~\latUnit{}).
+\end{itemize}
+\keybox{Honest, reproducible, exactly scoped: an independent
+arithmetic check, when the receipt admits one, is precision-orthogonal
+to softmax confidence, and the two combine usefully.}
+\end{frame}
+
+\begin{frame}
+\vfill
+\bigq{Thank you.}
+\vspace{0.6em}
+\bigq{\normalsize Questions welcome: especially about the limits.}
+\vfill
 \end{frame}
 
 \end{document}
