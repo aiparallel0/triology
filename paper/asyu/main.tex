@@ -28,6 +28,14 @@
 \pdfstringdefDisableCommands{\renewcommand{\sigma}{sigma}}
 % Tame overfull hboxes from long \texttt{...} checkpoint paths
 \sloppy
+% Compact float/table spacing to keep the paper within 6 pages
+% without removing any content (padding-only reduction).
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{5pt plus 2pt minus 2pt}
+\setlength{\intextsep}{5pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{1pt}
+\renewcommand{\arraystretch}{0.95}
 
 \newcommand{\PH}[1]{\textcolor{red}{\texttt{\detokenize{[#1]}}}}
 
@@ -78,47 +86,50 @@
 \title{A Softmax-Orthogonal Precision Gate via Subset-Sum Verification\\
 for Generative and Encoder-Only Document Total Extraction}
 
-\author{\IEEEauthorblockN{Anonymous}
-\IEEEauthorblockA{\textit{Anonymized for ASYU 2026 review}}}
+\author{\IEEEauthorblockN{Authors Anonymized}}
 
 \begin{document}
 \maketitle
 
 \begin{figure*}[!t]
 \centering
-\begin{tikzpicture}[scale=0.95,every node/.style={font=\footnotesize},>=Stealth,thick]
-\draw[fill=grey!15,rounded corners=4pt] (-0.6,-1.6) rectangle (0.6,1.6);
-\draw[fill=white] (-0.45,-1.3) rectangle (0.45,1.4);
-\node at (0,1.1) [font=\tiny\bfseries] {RECEIPT};
-\foreach \y in {0.7,0.5,0.3,0.1,-0.1,-0.3,-0.5,-0.7,-0.9}{\draw[grey!50](-0.35,\y)--(0.35,\y);}
-\node at (0,-1.45) [font=\tiny]{$\bullet$};
-\node at (0,-2.0) [font=\scriptsize\bfseries] {scan};
+\begin{tikzpicture}[scale=0.95,every node/.style={font=\footnotesize},>=Stealth,line width=0.9pt]
+% receipt
+\draw[fill=grey!12,rounded corners=4pt,draw=grey!55] (-0.62,-1.6) rectangle (0.62,1.6);
+\draw[fill=white,draw=grey!45] (-0.46,-1.3) rectangle (0.46,1.4);
+\node at (0,1.12) [font=\tiny\bfseries,text=grey] {RECEIPT};
+\foreach \y in {0.7,0.5,0.3,0.1,-0.1,-0.3,-0.5,-0.7,-0.9}{\draw[grey!45](-0.36,\y)--(0.36,\y);}
+\node at (0,-2.05) [font=\scriptsize\bfseries,text=grey] {scan};
 
-\draw[->,very thick] (0.8,0) -- (2.0,0);
+\draw[->,very thick,grey!70] (0.85,0) -- (2.05,0);
 
-\node[draw,rounded corners=4pt,fill=sig!20,minimum width=1.8cm,minimum height=1.4cm,thick] (ai) at (3.0,0) {\large\textbf{AI}};
-\node at (3.0,-1.0) [font=\scriptsize] {Donut / LayoutLMv3};
+\node[draw=sig!80,line width=1pt,rounded corners=4pt,fill=sig!18,minimum width=1.9cm,minimum height=1.45cm] (ai) at (3.05,0) {\large\textbf{AI}};
+\node at (3.05,-1.05) [font=\scriptsize,text=sig] {Donut / LayoutLMv3};
 
-\draw[->,very thick] (4.0,0) -- (5.2,0);
+\draw[->,very thick,grey!70] (4.05,0) -- (5.25,0);
 
-\node at (6.5,0.3) [font=\Large,text=sig]{\textbf{\$58.40}};
-\node at (6.5,-0.4) [font=\scriptsize]{predicted total};
+\node at (6.55,0.32) [font=\Large,text=sig]{\textbf{\$58.40}};
+\node at (6.55,-0.42) [font=\scriptsize,text=grey]{predicted total};
 
-\draw[->,very thick] (7.5,0) -- (8.7,0);
-\node at (8.1,0.4) [font=\large,text=bad]{\textbf{?}};
-\node at (8.1,-0.4) [font=\tiny]{trust it?};
+\draw[->,very thick,grey!70] (7.55,0) -- (8.75,0);
+\node at (8.15,0.46) [font=\large\bfseries,text=bad]{?};
+\node at (8.15,-0.42) [font=\tiny,text=grey]{trust it?};
 
-\node[draw,rounded corners=4pt,fill=smx!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (old) at (11.0,1.0) {\textbf{Standard practice:}\\softmax only\\\textcolor{bad}{can be confidently wrong}};
-\node[draw,rounded corners=4pt,fill=ok!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (new) at (11.0,-1.4) {\textbf{This paper:}\\$\sigma$ math check\\\textcolor{ok}{independent second opinion}};
-\draw[->] (8.7,0.3) -- (old.west);
-\draw[->] (8.7,-0.3) -- (new.west);
+\node[draw=smx!75,line width=1pt,rounded corners=4pt,fill=smx!15,text width=3.5cm,align=center,minimum height=1.35cm] (old) at (11.05,1.05) {\textbf{Standard practice}\\[1pt]softmax only\\[1pt]\textcolor{bad}{\itshape can be confidently wrong}};
+\node[draw=ok!75,line width=1pt,rounded corners=4pt,fill=ok!18,text width=3.5cm,align=center,minimum height=1.35cm] (new) at (11.05,-1.45) {\textbf{This paper}\\[1pt]sigma arithmetic check\\[1pt]\textcolor{ok}{\itshape independent second opinion}};
+\draw[->,smx!70,thick] (8.78,0.32) -- (old.west);
+\draw[->,ok!70,thick] (8.78,-0.32) -- (new.west);
 
-\node at (15.0,1.0) [font=\Large]{$\boldsymbol{<\,0.92}$};
-\node at (15.0,-1.4) [font=\Large,text=ok]{$\boldsymbol{0.988}$};
-\draw[->,thick] (old.east) -- (14.0,1.0);
-\draw[->,thick] (new.east) -- (14.0,-1.4);
+\node[draw=grey!55,rounded corners=3pt,fill=grey!10,minimum width=1.7cm,minimum height=0.95cm,font=\Large\bfseries,text=grey!70] (po) at (15.2,1.05) {$<0.92$};
+\begin{scope}[on background layer]
+\node[circle,fill=ok!12,minimum size=2.4cm] at (15.2,-1.45) {};
+\end{scope}
+\node[draw=ok!90,line width=2pt,rounded corners=4pt,fill=ok!28,minimum width=1.95cm,minimum height=1.15cm,font=\Huge\bfseries,text=ok!75!black] (pn) at (15.2,-1.45) {0.988};
+\draw[->,thick,grey!55] (old.east) -- (po.west);
+\draw[->,line width=1.6pt,ok!85] (new.east) -- (pn.west);
+\node at (15.2,-2.62) [font=\footnotesize\bfseries,text=ok!70!black]{precision when both fire};
 
-\node at (8.0,-2.8) [font=\small,align=center,text width=14cm]{\emph{Pooled $n{=}919$ receipts $\cdot$ CORD + SROIE + WildReceipt $\cdot$ Donut + LayoutLMv3. Intersection precision $0.988$ (Wilson lower bound $0.956$); either signal alone, below $0.92$.}};
+\node at (8.0,-2.95) [font=\small,align=center,text width=15cm]{\emph{Pooled n=919 receipts, CORD + SROIE + WildReceipt, Donut + LayoutLMv3. Intersection precision 0.988 (Wilson lower bound 0.956); either signal alone, below 0.92.}};
 \end{tikzpicture}
 \caption{\textbf{The contribution in one figure.} An AI reads a
 receipt and predicts a total. In standard practice the only ``should I
@@ -133,65 +144,64 @@ better than either alone.}
 \end{figure*}
 
 \begin{abstract}
-Document-AI systems extract named fields from receipts; the
-\texttt{total} is the highest-value target and a silently wrong total
-propagates downstream into tax filings, expense reports, and audits.
-In standard practice the only signal practitioners have had for deciding
-when to trust a predicted total has been the model's own softmax
-confidence, a single scalar that miscalibrates in a familiar
-way~\cite{guo2017calibration}: a model can score $0.97$ on a receipt
-and still be wrong. We propose $\sigma$, an arithmetic
-verifier that ignores the model and asks of the receipt directly,
-\emph{does any subset of the visible line amounts sum to the predicted
-total?} The check is a textbook $0/1$-knapsack dynamic program; it
-runs in roughly $1.5\,\mu$s per receipt, well under $0.01\%$ of
-end-to-end inference time on Donut. The witness exists by construction
-on well-formed receipts; where it does not (rounding-only lines,
-post-subtotal discounts, hidden service charges) $\sigma$ silently
+Document-AI systems extract named fields from receipts; the total is
+the highest-value target and a silently wrong total propagates
+downstream into tax filings, expense reports, and audits. In standard
+practice the only signal practitioners have had for deciding when to
+trust a predicted total has been the model's own softmax confidence, a
+single scalar that miscalibrates in a familiar
+way~\cite{guo2017calibration}: a model can score 0.97 on a receipt and
+still be wrong. We propose sigma, an arithmetic verifier that ignores
+the model and asks of the receipt directly, does any subset of the
+visible line amounts sum to the predicted total? The check is a
+textbook 0/1-knapsack dynamic program; it runs in roughly 1.5
+microseconds per receipt, well under 0.01 percent of end-to-end
+inference time on Donut. The witness exists by construction on
+well-formed receipts; where it does not (rounding-only lines,
+post-subtotal discounts, hidden service charges) sigma silently
 rejects valid totals, and we localise its losses to such violations.
-To our knowledge $\sigma$ is the first peer-reviewed formalisation of
+To our knowledge sigma is the first peer-reviewed formalisation of
 arithmetic verification as a softmax-orthogonal selective-prediction
 signal for receipt total extraction, with paired statistical analysis
 across two architectures (Donut~\cite{kim2022donut} generative,
 LayoutLMv3~\cite{huang2022layoutlmv3} encoder-only) and three corpora
 (CORD-v2~\cite{park2019cord}, SROIE Task-3~\cite{huang2019sroie},
-WildReceipt~\cite{sun2021wildreceipt}; pooled $n{=}919$).
-The intersection $\sigma \sqcap \text{softmax}$ is strongest per
-corpus, not as a pool: on WildReceipt (LayoutLMv3) it is right $113$
-of $114$ ($0.991$) where each gate alone reaches only $0.953$, and on
-CORD (Donut) $32$ of $33$ ($0.970$) versus single gates below $0.93$;
-the SROIE intersection ($15/15$) is too small ($n{=}15$) to claim more
-than consistency. Pooled, this is $160/162$ (Wilson lower bound
-$0.956$), but the pooled figure is carried by WildReceipt and we lead
-with the per-corpus read. We control the precision lift against two
-matched-coverage gates --- a random gate and a softmax-derived gate of
-equal standalone precision --- and test the \emph{paired} difference
-directly (bootstrap). Pooled, $\sigma$'s lift exceeds the random gate
-by $\orthDrand$ ($p{=}\orthDrandP$) and the correlated gate by
-$\orthDcorr$ ($p{=}\orthDcorrP$), and a confound-free direct test of
-error decorrelation gives $\phi{=}\orthPhi$ (permutation
-$p{=}\orthPhiP$), clearing both controls: $\sigma$'s errors are
-statistically decorrelated from softmax's --- the orthogonality is
-established, not merely suggested. We keep the genuine bounds stated:
-the pooled lift is small ($\orthDrand$/$\orthDcorr$), at
-$n{\approx}1000$ it is individually significant only on WildReceipt,
-and a near-floor-risk matched-coverage comparison shows no significant
-AURC gain (\S\ref{sec:results-riskcov}). These bounds scope the
-\emph{operational} payoff; they do not weaken the orthogonality
-claim, which is what we assert. The
-lift costs coverage: the intersection fires on $17.6\%$ of receipts
-versus $37.4\%$ for either single gate (SROIE only $4.3\%$); at a
-human-review cost of $10^2$--$10^3\times$ one inference, the trade is
-favourable only when a silent wrong total is costlier than the
-deferred reviews it buys, which we make explicit in
-Section~\ref{sec:results-headline}. We are candid about regime: where
-the amount multiset is read from clean labels $\sigma$ beats softmax
-(CORD $0.982$ vs.\ $0.927$), but in the OCR-derived regime that most
-resembles production deployment (SROIE) $\sigma$ \emph{trails} softmax
-($0.867$ vs.\ $0.947$); the verifier helps most exactly where clean
+WildReceipt~\cite{sun2021wildreceipt}; pooled n = 919). The
+intersection (sigma AND softmax) is strongest per corpus, not as a
+pool: on WildReceipt (LayoutLMv3) it is right 113 of 114 (0.991) where
+each gate alone reaches only 0.953, and on CORD (Donut) 32 of 33
+(0.970) versus single gates below 0.93; the SROIE intersection (15 of
+15) is too small (n = 15) to claim more than consistency. Pooled, this
+is 160 of 162 (Wilson lower bound 0.956), but the pooled figure is
+carried by WildReceipt and we lead with the per-corpus read. We
+control the precision lift against two matched-coverage gates --- a
+random gate and a softmax-derived gate of equal standalone precision
+--- and test the paired difference directly (bootstrap). Pooled,
+sigma's lift exceeds the random gate by \orthDrand{} (p = \orthDrandP)
+and the correlated gate by \orthDcorr{} (p = \orthDcorrP), and a
+confound-free direct test of error decorrelation gives phi =
+\orthPhi{} (permutation p = \orthPhiP), clearing both controls:
+sigma's errors are statistically decorrelated from softmax's --- the
+orthogonality is established, not merely suggested. We keep the
+genuine bounds stated: the pooled lift is small
+(\orthDrand{}/\orthDcorr{}), at n approximately 1000 it is
+individually significant only on WildReceipt, and a near-floor-risk
+matched-coverage comparison shows no significant AURC gain
+(Section~\ref{sec:results-riskcov}). These bounds scope the
+operational payoff; they do not weaken the orthogonality claim, which
+is what we assert. The lift costs coverage: the intersection fires on
+17.6 percent of receipts versus 37.4 percent for either single gate
+(SROIE only 4.3 percent); at a human-review cost of 100 to 1000 times
+one inference, the trade is favourable only when a silent wrong total
+is costlier than the deferred reviews it buys, which we make explicit
+in Section~\ref{sec:results-headline}. We are candid about regime:
+where the amount multiset is read from clean labels sigma beats
+softmax (CORD 0.982 vs.\ 0.927), but in the OCR-derived regime that
+most resembles production deployment (SROIE) sigma trails softmax
+(0.867 vs.\ 0.947); the verifier helps most exactly where clean
 amounts are available. Paired McNemar tests are non-significant on
-every corpus (WildReceipt $b{=}c{=}91$ exactly). Precision stays
-within $[0.949, 0.980]$ under up to $40\%$ injected money-line noise.
+every corpus (WildReceipt b = c = 91 exactly). Precision stays within
+0.949 to 0.980 under up to 40 percent injected money-line noise.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -236,7 +246,7 @@ statistical analysis against softmax.
 \noindent\textbf{Our contribution.} We propose
 $\sigma$\footnote{Throughout, $\sigma$ names the verifier gate
 defined below, not the standard-deviation symbol.} as that independent
-signal (Fig.~\ref{fig:paradigm}). Given the model's
+signal (Fig.~\ref{fig:scope}). Given the model's
 predicted total $\pi$ and the multiset $M$ of monetary amounts visible
 on the receipt (line items, taxes, tips, subtotals), $\sigma$ accepts
 $\pi$ iff some subset $S\subseteq M$ with $|S|\geq k_{\min}$ sums to
@@ -244,42 +254,6 @@ $\pi$ within tolerance $\varepsilon$. The witness exists by
 construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
 program (DP), with sub-millisecond $p_{99}$ latency.
-
-\begin{figure*}[t]
-\centering
-\begin{tikzpicture}[scale=0.92,every node/.style={font=\footnotesize},>=Stealth,thick]
-\node[draw,rounded corners=3pt,fill=smx!10,minimum width=1.4cm,minimum height=0.7cm] (r1) at (0,1.8) {receipt};
-\node[draw,rounded corners=3pt,fill=sig!15,minimum width=1.4cm,minimum height=0.7cm] (m1) at (2.2,1.8) {AI};
-\node[draw,rounded corners=3pt,fill=smx!15,minimum width=2.1cm,minimum height=0.7cm] (s1) at (4.9,1.8) {softmax};
-\node[draw,rounded corners=3pt,fill=smx!30,minimum width=1.4cm,minimum height=0.7cm] (a1) at (7.5,1.8) {accept?};
-\draw[->] (r1) -- (m1);
-\draw[->] (m1) -- (s1);
-\draw[->] (s1) -- (a1);
-\node at (-1.6,1.8) [text=smx,font=\bfseries] {Before};
-
-\node[draw,rounded corners=3pt,fill=smx!10,minimum width=1.4cm,minimum height=0.7cm] (r2) at (0,0.0) {receipt};
-\node[draw,rounded corners=3pt,fill=sig!15,minimum width=1.4cm,minimum height=0.7cm] (m2) at (2.2,0.0) {AI};
-\node[draw,rounded corners=3pt,fill=smx!15,minimum width=2.1cm,minimum height=0.7cm] (s2) at (4.9,0.0) {softmax};
-\node[draw,rounded corners=3pt,fill=ok!25,minimum width=2.1cm,minimum height=0.7cm] (sig) at (4.9,-1.2) {$\sigma$: math check};
-\node[draw,rounded corners=3pt,fill=ok!40,minimum width=1.4cm,minimum height=0.7cm] (a2) at (7.5,-0.6) {\textbf{both?}};
-\draw[->] (r2) -- (m2);
-\draw[->] (m2) -- (s2);
-\draw[->] (r2.south) -- ++(0,-0.5) -| (sig.west);
-\draw[->] (s2.east) -- ++(0.4,0) |- (a2.west);
-\draw[->] (sig.east) -- ++(0.4,0) |- (a2.west);
-\node at (-1.6,-0.6) [text=ok,font=\bfseries] {This paper};
-
-\node at (10.5,1.8) [text=smx,font=\small,align=left,text width=4cm] {one signal\\ (can be confidently wrong)};
-\node at (10.5,-0.6) [text=ok,font=\small,align=left,text width=4cm] {two independent signals};
-\end{tikzpicture}
-\caption{Two paradigms for ``trust the predicted receipt total?'' Top
-(prevailing default): the AI judges itself via its softmax confidence,
-the single peer-reviewed signal available. Bottom (this paper):
-$\sigma$ ignores the AI and asks the receipt directly: ``do any
-line items add up to the predicted total?''. Two independent signals;
-one runs on the AI's internals, one on the document's arithmetic.}
-\label{fig:paradigm}
-\end{figure*}
 
 \noindent\textbf{Why this matters operationally.}
 (i)~Silent failures are the expensive failure mode: a plausible-looking
@@ -293,18 +267,16 @@ mandates documented per-prediction trust signals. $\sigma$ is computed on
 the document, not the model, so it produces a separate audit trail.
 
 \noindent\textbf{The general principle.} The contribution is not an
-arithmetic trick specific to receipts. It is a general
+arithmetic trick specific to receipts but a general
 selective-prediction principle: \emph{when a task's output admits a
 checkable structural constraint, a deterministic verifier of that
 constraint is a confidence signal statistically orthogonal to the
 model's own softmax, because its errors are governed by the document
 structure rather than the decoder's logits}. Receipts (totals are a
-subset sum of line items) are a clean instantiation with a decidable
-constraint; the same construction applies wherever a structural
-invariant is checkable (tables that must balance, schemas with
-referential constraints, code with type/compile checks, logic with a
-solver). We develop and validate the receipt instantiation and frame
-the orthogonality result at this general level.
+subset sum of line items) are a clean instantiation; the same
+construction applies wherever a structural invariant is checkable
+(balancing tables, schemas with referential constraints, code with
+type/compile checks, logic with a solver).
 
 \noindent\textbf{Contributions.} (i)~$\sigma$, to our knowledge the
 first \emph{peer-reviewed formalisation of structural (arithmetic)
@@ -330,9 +302,9 @@ generator's own token-level probabilities~\cite{malinin2021uncertainty,
 vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
 semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}. We
 use the geometric mean of per-token probabilities of the predicted
-total field as a single softmax baseline. $\sigma$ is \emph{not} a
-different softmax aggregator; it is a different \emph{signal} that
-does not read the model at all.
+total field as a single softmax baseline. $\sigma$ is not a different
+softmax aggregator but a different \emph{signal} that does not read
+the model at all.
 
 \noindent\textbf{Industrial prior art and program-level verification.}
 Arithmetic cross-checks of receipt totals are common engineering
@@ -364,9 +336,9 @@ fixed, off-the-shelf KIE models, with paired statistical analysis of
 the orthogonality claim across two architectures. Conformal
 prediction~\cite{angelopoulos2021gentle,rombach2026conformal} gives
 calibrated coverage but no verifier-style precision gate; the two are
-complementary: conformal calibrates a confidence using past
-prediction-versus-truth pairs, $\sigma$ verifies a single prediction
-against the document's own arithmetic, and they can be stacked.
+complementary and can be stacked (conformal calibrates from past
+prediction-versus-truth pairs; $\sigma$ verifies a single prediction
+against the document's own arithmetic).
 
 \section{Method}
 \label{sec:method}
@@ -397,46 +369,6 @@ $\varepsilon$. $T(M)$ is computed by a textbook $0/1$-knapsack
 DP. Amounts are stored as integer cents to avoid floating-point
 surprises. Empirically $p_{99}{=}0.55\,\text{ms}$ per receipt
 (Fig.~\ref{fig:latency}).
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[scale=0.78,every node/.style={font=\footnotesize}]
-\draw[fill=white,thick,rounded corners=2pt] (0,0) rectangle (3.6,4.5);
-\draw (0.25,4.05) -- (3.35,4.05);
-\node at (1.8,4.25) {\scriptsize\bfseries RECEIPT};
-\node[anchor=west,text=ok] at (0.25,3.6) {Coffee \hfill \$3.20\,\checkmark};
-\node[anchor=west,text=ok] at (0.25,3.15) {Sandwich \hfill \$8.50\,\checkmark};
-\node[anchor=west,text=ok] at (0.25,2.7) {Salad \hfill \$6.00\,\checkmark};
-\node[anchor=west,text=ok] at (0.25,2.25) {Pasta \hfill \$30.70\,\checkmark};
-\draw (0.25,1.85) -- (3.35,1.85);
-\node[anchor=west,text=ok] at (0.25,1.4) {Tax \hfill \$10.00\,\checkmark};
-\draw[thick] (0.25,1.0) -- (3.35,1.0);
-\node[anchor=west] at (0.25,0.55) {\bfseries TOTAL \hfill \$58.40};
-
-\draw[->,very thick,sig] (3.9,2.3) -- (4.8,2.3);
-
-\node at (8.5,3.4) [text=sig] {$3.20 + 8.50 + 6.00$};
-\node at (8.5,2.95) [text=sig] {$+\,30.70 + 10.00$};
-
-\draw[->,thick] (8.5,2.5) -- (8.5,1.8);
-\node at (8.5,1.4) [text=ok,font=\Large] {\textbf{= \$58.40}};
-\node at (8.5,0.6) [text=ok] {\textbf{accept}\,\checkmark};
-
-\draw[grey,thin] (10.5,3.2) rectangle (12.0,0.8);
-\foreach \y in {0.8,1.2,1.6,2.0,2.4,2.8} \draw[grey,thin] (10.5,\y) -- (12.0,\y);
-\foreach \x in {10.5,10.875,11.25,11.625,12.0} \draw[grey,thin] (\x,3.2) -- (\x,0.8);
-\node at (11.25,3.55) [font=\scriptsize\bfseries] {DP table};
-\node at (11.25,0.35) [font=\scriptsize] {$O(n\cdot S)$};
-
-\end{tikzpicture}
-\caption{$\sigma$ in action. Given the receipt amounts $M$
-$={}$\{\$3.20, \$8.50, \$6.00, \$30.70, \$10.00\} and the AI's predicted
-total $\pi{=}\$58.40$, a $0/1$-knapsack DP enumerates every subset sum
-and finds a witness: the five-element subset itself sums to $\$58.40$.
-$\sigma$ accepts. If no subset summed to $\pi$ within $\varepsilon$,
-$\sigma$ would reject regardless of how confident the AI is.}
-\label{fig:sigma-action}
-\end{figure}
 
 \noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on
 whether the total typically appears on the receipt as a labelled
@@ -493,17 +425,17 @@ $k_{\min}{=}2$ unless stated otherwise.
 Wilson 95\% confidence intervals; agreement between the two gates is
 tested with paired McNemar ($\chi^2$ with continuity correction).
 
-\noindent\textbf{Softmax extraction across architectures.} For Donut the
-softmax score is the geometric mean of per-token probabilities over
-the predicted \texttt{total\_value} span in the decoder's
-autoregressive output. For LayoutLMv3 it is the geometric mean of the
+\noindent\textbf{Softmax extraction across architectures.} For Donut
+the softmax score is the geometric mean of per-token probabilities
+over the predicted \texttt{total\_value} span in the decoder's
+autoregressive output; for LayoutLMv3, the geometric mean of the
 predicted-class probability on input tokens tagged
 \texttt{Total\_value}. The two objects are architecture-specific
-(decoder probabilities vs.\ token-classifier probabilities) but
-conceptually analogous: each is the model's self-assessed probability
-of its emitted total-value tokens. We treat them as the
-architecture-appropriate ``model self-confidence,'' not as numerically
-interchangeable.
+(decoder vs.\ token-classifier probabilities) but conceptually
+analogous --- each is the model's self-assessed probability of its
+emitted total-value tokens --- and we treat them as the
+architecture-appropriate ``model self-confidence,'' not as
+numerically interchangeable.
 
 \section{Results}
 \label{sec:results}
@@ -545,35 +477,30 @@ intersection.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_accept_venn.pdf}
-\caption{Per-corpus Venn of which receipts each gate accepts. The
-centre region is what \emph{both} accept; its precision (bold) is
-strictly above either circle alone on every corpus. The size of the
-disagreement lobes is what powers the intersection lift: $\sigma$ and
-softmax fail on \emph{different} inputs.}
-\label{fig:venn}
-\end{figure}
-
-\begin{figure}[t]
-\centering
 \begin{tikzpicture}[scale=0.85,every node/.style={font=\footnotesize}]
-\draw[fill=sig!40,draw=sig!80,thick] (0,0) rectangle (1.4,3.0);
-\node at (0.7,-0.35) {\textbf{$\sigma$}};
-\node at (0.7,3.3) [text=sig,font=\bfseries] {0.953};
+\draw[densely dashed,grey!45,line width=0.7pt] (-0.25,3.0) -- (7.0,3.0);
+\node[text=grey!65,font=\tiny,anchor=east] at (-0.25,3.0) {0.953};
+\draw[fill=sig!50,draw=sig!90,line width=1pt] (0,0) rectangle (1.4,3.0);
+\node at (0.7,-0.38) [text=sig,font=\bfseries] {sigma};
+\node at (0.7,3.28) [text=sig,font=\bfseries] {0.953};
 
-\node at (2.0,1.4) [font=\Large] {\textbf{+}};
+\node at (2.0,1.5) [font=\LARGE\bfseries,text=grey!70] {+};
 
-\draw[fill=smx!40,draw=smx!80,thick] (2.6,0) rectangle (4.0,3.0);
-\node at (3.3,-0.35) {\textbf{softmax}};
-\node at (3.3,3.3) [text=smx,font=\bfseries] {0.953};
+\draw[fill=smx!50,draw=smx!90,line width=1pt] (2.6,0) rectangle (4.0,3.0);
+\node at (3.3,-0.38) [text=smx,font=\bfseries] {softmax};
+\node at (3.3,3.28) [text=smx,font=\bfseries] {0.953};
 
-\node at (4.6,1.4) [font=\Large] {\textbf{=}};
+\node at (4.6,1.5) [font=\LARGE\bfseries,text=grey!70] {=};
 
-\draw[fill=ok!50,draw=ok!80,thick,pattern=north east lines,pattern color=ok!90] (5.2,0) rectangle (6.6,3.30);
-\node at (5.9,-0.35) {\textbf{both}};
-\node at (5.9,3.6) [text=ok,font=\Large\bfseries] {0.991};
+\begin{scope}[on background layer]
+\node[circle,fill=ok!12,minimum size=1.9cm] at (5.9,3.55) {};
+\end{scope}
+\draw[fill=ok!60,draw=ok!95,line width=1.6pt,pattern=north east lines,pattern color=ok!95] (5.2,0) rectangle (6.6,3.30);
+\draw[ok!95,line width=1.6pt] (5.2,3.30) rectangle (6.6,0);
+\node at (5.9,-0.38) [text=ok,font=\bfseries] {both};
+\node at (5.9,3.62) [text=ok!70!black,font=\Huge\bfseries] {0.991};
 
-\node at (5.9,-1.0) [text=ok,font=\bfseries,align=center]{113 / 114 correct in the joint slice};
+\node at (3.3,-1.05) [text=ok!70!black,font=\bfseries,align=center]{\textbf{113 / 114} correct in the joint slice};
 \end{tikzpicture}
 \caption{\textbf{The striking case: WildReceipt.} $\sigma$ and softmax
 achieve identical $0.953$ single-gate precision yet fail on
@@ -604,30 +531,29 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 
 Table~\ref{tab:headline-pooled} is the pooled headline on all
 $n{=}919$ receipts. The intersection accepts $162$ receipts and is
-right on $160$, Wilson lower bound $0.956$, comfortably above the
-$0.95$ operational floor; both single gates have lower bounds below
-$0.92$. The lift is purchased with coverage: the intersection fires
-on $17.6\%$ of receipts versus $37.4\%$ for either single gate, and on
-SROIE only $4.3\%$ ($15/347$). The economics are explicit. Let a
-human review cost $\rho$ inference passes ($\rho\in[10^2,10^3]$,
-Section~\ref{sec:intro}) and a silent wrong total cost $\kappa$. At
-coverage $c$ and precision $p$ on $N$ receipts, automating costs
+right on $160$, Wilson lower bound $0.956$, above the $0.95$
+operational floor; both single gates have lower bounds below $0.92$.
+The lift is purchased with coverage: the intersection fires on
+$17.6\%$ of receipts versus $37.4\%$ for either single gate, and on
+SROIE only $4.3\%$ ($15/347$). The economics are explicit. With a
+human review costing $\rho$ inference passes ($\rho\in[10^2,10^3]$,
+Section~\ref{sec:intro}) and a silent wrong total costing $\kappa$,
+automating at coverage $c$, precision $p$ on $N$ receipts costs
 $cN(1{-}p)\kappa$ in undetected errors plus $(1{-}c)N\rho$ in reviews.
 Moving from softmax-matched ($c{=}0.374$, $p{=}0.948$) to the
-intersection ($c{=}0.176$, $p{=}0.988$) trades
-$0.198N\rho$ extra review for $(0.374{\cdot}0.052-0.176{\cdot}0.012)N\kappa
-\approx 0.017N\kappa$ fewer silent errors; it is favourable whenever
+intersection ($c{=}0.176$, $p{=}0.988$) trades $0.198N\rho$ extra
+review for $(0.374{\cdot}0.052-0.176{\cdot}0.012)N\kappa
+\approx 0.017N\kappa$ fewer silent errors: favourable whenever
 $\kappa\gtrsim 12\rho$, i.e.\ when one filed wrong total is worth more
 than roughly a dozen human reviews, which holds in tax/audit
-pipelines but not in low-stakes bulk capture. We state this as a
-condition, not a universal claim. Table~\ref{tab:headline-percorpus}
-shows the lift is not a pooling artefact, with each corpus's
-intersection precision above either single gate; the pooled
-$n{=}919$ is unevenly weighted at $100/347/472$ and is carried by
-WildReceipt, so the per-corpus table, not the pool, is the headline. Fig.~\ref{fig:overview} gives the per-corpus
-four-cell matrix; Fig.~\ref{fig:venn} renders the same data as Venn
-diagrams to make the disagreement lobes visible;
-Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
+pipelines but not in low-stakes bulk capture --- a condition, not a
+universal claim. Table~\ref{tab:headline-percorpus} shows the lift is
+not a pooling artefact, with each corpus's intersection precision
+above either single gate; the pooled $n{=}919$ is unevenly weighted
+at $100/347/472$ and carried by WildReceipt, so the per-corpus table,
+not the pool, is the headline. Fig.~\ref{fig:overview} gives the
+per-corpus four-cell matrix and Fig.~\ref{fig:wildreceipt} singles
+out the WildReceipt case.
 
 \subsection{F2: paired McNemar orthogonality}
 \label{sec:results-mcnemar}
@@ -652,18 +578,18 @@ WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
 \end{tabular}
 \end{table}
 
-McNemar asks the paired question: when the two gates disagree, do
-they do so asymmetrically? A small $p$ would mean one gate strictly
-dominates the other on \emph{which} examples it gets right, which
-would weaken the case for intersection. The non-rejection on every
-corpus is consistent with the gates being similarly accurate on
-disjoint slices, and the WildReceipt cell, with $b{=}c{=}91$ exactly,
-is the cleanest example: equal-size disjoint correct-accept slices
-that combine into the $113/114{=}0.991$ intersection
-(Fig.~\ref{fig:wildreceipt}). McNemar non-rejection is, strictly,
-absence of evidence for asymmetry rather than positive evidence of
-error-decorrelation; we list a direct correlation-on-errors test as
-follow-up in Section~\ref{sec:limitations}.
+McNemar asks: when the two gates disagree, do they do so
+asymmetrically? A small $p$ would mean one gate strictly dominates
+the other on \emph{which} examples it gets right, weakening the case
+for intersection. Non-rejection on every corpus is consistent with
+the gates being similarly accurate on disjoint slices; the
+WildReceipt cell, $b{=}c{=}91$ exactly, is the cleanest example ---
+equal-size disjoint correct-accept slices that combine into the
+$113/114{=}0.991$ intersection (Fig.~\ref{fig:wildreceipt}). McNemar
+non-rejection is, strictly, absence of evidence for asymmetry rather
+than positive evidence of error-decorrelation; the direct
+correlation-on-errors test (Section~\ref{sec:results-control})
+supplies the latter.
 
 \subsection{F2b: the intersection lift is not a mechanical artefact}
 \label{sec:results-control}
@@ -671,8 +597,8 @@ follow-up in Section~\ref{sec:limitations}.
 Intersecting any two better-than-random gates with imperfectly
 correlated errors raises precision and lowers coverage; a fair
 reviewer asks whether the headline is just that generic effect. We
-answer it by re-analysis of the same per-receipt accept/correct
-vectors, with no model inference. Define the lift
+answer by re-analysis of the same per-receipt accept/correct vectors,
+no model inference. Define the lift
 $L=P(\sigma\sqcap\text{softmax})-P(\text{softmax at matched
 coverage})$ and compare it, at identical coverage, against two
 controls: (A)~a \emph{random} gate that accepts a uniformly random
@@ -693,10 +619,10 @@ and the correlated softmax-derived gate by $\orthDcorr$
 \emph{both}. As a confound-free check we also measure error
 decorrelation directly --- within the softmax-accepted set, whether
 $\sigma$ rejects precisely the softmax-wrong receipts --- which gives
-$\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$). This is positive
-evidence of orthogonality with no coverage-shrink or
-intersection-arithmetic confound, which the paired-McNemar absence of
-asymmetry (Section~\ref{sec:results-mcnemar}) only implies indirectly.
+$\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$): positive evidence of
+orthogonality with no coverage-shrink or intersection-arithmetic
+confound, which the paired-McNemar absence of asymmetry
+(Section~\ref{sec:results-mcnemar}) only implies indirectly.
 The pooled verdict is \orthEarned, but two honest caveats bound it.
 First, the pooled effect is \emph{small} ($\orthDrand$/$\orthDcorr$
 AUROC-lift-equivalent); enlarging CORD to its train+validation+test
@@ -714,31 +640,31 @@ explicitly not a per-corpus or large one.
 Statistical orthogonality is necessary but not sufficient for
 deployment value; a reviewer rightly asks whether $\sigma$-gating
 beats simply thresholding softmax. We answer with a matched-coverage
-risk--coverage comparison (selective-prediction re-analysis, no model
-inference): at each coverage we evaluate softmax-alone (top by softmax)
-against $\sigma$-gated (top by softmax \emph{and} $\sigma$-accepted) at
-the \emph{same} achieved coverage, and integrate risk to an AURC
-(lower is better). Pooled, AURC is $\rcAURCsoft$ for softmax-alone
-versus $\rcAURCsig$ for $\sigma$-gating, a paired-bootstrap difference
-of only $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
-$p{=}\rcAURCp$): the interval includes zero, so the matched-coverage
-verdict is \rcEarned. This null is real and we keep it stated --- but
-it does not bear on the paper's claim, and it is expected here for a
-concrete reason. Both predictors already operate at near-floor
-absolute risk on this pooled set ($\rcAURCsoft$ and $\rcAURCsig$),
-so an AURC difference test has almost no headroom to resolve: a null
+risk--coverage comparison (no model inference): at each coverage we
+evaluate softmax-alone against $\sigma$-gated (top by softmax
+\emph{and} $\sigma$-accepted) at the \emph{same} achieved coverage,
+and integrate risk to an AURC (lower is better). Pooled, AURC is
+$\rcAURCsoft$ for softmax-alone versus $\rcAURCsig$ for
+$\sigma$-gating, a paired-bootstrap difference of only $\rcAURCd$
+(95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided $p{=}\rcAURCp$): the
+interval includes zero, so the matched-coverage verdict is \rcEarned.
+This null is real and we keep it stated, but it does not bear on the
+paper's claim and is expected here for a concrete reason. Both
+predictors already operate at near-floor absolute risk on this pooled
+set ($\rcAURCsoft$ and $\rcAURCsig$), so an AURC difference test has
+almost no headroom to resolve: a null
 under no-headroom conditions is not evidence against orthogonality.
 The paper's claim is \emph{statistical softmax-orthogonality}
 (established directly and at high significance in
 Section~\ref{sec:results-control}: error decorrelation $\phi$,
 permutation $p{=}\orthPhiP$, clearing both a random and a
 correlated-softmax control), together with an independent,
-document-side audit signal. Operationally, a risk-coverage gain can
-only materialise where base error is non-trivial, and that is exactly
-where it appears: WildReceipt, the one regime with appreciable error,
-is the corpus where $\sigma$-gating is individually favourable. We
-claim the orthogonality, scope the operational gain to non-trivial-
-error regimes, and neither inflate nor disown the pooled AURC null.
+document-side audit signal. A risk-coverage gain can only materialise
+where base error is non-trivial, and that is exactly where it appears:
+WildReceipt, the one regime with appreciable error, is the corpus
+where $\sigma$-gating is individually favourable. We claim the
+orthogonality, scope the operational gain to non-trivial-error
+regimes, and neither inflate nor disown the pooled AURC null.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
@@ -832,23 +758,18 @@ $\mathbf{0.0016\%}$ of inference time (Fig.~\ref{fig:latency}); the gate is oper
 \section{Discussion}
 \label{sec:discussion}
 
-\noindent\textbf{Why $\sigma$ wins, ties, and loses.} On corpora where
-$M$ comes from reliable annotations (CORD JSON, WildReceipt per-token
-labels), $\sigma$ either beats softmax outright or ties it. SROIE is
-the sole inversion regime, and the cause is OCR-derived $M$, not the
-verifier. In any deployment where $M$ can be read cleanly, $\sigma$
-alone is competitive, and $\sigma{+}$softmax is dominant.
-
-\noindent\textbf{Why the intersection wins even when singletons tie.}
-On WildReceipt the two signals are equally precise alone yet their
-intersection reaches $0.991$. Orthogonality doesn't require
-dominance; it only requires \emph{errors on different inputs}.
-McNemar non-significance on every corpus confirms this.
-
-\noindent\textbf{Cross-architecture survival.} Swapping Donut
-(generative) for LayoutLMv3 (encoder-only) keeps the intersection
-above $0.95$. $\sigma$ is signal-orthogonal to softmax across
-architectures, not just within a single backbone.
+\noindent\textbf{Why $\sigma$ wins, ties, loses, and why the
+intersection still wins.} Where $M$ comes from reliable annotations
+(CORD JSON, WildReceipt per-token labels), $\sigma$ beats softmax
+outright or ties it; SROIE is the sole inversion regime, caused by
+OCR-derived $M$, not the verifier. On WildReceipt the two signals are
+equally precise alone ($0.953$) yet their intersection reaches
+$0.991$: orthogonality requires only \emph{errors on different
+inputs}, not dominance, and McNemar non-significance on every corpus
+confirms this. Swapping Donut (generative) for LayoutLMv3
+(encoder-only) keeps the intersection above $0.95$, so $\sigma$ is
+signal-orthogonal to softmax across architectures, not just within a
+single backbone.
 
 \noindent\textbf{Operational recipe.}
 (1)~Pick any KIE model; get $\pi$ and softmax $s$ per receipt.
@@ -904,13 +825,14 @@ McNemar tests are non-significant on every corpus, the WildReceipt
 $b{=}c{=}91$ symmetry being the cleanest signature of disjoint errors.
 Single-gate $\sigma$ tracks the cleanliness of the receipt amount
 multiset: it beats softmax where the amounts are labelled, ties on
-per-token annotations, and trails on OCR-derived inputs, with the
-trail localisable to upstream OCR, not to the verifier. The cost is
-microseconds per receipt, and precision is stable within
-$[0.949, 0.980]$ under up to $40\%$ injected money-line noise. The
-result the paper actually establishes is narrow: an independent
-arithmetic check, when the receipt admits one, is precision-orthogonal
-to softmax confidence, and the two signals are usefully combined.
+per-token annotations, and trails on OCR-derived inputs
+($0.867$ vs.\ $0.947$ on SROIE), with the trail localisable to
+upstream OCR, not to the verifier. The cost is microseconds per
+receipt, and precision is stable within $[0.949, 0.980]$ under up to
+$40\%$ injected money-line noise. The result the paper actually
+establishes is narrow: an independent arithmetic check, when the
+receipt admits one, is precision-orthogonal to softmax confidence,
+and the two signals are usefully combined.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
