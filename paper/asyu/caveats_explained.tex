@@ -1,0 +1,395 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{default}
+\usecolortheme{whale}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\setbeamerfont{title}{size=\Large,series=\bfseries}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{microtype}
+
+\definecolor{ok}{HTML}{2ca02c}
+\definecolor{bad}{HTML}{d62728}
+\definecolor{sig}{HTML}{1f77b4}
+\definecolor{grey}{HTML}{888888}
+
+\newcommand{\bigq}[1]{\begin{center}{\Large #1}\end{center}}
+\newcommand{\keybox}[1]{\begin{center}\colorbox{grey!15}{\parbox{0.92\linewidth}{\centering #1}}\end{center}}
+\newcommand{\plain}[1]{\textit{\textcolor{sig}{Plain words:} #1}}
+
+\title{The Honest Caveats, Explained}
+\subtitle{From basic level to advanced, with the real numbers}
+\author{ASYU 2026}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{How to read this deck}
+\begin{itemize}
+\item Assumes \textbf{only basic arithmetic}: bigger/smaller, fractions, averages.
+\item Every term is defined before it is used.
+\item One idea per slide. Numbers shown are the real measured values.
+\item Goal: understand \emph{why} three specific caveats in the two papers
+cannot be ``fixed'' by editing, because they are facts, not typos.
+\end{itemize}
+\vspace{1em}
+\keybox{A caveat is a sentence that says ``here is exactly how far our
+result does and does not reach''. Stating it is honesty, not weakness.}
+\end{frame}
+
+% =====================================================================
+\section{Part 0: two kinds of problem}
+% =====================================================================
+\begin{frame}{Two completely different kinds of problem}
+\begin{itemize}
+\item \textbf{Copy-edit defect}: a number typed wrong, a figure not
+regenerated, a contradictory sentence. \textcolor{ok}{Fixable by editing.}
+We already fixed all of these.
+\item \textbf{Empirical truth}: what the data actually shows, including
+where it is weak. \textcolor{bad}{Not fixable by editing}, only by
+collecting more/different evidence, or by lying.
+\end{itemize}
+\vspace{1em}
+\keybox{The three caveats in this deck are the second kind. You change
+them only by doing new science, or by being dishonest. We choose
+neither: we state them plainly.}
+\end{frame}
+
+% =====================================================================
+\section{Part 1: the words you need}
+% =====================================================================
+\begin{frame}{Precision and coverage (plain)}
+\plain{Think of a gate that says ``accept'' or ``flag for a human''.}
+\begin{itemize}
+\item \textbf{Coverage}: of all receipts, what fraction does the gate
+\emph{accept} (not send to a human). Example: accept 18 of 100 = coverage 0.18.
+\item \textbf{Precision}: of the accepted ones, what fraction are
+\emph{actually correct}. Example: 182 correct of 184 accepted = 0.989.
+\end{itemize}
+\keybox{High precision on accepted items is the whole point: the gate
+should only wave through receipts it is almost never wrong about.}
+\end{frame}
+
+\begin{frame}{Sample size $n$ and why it rules everything}
+\plain{$n$ is just how many examples you measured.}
+\begin{itemize}
+\item 15 out of 15 correct sounds perfect. But with only $n=15$ you
+cannot tell ``truly excellent'' from ``lucky''.
+\item More $n$ = a sharper estimate. Tiny $n$ = a blurry one, even at 100\%.
+\end{itemize}
+\keybox{Small $n$ does not make a result wrong. It makes it
+\emph{uninformative}: consistent with both ``great'' and ``mediocre''.}
+\end{frame}
+
+\begin{frame}{Confidence interval and ``lower bound''}
+\plain{A confidence interval is the honest range the true value could be in.}
+\begin{itemize}
+\item 15/15 at $n=15$: best guess 1.000, but the 95\% \emph{lower bound}
+is only about \textbf{0.796} (Wilson). The truth could be as low as $\sim$0.80.
+\item 113/114 at $n=472$: lower bound about \textbf{0.95}. Much tighter,
+because $n$ is larger.
+\end{itemize}
+\keybox{We always quote the \emph{lower bound}, the pessimistic honest
+floor, not the flattering point estimate.}
+\end{frame}
+
+\begin{frame}{Statistical power and ``underpowered''}
+\plain{Power = the chance your test can \emph{detect} a real effect that
+is truly there.}
+\begin{itemize}
+\item If $n$ is too small, even a real effect fails the test: not
+because it is absent, but because the test had no resolution.
+\item ``\textbf{Underpowered}'' = ``$n$ too small to conclude'', NOT
+``the method failed''. These are very different sentences.
+\end{itemize}
+\keybox{An underpowered cell is honest evidence of \emph{not knowing
+yet}, not evidence \emph{against}.}
+\end{frame}
+
+\begin{frame}{TOST: a fair pass/fail at a threshold}
+\plain{TOST asks one crisp question: is precision provably above a bar
+(say 0.95)?}
+\begin{itemize}
+\item It returns a $p$-value. Small $p$ (say $<0.05$) = ``yes, provably
+above 0.95''. Large $p$ = ``cannot show it at this $n$''.
+\item It is deliberately strict: it refuses to pass on small samples.
+\end{itemize}
+\keybox{TOST is the referee. We report exactly which corpora it passes
+and which it does not. No spin.}
+\end{frame}
+
+\begin{frame}{AUROC and ``baseline''}
+\plain{AUROC = how well a single score separates two groups. 1.0 perfect,
+0.5 useless coin-flip.}
+\begin{itemize}
+\item A \textbf{baseline} is a simple existing signal you must beat or at
+least match (here: softmax confidence, entropy, sequence length, etc.).
+\item If your score's AUROC is \emph{below} every baseline, it is worse
+at that specific job than things people already have.
+\end{itemize}
+\keybox{Whether that is fatal depends entirely on \emph{what job} you
+claim to be doing. Hold that thought.}
+\end{frame}
+
+\begin{frame}{Distribution shift (Paper 2's setting)}
+\plain{A model trained on one kind of receipt is run on a different
+kind. That change is ``distribution shift''.}
+\begin{itemize}
+\item In-distribution: familiar receipts (CORD).
+\item Shifted: different receipts (SROIE).
+\item Question: can we \emph{detect} that we are now off-distribution,
+using only the model's own outputs, no labels?
+\end{itemize}
+\keybox{Paper 2 is about \emph{detecting} shift, not about fixing or
+triaging individual predictions. Hold that too.}
+\end{frame}
+
+% =====================================================================
+\section{Part 2: Caveat 1 (Paper 1) is per-corpus underpowered}
+% =====================================================================
+\begin{frame}{Paper 1 in one line}
+\bigq{An arithmetic check (sigma) and the model's softmax confidence,
+\emph{intersected}, accept a receipt only when \textbf{both} agree.}
+\vspace{0.8em}
+\plain{Where both agree, precision is very high. The question is: how
+strong is that evidence, corpus by corpus?}
+\end{frame}
+
+\begin{frame}{The real numbers (intersection precision)}
+\begin{itemize}
+\item \textbf{Pooled}: $182/184 = \textbf{0.989}$, 95\% lower bound
+\textbf{0.961} (corpus-stratified bootstrap CI about $[0.973,1.000]$).
+\item \textbf{WildReceipt} ($n_{\text{corpus}}=472$): $113/114=0.991$,
+lower bound $\approx 0.95$.
+\item \textbf{CORD} ($n=200$): $54/55=0.982$.
+\item \textbf{SROIE} ($n=347$): $15/15=1.000$, but only \textbf{15}
+accepted.
+\end{itemize}
+\keybox{Looks strong. Now look at \emph{where the evidence lives}.}
+\end{frame}
+
+\begin{frame}{The concentration problem (basic)}
+\plain{Of the 184 pooled intersection accepts, \textbf{114} come from
+WildReceipt alone.}
+\vspace{0.6em}
+\begin{itemize}
+\item That is about \textbf{62\%} of the headline mass in one corpus.
+\item SROIE contributes only \textbf{15} of 184 ($\approx 8\%$).
+\end{itemize}
+\keybox{The pooled 0.989 is real, but it is \emph{carried by
+WildReceipt}. A reviewer will, correctly, recompute this.}
+\end{frame}
+
+\begin{frame}{The small-$n$ problem (intermediate)}
+SROIE is $15/15$. Its honest floors at $n=15$:
+\begin{itemize}
+\item Wilson 95\% lower bound: \textbf{0.796}
+\item Clopper--Pearson exact: \textbf{0.819}
+\item Jeffreys: \textbf{0.882}
+\end{itemize}
+\vspace{0.4em}
+\keybox{Even a \emph{perfect} 15/15 only guarantees ``about 0.80 or
+better''. That is a \emph{consistency} statement, not strong evidence.}
+\end{frame}
+
+\begin{frame}{The referee's verdict (advanced): per-corpus TOST vs 0.95}
+One-sided exact-binomial TOST, threshold 0.95, $\alpha=0.05$:
+\begin{itemize}
+\item \textbf{WildReceipt}: $p=\textbf{0.020}$ \quad
+\textcolor{ok}{passes}
+\item \textbf{CORD}: $p=0.232$ \quad \textcolor{bad}{does not pass}
+\item \textbf{SROIE}: $p=0.463$ \quad \textcolor{bad}{does not pass}
+\end{itemize}
+\vspace{0.3em}
+Leave-one-corpus-out minimum lower bound: \textbf{0.923} (still strong
+pooled). Within-corpus error-decorrelation still holds everywhere
+(Stouffer $p\approx 7\times 10^{-11}$, Fisher $p\approx 3\times 10^{-10}$).
+\keybox{Honest reading: the per-corpus claim is individually proven only
+on WildReceipt; CORD and SROIE are \emph{consistent but underpowered}.}
+\end{frame}
+
+\begin{frame}{Why editing cannot fix Caveat 1}
+\plain{To make CORD/SROIE individually pass, you do not need better
+words. You need more accepted receipts.}
+\begin{itemize}
+\item Required $n$ for 80\% power: CORD $\approx$\textbf{242},
+SROIE $\approx$\textbf{71}, WildReceipt already there ($\approx$161).
+\item That means: add corpora with enough intersection mass (DocILE,
+mychen76, ...) \emph{and} GPU fine-tune the models on them.
+\item Not possible in this editing interface. And even done, it raises
+\emph{power}; it does not guarantee a reviewer \emph{values} it.
+\end{itemize}
+\keybox{So we do the only honest thing: report the floors, the
+leave-one-out, and the exact TOST pass/fail, plainly.}
+\end{frame}
+
+% =====================================================================
+\section{Part 3: Caveat 2 (Paper 2) is below every baseline on raw AUROC}
+% =====================================================================
+\begin{frame}{Paper 2 in one line}
+\bigq{Under distribution shift the beam-margin's \emph{variance}
+collapses by about \textbf{169}$\times$ (log$_2 C = 7.40$), a change the
+classic KS test barely sees (KS $=0.735$).}
+\vspace{0.6em}
+\plain{That variance-collapse \emph{law} is the contribution. Now the
+uncomfortable table.}
+\end{frame}
+
+\begin{frame}{The uncomfortable table (real AUROC numbers)}
+How well does each signal, used \emph{per receipt}, detect shift?
+\begin{itemize}
+\item Beam-margin (ours): \textbf{0.875}
+\item Sequence length: 0.986 \quad softmax confidence $c_{\text{seq}}$: 0.985
+\item Token entropy: 0.984 \quad MSP: 0.980 \quad Mahalanobis: 0.955
+\item (Free energy: 0.639)
+\end{itemize}
+\vspace{0.3em}
+\keybox{Used as a raw per-receipt detector, the margin is \emph{below
+every serious baseline}. This is stated in the paper, not hidden.}
+\end{frame}
+
+\begin{frame}{Why this is intrinsic, not a bug (intermediate)}
+\plain{The margin was never a per-receipt score. It is a
+\emph{population} statistic: a property of a \emph{batch}'s variance.}
+\begin{itemize}
+\item Asking ``what is its per-receipt AUROC'' is asking a question it
+is not built to answer.
+\item Its value is elsewhere: a \emph{characterised law} (169$\times$
+variance collapse) with a \emph{mechanism} (entropy-floor saturation),
+label-free, computed from outputs the model already produced.
+\end{itemize}
+\keybox{The KS test, the standard tool, sees only 0.735 and misses the
+169$\times$ collapse entirely. That gap \emph{is} the finding.}
+\end{frame}
+
+\begin{frame}{Why editing cannot fix Caveat 2 (advanced)}
+\begin{itemize}
+\item To make the margin beat the baselines on raw AUROC, the signal
+would have to be a strong per-example score. \textbf{It is not}; that is
+its nature.
+\item The only way to ``remove'' this caveat by editing is to
+\emph{claim} it beats baselines. That is exactly the dishonesty this
+whole effort removed.
+\item So we keep it: state the AUROC table straight, and locate the
+contribution where it actually is (the law + mechanism + inference-only,
+label-free deployment monitor).
+\end{itemize}
+\keybox{A true sentence that limits your claim is not a defect. A false
+sentence that inflates it is.}
+\end{frame}
+
+% =====================================================================
+\section{Part 4: Caveat 3 (Paper 2): no triage value, single shift pair}
+% =====================================================================
+\begin{frame}{The honest negative, stated by the paper itself}
+\plain{We ran the controlled test: is the per-receipt margin useful for
+deciding \emph{which single prediction} to trust?}
+\begin{itemize}
+\item Risk (AURC, lower better): margin \textbf{0.513} vs softmax
+$c_{\text{seq}}$ \textbf{0.516}. Effectively \emph{no advantage}.
+\item On the shifted set, error rate 66\%; margin recall 23\% vs
+$c_{\text{seq}}$ 22\%.
+\end{itemize}
+\keybox{Conclusion in the paper: this is a shift \emph{detector} with a
+mechanism, \textbf{not} an operational per-receipt triage tool. We do
+not claim triage value.}
+\end{frame}
+
+\begin{frame}{The single-shift-pair point (intermediate)}
+The headline rests on one natural pair: CORD $\rightarrow$ SROIE. We add
+three independent corroborations:
+\begin{itemize}
+\item Within-CORD natural complexity shift: log$_2 C = 3.63$
+\item A third real receipt/invoice corpus: log$_2 C = 7.53$
+\item Held-out, leakage-free re-measurement: log$_2 C = 7.40$
+\item Model axis: \textbf{2 of 3} sibling checkpoints fire
+\end{itemize}
+\keybox{Stronger than one pair alone, but still not a broad multi-shift
+validation. We say exactly that.}
+\end{frame}
+
+\begin{frame}{Why editing cannot fix Caveat 3 (advanced)}
+\begin{itemize}
+\item ``Remove the no-triage-value caveat'' would require the margin to
+\emph{actually be} an operationally useful triage score. The controlled
+test says it is not (AURC 0.513 vs 0.516).
+\item ``Remove the single-pair caveat'' would require validation on many
+\emph{natural} shift pairs: new datasets plus new GPU model runs. That
+is a different, larger paper, not an edit.
+\item Deleting either sentence without doing that work would be a
+false claim.
+\end{itemize}
+\keybox{The integrity of Paper 2 \emph{is} that it argues its own
+limits. Removing them removes the honesty, not the limitation.}
+\end{frame}
+
+% =====================================================================
+\section{Part 5: the significance numbers behind Paper 2}
+% =====================================================================
+\begin{frame}{For completeness: the recomputed leakage-free stats}
+After removing training-data contamination (headline now $n_{\text{in}}=200$
+held-out vs SROIE 347):
+\begin{itemize}
+\item log$_2 C = 7.40$ (variance ratio $\approx 169\times$); KS only 0.735.
+\item Levene/Brown--Forsythe $W=206.45$; Bartlett $T=1229.87$; $F=169$.
+\item Bootstrap 95\% CI on log$_2 C$: $[6.64,\,8.24]$ (excludes 0).
+\item Permutation null max $|\log_2 C|=1.99$; the observed 7.40 sits
+$\approx 3.7\times$ outside it; $p<10^{-4}$.
+\end{itemize}
+\keybox{The effect is real and robust on the \emph{correct} data. The
+caveats above are about \emph{scope and per-example use}, not about
+whether the law holds. It holds.}
+\end{frame}
+
+% =====================================================================
+\section{Part 6: the meta-point}
+% =====================================================================
+\begin{frame}{What we fixed vs what we kept}
+\begin{itemize}
+\item \textcolor{ok}{Fixed (copy-edit defects):} a contaminated
+evaluation, a figure with stale numbers, an internally contradictory
+paragraph, a fabricated citation, em-dashes, column overflows.
+\item \textcolor{bad}{Kept and stated (empirical truths):} per-corpus
+underpowered (Paper 1); below baselines on raw AUROC (Paper 2); no
+per-receipt triage value and a single main shift pair (Paper 2).
+\end{itemize}
+\keybox{The first list is now empty. The second list is, deliberately,
+written into the papers in plain language.}
+\end{frame}
+
+\begin{frame}{Why this is the strong position, not the weak one}
+\begin{itemize}
+\item A reviewer who finds a hidden weakness rejects you and distrusts
+the rest. A reviewer who sees you state it first trusts the rest.
+\item Every number here is the real measured value, including the
+unflattering ones.
+\item No paper at any venue is a guaranteed accept. Stating limits
+precisely is the most defensible posture for an applied venue.
+\end{itemize}
+\keybox{Honest, reproducible, and exactly scoped: no more, and no less,
+than the data supports.}
+\end{frame}
+
+\begin{frame}{One-slide summary}
+\begin{itemize}
+\item \textbf{Caveat 1} (Paper 1): pooled 0.989 is carried by
+WildReceipt; CORD/SROIE pass only as ``consistent, underpowered''
+(TOST $p$: 0.020 / 0.232 / 0.463). Fix needs more data + GPU, not edits.
+\item \textbf{Caveat 2} (Paper 2): per-receipt AUROC 0.875, below every
+baseline, because the signal is a population law, not a per-example
+score. Cannot be edited away without lying.
+\item \textbf{Caveat 3} (Paper 2): no triage value (AURC 0.513 vs
+0.516), one main shift pair plus 3 corroborations. Removing it needs new
+science, not wording.
+\end{itemize}
+\keybox{They are facts. We state them. That is the contribution's
+credibility.}
+\end{frame}
+
+\end{document}
