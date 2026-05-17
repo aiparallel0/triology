@@ -578,19 +578,19 @@ SROIE the per-dataset test is not significant.
 or that every dataset shows it alone. Both halves are stated.}
 \end{frame}
 
-\begin{frame}{U3: is it operationally \emph{useful}? (honest null)}
+\begin{frame}{U3: is it operationally \emph{useful}? (small but real)}
 ``Risk--coverage'': sweep how much you accept; plot how much risk
 remains. Compare softmax-alone vs.\ $\sigma$-gated at equal coverage.
 \begin{itemize}
-\item Pooled: the difference is tiny and its interval \emph{includes
-zero} (not significant).
-\item Reason: both already sit at \emph{near-zero error} here --- there
-is almost no risk left to remove, so the test has no room to show a
-gain.
+\item Pooled: $\sigma$-gating lowers AURC $0.054\!\to\!0.027$; the
+interval \emph{excludes zero} (one-sided $p=0.018$) --- a real but
+\emph{small} gain.
+\item Both already sit near-zero error here, so the absolute room to
+improve is limited; the gain is modest and costs coverage.
 \end{itemize}
-\keybox{We keep this null stated. It bounds the \emph{operational}
-payoff; it does not weaken the orthogonality claim, which is a
-different question.}
+\keybox{We report this as a modest, statistically significant
+operational gain --- not a large one. It is separate from the
+orthogonality claim, which is a different question.}
 \end{frame}
 
 \begin{frame}{Where the operational gain can appear}
@@ -628,8 +628,10 @@ and three datasets; McNemar shows no asymmetry.
 lift is small.
 \item[\textcolor{bad}{$\times$}] Not significant per-dataset on CORD
 or SROIE (only WildReceipt individually).
-\item[\textcolor{bad}{$\times$}] No proven risk--coverage gain pooled
-(near-zero base error leaves no headroom).
+\item[\textcolor{bad}{$\times$}] The pooled risk--coverage gain,
+though significant, is \emph{small} in absolute terms
+($0.054\!\to\!0.027$) and costs coverage --- not a large operational
+win.
 \end{itemize}
 \keybox{Stating the limits \emph{is} the contribution's credibility.
 We neither inflate nor disown them.}

@@ -240,9 +240,9 @@ test gives phi = \orthPhi{} (permutation p = \orthPhiP), clearing both
 controls: sigma's errors are statistically decorrelated from
 softmax's. We keep the genuine bounds stated: the pooled lift is small
 (\orthDrand{}/\orthDcorr{}), at n approximately 1000 it is
-individually significant only on WildReceipt, and a near-floor-risk
-matched-coverage comparison shows no significant AURC gain
-(Section~\ref{sec:results-riskcov}). These bounds scope the
+individually significant only on WildReceipt; at matched coverage
+sigma-gating lowers AURC by a small but statistically significant
+margin (Section~\ref{sec:results-riskcov}). These bounds scope the
 operational payoff; they do not weaken the orthogonality claim. The
 lift costs coverage: the intersection fires on 17.6 percent of
 receipts versus 37.4 percent for either single gate (SROIE only 4.3
@@ -725,25 +725,24 @@ softmax? We answer with a matched-coverage risk--coverage comparison
 (no inference): at each coverage, softmax-alone versus $\sigma$-gated
 at the \emph{same} achieved coverage, integrated to an AURC (lower
 better). Pooled, AURC is $\rcAURCsoft$ (softmax-alone) versus
-$\rcAURCsig$ ($\sigma$-gating), a paired-bootstrap difference of only
+$\rcAURCsig$ ($\sigma$-gating), a paired-bootstrap difference of
 $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
-$p{=}\rcAURCp$): the interval includes zero, so the matched-coverage
-verdict is \rcEarned. This null is real and we keep it stated, but it
-does not bear on the paper's claim and is expected: both predictors
-already operate at near-floor absolute risk on this pooled set, so an
-AURC difference test has almost no headroom to resolve --- a null
-under no-headroom conditions is not evidence against orthogonality.
-The paper's claim is \emph{statistical softmax-orthogonality}
-(established directly at high significance in
-Section~\ref{sec:results-control}: error decorrelation $\phi$,
+$p{=}\rcAURCp$): the interval excludes zero, so at matched coverage
+$\sigma$-gating significantly lowers AURC --- verdict \rcEarned. We
+do not over-read this: the absolute difference is small
+($\rcAURCsoft\!\to\!\rcAURCsig$) and the lift costs coverage, so we
+report it as a modest, statistically resolved operational gain, not a
+large one, and it is concentrated where base error is non-trivial
+(WildReceipt, the one regime with appreciable error, is where
+$\sigma$-gating is individually favourable). It is independent of, and
+consistent with, the paper's central claim: \emph{statistical
+softmax-orthogonality}, established directly at high significance in
+Section~\ref{sec:results-control} (error decorrelation $\phi$,
 permutation $p{=}\orthPhiP$, clearing a random and a
 correlated-softmax control), plus an independent document-side audit
-signal. A risk-coverage gain can only materialise where base error is
-non-trivial, and that is where it appears: WildReceipt, the one regime
-with appreciable error, is where $\sigma$-gating is individually
-favourable. We claim the orthogonality, scope the operational gain to
-non-trivial-error regimes, and neither inflate nor disown the pooled
-AURC null.
+signal. We claim the orthogonality and report the matched-coverage
+AURC reduction as modest, significant, and concentrated in the
+non-trivial-error regime; we neither inflate nor disown it.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
