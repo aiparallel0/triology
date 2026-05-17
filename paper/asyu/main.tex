@@ -108,7 +108,7 @@ for Generative and Encoder-Only Document Total Extraction}
 \node at (8.1,0.4) [font=\large,text=bad]{\textbf{?}};
 \node at (8.1,-0.4) [font=\tiny]{trust it?};
 
-\node[draw,rounded corners=4pt,fill=smx!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (old) at (11.0,1.0) {\textbf{30+ years (today):}\\softmax only\\\textcolor{bad}{can be confidently wrong}};
+\node[draw,rounded corners=4pt,fill=smx!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (old) at (11.0,1.0) {\textbf{Standard practice:}\\softmax only\\\textcolor{bad}{can be confidently wrong}};
 \node[draw,rounded corners=4pt,fill=ok!20,thick,text width=3.4cm,align=center,minimum height=1.3cm] (new) at (11.0,-1.4) {\textbf{This paper:}\\$\sigma$ math check\\\textcolor{ok}{independent second opinion}};
 \draw[->] (8.7,0.3) -- (old.west);
 \draw[->] (8.7,-0.3) -- (new.west);
@@ -121,7 +121,7 @@ for Generative and Encoder-Only Document Total Extraction}
 \node at (8.0,-2.8) [font=\small,align=center,text width=14cm]{\emph{Pooled $n{=}919$ receipts $\cdot$ CORD + SROIE + WildReceipt $\cdot$ Donut + LayoutLMv3. Intersection precision $0.988$ (Wilson lower bound $0.956$); either signal alone, below $0.92$.}};
 \end{tikzpicture}
 \caption{\textbf{The contribution in one figure.} An AI reads a
-receipt and predicts a total. For 30+ years the only ``should I
+receipt and predicts a total. In standard practice the only ``should I
 trust this number?'' signal has been the model's own
 \emph{softmax confidence} (a number it produces about its own answer).
 This paper adds $\sigma$, an arithmetic check on the receipt itself
@@ -136,7 +136,7 @@ better than either alone.}
 Document-AI systems extract named fields from receipts; the
 \texttt{total} is the highest-value target and a silently wrong total
 propagates downstream into tax filings, expense reports, and audits.
-For 30+ years the only signal practitioners have had for deciding
+In standard practice the only signal practitioners have had for deciding
 when to trust a predicted total has been the model's own softmax
 confidence, a single scalar that miscalibrates in a familiar
 way~\cite{guo2017calibration}: a model can score $0.97$ on a receipt

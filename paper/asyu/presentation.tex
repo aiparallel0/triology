@@ -47,6 +47,19 @@
 \newcommand{\orthPhi}{0.200}
 \newcommand{\orthPhiP}{0.0002}
 \InputIfFileExists{numbers_orth.tex}{}{}
+\newcommand{\pcPoolPrec}{0.9950}
+\newcommand{\pcPoolN}{401}
+\newcommand{\pcPoolWilson}{0.9820}
+\newcommand{\pcBootLo}{0.9875}
+\newcommand{\pcBootHi}{1.0000}
+\newcommand{\pcWeakCorpus}{SROIE}
+\newcommand{\pcWeakWilson}{0.7961}
+\newcommand{\pcLooMinWilson}{0.9574}
+\newcommand{\pcCordWilson}{0.9795}
+\newcommand{\pcSroieWilson}{0.7961}
+\newcommand{\pcWrWilson}{0.9520}
+\newcommand{\pcSurvives}{yes}
+\InputIfFileExists{numbers_percorpus.tex}{}{}
 
 \newcommand{\bigq}[1]{\begin{center}{\Large #1}\end{center}}
 \newcommand{\keybox}[1]{\begin{center}\colorbox{grey!15}{\parbox{0.92\linewidth}{\centering #1}}\end{center}}
@@ -401,6 +414,33 @@ more than ``consistent''.
 \end{itemize}
 \keybox{Where both opinions agree, the answer is almost always right
 --- visibly higher than either opinion by itself.}
+\end{frame}
+
+\begin{frame}{``But SROIE is only $n{=}15$'' --- the data answers this}
+\plain{A reviewer rightly asks: the SROIE intersection cell is tiny.
+Does the headline secretly rest on $15$ receipts? We answer with the
+same three corpora, the way multi-corpus selective-prediction work
+does it --- no new data, no model.}
+\vspace{0.5em}
+\begin{itemize}
+\item \textbf{Honest per-corpus floor (Wilson 95\% lower bound).}
+$15/15$ does \emph{not} become $1.000$; it becomes its true floor
+\textcolor{sig}{$\pcSroieWilson$}. CORD floor $\pcCordWilson$,
+WildReceipt $\pcWrWilson$. The weakest single corpus
+(\pcWeakCorpus) is stated straight at $\pcWeakWilson$.
+\item \textbf{Corpus-stratified cluster bootstrap} (resample
+\emph{within} each corpus, $5000\times$): pooled intersection
+precision \textcolor{ok}{$\pcPoolPrec$} over $n{=}\pcPoolN$, 95\% CI
+$[\pcBootLo,\pcBootHi]$, Wilson LB $\pcPoolWilson$.
+\item \textbf{Leave-one-corpus-out.} Drop SROIE entirely: the claim
+still holds on CORD$+$WildReceipt ($n{=}386$, Wilson LB $0.981$).
+Dropping \emph{any} corpus leaves the pooled Wilson LB
+$\ge\pcLooMinWilson$.
+\end{itemize}
+\keybox{The intersection claim does not rest on any one corpus ---
+throw SROIE away completely and it is unchanged. The small cell is
+reported with its honest floor, not hidden; the load-bearing number
+is the stratified pooled Wilson LB $\pcPoolWilson$.}
 \end{frame}
 
 \begin{frame}{The fair objection (and why U/U2 exist)}

@@ -1,0 +1,71 @@
+{
+  "method": "per-corpus Wilson LB + corpus-stratified cluster bootstrap + leave-one-corpus-out",
+  "per_corpus": {
+    "CORD": {
+      "n": 272,
+      "k": 271,
+      "precision": 0.9963235294117647,
+      "wilson_lo": 0.9795
+    },
+    "SROIE": {
+      "n": 15,
+      "k": 15,
+      "precision": 1.0,
+      "wilson_lo": 0.7961
+    },
+    "WildReceipt": {
+      "n": 114,
+      "k": 113,
+      "precision": 0.9912280701754386,
+      "wilson_lo": 0.952
+    }
+  },
+  "weakest_corpus": "SROIE",
+  "weakest_corpus_wilson_lo": 0.7961,
+  "pooled": {
+    "n": 401,
+    "k": 399,
+    "precision": 0.995,
+    "wilson_lo": 0.982,
+    "strat_boot_ci": [
+      0.9875,
+      1.0
+    ],
+    "n_boot": 5000
+  },
+  "leave_one_corpus_out": {
+    "drop_CORD": {
+      "corpora_kept": [
+        "SROIE",
+        "WildReceipt"
+      ],
+      "n": 129,
+      "k": 128,
+      "precision": 0.9922,
+      "wilson_lo": 0.9574
+    },
+    "drop_SROIE": {
+      "corpora_kept": [
+        "CORD",
+        "WildReceipt"
+      ],
+      "n": 386,
+      "k": 384,
+      "precision": 0.9948,
+      "wilson_lo": 0.9813
+    },
+    "drop_WildReceipt": {
+      "corpora_kept": [
+        "CORD",
+        "SROIE"
+      ],
+      "n": 287,
+      "k": 286,
+      "precision": 0.9965,
+      "wilson_lo": 0.9805
+    }
+  },
+  "loo_min_wilson_lo": 0.9574,
+  "headline_survives_every_drop": true,
+  "verdict": "Pooled intersection precision 0.995 over n=401 accepted receipts across all three corpora; corpus-stratified cluster bootstrap 95% CI [0.9875, 1.0] and Wilson lower bound 0.982. The weakest single corpus (SROIE) still has a Wilson floor of 0.7961, and dropping ANY corpus (incl. small-n SROIE) leaves the pooled Wilson LB at >=0.9574. The intersection claim does not rest on any one corpus; it strengthens under the standard stratified treatment."
+}
