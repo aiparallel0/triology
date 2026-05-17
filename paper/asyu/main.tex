@@ -183,7 +183,7 @@ for Generative and Encoder-Only Document Total Extraction}
 \begin{scope}[on background layer]
 \node[circle,fill=ok!12,minimum size=2.4cm] at (15.2,-1.45) {};
 \end{scope}
-\node[draw=ok!90,line width=2pt,rounded corners=4pt,fill=ok!28,minimum width=1.95cm,minimum height=1.15cm,font=\Huge\bfseries,text=ok!75!black] (pn) at (15.2,-1.45) {0.988};
+\node[draw=ok!90,line width=2pt,rounded corners=4pt,fill=ok!28,minimum width=1.95cm,minimum height=1.15cm,font=\Huge\bfseries,text=ok!75!black] (pn) at (15.2,-1.45) {0.989};
 \draw[->,thick,grey!55] (old.east) -- (po.west);
 \draw[->,line width=1.6pt,ok!85] (new.east) -- (pn.west);
 \node at (15.2,-2.62) [font=\footnotesize\bfseries,text=ok!70!black]{precision when both fire};
@@ -592,16 +592,16 @@ right on $182$, Wilson lower bound $0.961$, above the $0.95$
 operational floor; both single gates have lower bounds below $0.92$.
 The lift is purchased with coverage: the intersection fires on
 $18.1\%$ of receipts versus $38.1\%$ for either single gate, and on
-SROIE only $4.3\%$ ($15/347$). The economics are explicit. With a
-human review costing $\rho$ inference passes ($\rho\in[10^2,10^3]$,
+SROIE only $4.3\%$ ($15/347$). The economics: with a human review
+costing $\rho$ inference passes ($\rho\in[10^2,10^3]$,
 Section~\ref{sec:intro}) and a silent wrong total costing $\kappa$,
 automating at coverage $c$, precision $p$ on $N$ receipts costs
 $cN(1{-}p)\kappa$ in undetected errors plus $(1{-}c)N\rho$ in reviews.
-Moving from softmax-matched ($c{=}0.374$, $p{=}0.948$) to the
-intersection ($c{=}0.176$, $p{=}0.988$) trades $0.198N\rho$ extra
-review for $(0.374{\cdot}0.052-0.176{\cdot}0.012)N\kappa
-\approx 0.017N\kappa$ fewer silent errors: favourable whenever
-$\kappa\gtrsim 12\rho$, i.e.\ when one filed wrong total is worth more
+Moving from softmax-matched ($c{=}0.381$, $p{=}0.954$) to the
+intersection ($c{=}0.181$, $p{=}0.989$) trades $0.200N\rho$ extra
+review for $(0.381{\cdot}0.046-0.181{\cdot}0.011)N\kappa
+\approx 0.0155N\kappa$ fewer silent errors: favourable whenever
+$\kappa\gtrsim 13\rho$, i.e.\ when one filed wrong total is worth more
 than roughly a dozen human reviews, which holds in tax/audit
 pipelines but not in low-stakes bulk capture --- a condition, not a
 universal claim. Table~\ref{tab:headline-percorpus} shows the lift is
@@ -680,7 +680,7 @@ confound, which the paired-McNemar absence of asymmetry
 (Section~\ref{sec:results-mcnemar}) only implies indirectly.
 The pooled verdict is \orthEarned, but two honest caveats bound it.
 First, the pooled effect is \emph{small} ($\orthDrand$/$\orthDcorr$
-AUROC-lift-equivalent). The CORD evaluation is restricted to its
+precision lift). The CORD evaluation is restricted to its
 test+validation split ($n{=}200$); CORD-v2 \emph{train} is the Donut
 fine-tuning data and is excluded, so no result here is inflated by
 training-set leakage. Second, it does \emph{not} hold per corpus: an
@@ -841,8 +841,9 @@ $\mathbf{0.0016\%}$ of inference time (Fig.~\ref{fig:latency}); the gate is oper
 \noindent\textbf{Why $\sigma$ wins, ties, loses, and why the
 intersection still wins.} Where $M$ comes from reliable annotations
 (CORD JSON, WildReceipt per-token labels) $\sigma$ beats or ties
-softmax; SROIE is the sole inversion regime, caused by OCR-derived
-$M$, not the verifier. On WildReceipt both signals are equally precise
+softmax; SROIE is the sole inversion regime, which we attribute to
+OCR-derived $M$, not the verifier (a hypothesis;
+Section~\ref{sec:results-regime}). On WildReceipt both signals are equally precise
 alone ($0.953$) yet their intersection reaches $0.991$: orthogonality
 needs only \emph{errors on different inputs}, not dominance, and
 McNemar non-significance on every corpus confirms it. Swapping Donut
