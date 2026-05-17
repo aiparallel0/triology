@@ -108,7 +108,7 @@
 \newcommand{\plain}[1]{\textit{\textcolor{sig}{Plain words:} #1}}
 
 \title{Can we trust AI when it reads a receipt?}
-\subtitle{Explained from zero --- only basic arithmetic assumed}
+\subtitle{Explained from zero: only basic arithmetic assumed}
 \author{ASYU 2026}
 \date{}
 
@@ -124,7 +124,7 @@ multiplying, fractions, ``bigger/smaller''). Nothing else.
 before it is used}: logarithm, variance, correlation, p-value,
 bootstrap, AUROC, McNemar, subset-sum, softmax, distribution shift.
 \item Each idea gets its own slide, in small steps.
-\item The honest results --- including what \emph{did not} work --- are
+\item The honest results, including what \emph{did not} work, are
 stated plainly. Numbers shown are the real measured values.
 \end{itemize}
 \vspace{1em}
@@ -133,7 +133,7 @@ continue. Nothing later needs more than what came before.}
 \end{frame}
 
 % ===================================================================
-\section{Part 0 --- the everyday problem}
+\section{Part 0: the everyday problem}
 % ===================================================================
 \begin{frame}{The one-sentence problem}
 \bigq{A computer reads a receipt and says the total is \textbf{\$58.40}.}
@@ -147,7 +147,7 @@ about answering it well.}
 \begin{frame}{Why it matters}
 \begin{itemize}
 \item Receipts feed tax filing, expense reports, audits, accounting.
-\item A wrong total is not noticed at the time --- it is filed,
+\item A wrong total is not noticed at the time: it is filed,
 trusted, and discovered weeks later, if ever.
 \item Billions of receipts are read by computers. Small error rates
 become large amounts of money.
@@ -158,7 +158,7 @@ one}'' alarm, so a human checks only the risky receipts.}
 \end{frame}
 
 % ===================================================================
-\section{Part 1 --- what an ``AI model'' is}
+\section{Part 1: what an ``AI model'' is}
 % ===================================================================
 \begin{frame}{What is an ``AI model''? (no jargon)}
 \plain{A model is just a \textbf{function}: you put something in, you
@@ -236,7 +236,7 @@ layouts). That mismatch is called \textbf{distribution shift}.}
 \item Used on Malaysian shop receipts (\textbf{SROIE}) or English
 receipts (\textbf{WildReceipt}).
 \end{itemize}
-Under shift, models fail more --- and often \emph{silently}.
+Under shift, models fail more, and often \emph{silently}.
 \end{frame}
 
 \begin{frame}{The three receipt collections (``datasets'')}
@@ -253,9 +253,9 @@ receipt plus its true total.}
 \end{frame}
 
 % ===================================================================
-\section{Part 2 --- our idea, in one picture}
+\section{Part 2: our idea, in one picture}
 % ===================================================================
-\begin{frame}{The idea: don't ask the AI --- ask the receipt}
+\begin{frame}{The idea: don't ask the AI, ask the receipt}
 \bigq{The receipt already contains every line-item price.}
 \vspace{0.6em}
 \bigq{If some of them add up to the predicted total, the answer is
@@ -289,11 +289,11 @@ exactly in microseconds.}
 \vspace{1em}
 \keybox{Two \emph{independent} opinions. The whole paper is about
 whether combining an inside-opinion and an outside-opinion beats
-either alone --- and by how much, honestly measured.}
+either alone, and by how much, honestly measured.}
 \end{frame}
 
 % ===================================================================
-\section{Part 3 --- the measuring vocabulary (from zero)}
+\section{Part 3: the measuring vocabulary (from zero)}
 % ===================================================================
 \begin{frame}{We must \emph{measure}. First, four plain words}
 \begin{itemize}
@@ -331,7 +331,7 @@ A correlation is itself a number from $-1$ to $+1$:
 $0$ = unrelated.
 \end{itemize}
 ``Spearman'' correlation is the same idea using \emph{rankings}
-(1st, 2nd, 3rd\dots) instead of raw values --- safer when scales
+(1st, 2nd, 3rd\dots) instead of raw values, safer when scales
 differ.
 \end{frame}
 
@@ -341,7 +341,7 @@ When the two things are yes/no (e.g.\ ``did $\sigma$ fail?'' and
 special name, \textbf{$\phi$}.
 \vspace{0.8em}
 \keybox{$\phi \approx 0$ between two error-flags means the two methods
-\emph{fail on different receipts} --- exactly the property that makes
+\emph{fail on different receipts}: exactly the property that makes
 combining them useful.}
 \end{frame}
 
@@ -383,7 +383,7 @@ repeats) from the ones we have.
 is.
 \end{enumerate}
 \keybox{The middle 95\% of those re-measurements is the
-\textbf{95\% confidence interval} --- a plain ``we're fairly sure the
+\textbf{95\% confidence interval}: a plain ``we're fairly sure the
 true value is in this range''.}
 \end{frame}
 
@@ -425,7 +425,7 @@ softmax are not the same gate in disguise.}
 \end{frame}
 
 % ===================================================================
-\section{Part 4 --- the experiments, in plain words}
+\section{Part 4: the experiments, in plain words}
 % ===================================================================
 \begin{frame}{The experiment pipeline (names you will see)}
 We run each model on each dataset and record, per receipt:
@@ -437,7 +437,7 @@ Donut on SROIE (away).
 \item \textbf{F, MF2} = LayoutLMv3 on WildReceipt (other model).
 \item \textbf{U, U2, U3} = the analyses that compare the gates.
 \end{itemize}
-\keybox{No model is re-run for the analyses --- U/U2/U3 only
+\keybox{No model is re-run for the analyses; U/U2/U3 only
 re-read the recorded per-receipt yes/no/correct table.}
 \end{frame}
 
@@ -454,15 +454,15 @@ both-agree $54$ of $55$ = $0.982$, the exclusive single-gate slices fall below $
 \item On \textbf{SROIE}: $15/15$, but $n{=}15$ is too small to claim
 more than ``consistent''.
 \end{itemize}
-\keybox{Where both opinions agree, the answer is almost always right
---- visibly higher than either opinion by itself.}
+\keybox{Where both opinions agree, the answer is almost always right:
+visibly higher than either opinion by itself.}
 \end{frame}
 
-\begin{frame}{``But SROIE is only $n{=}15$'' --- the data answers this}
+\begin{frame}{``But SROIE is only $n{=}15$'': the data answers this}
 \plain{A reviewer rightly asks: the SROIE intersection cell is tiny.
 Does the headline secretly rest on $15$ receipts? We answer with the
 same three corpora, the way multi-corpus selective-prediction work
-does it --- no new data, no model.}
+does it, with no new data and no model.}
 \vspace{0.5em}
 \begin{itemize}
 \item \textbf{Honest per-corpus floor (Wilson 95\% lower bound).}
@@ -479,14 +479,14 @@ still holds on CORD$+$WildReceipt ($169$ intersection accepts, Wilson
 LB $0.958$). Dropping \emph{any} corpus leaves the pooled Wilson LB
 $\ge\pcLooMinWilson$.
 \end{itemize}
-\keybox{The intersection claim does not rest on any one corpus ---
+\keybox{The intersection claim does not rest on any one corpus:
 throw SROIE away completely and it is unchanged. The small cell is
 reported with its honest floor, not hidden; the load-bearing number
 is the stratified pooled Wilson LB $\pcPoolWilson$.}
 \end{frame}
 
-\begin{frame}{Exact per-corpus rigor --- stated without spin}
-\plain{No SciPy, no PyMC --- exact small-sample statistics from
+\begin{frame}{Exact per-corpus rigor, stated without spin}
+\plain{No SciPy, no PyMC: exact small-sample statistics from
 scratch, on the leakage-free cells (CORD test+validation $54/55$,
 SROIE $15/15$, WildReceipt $113/114$).}
 \vspace{0.4em}
@@ -501,7 +501,7 @@ $\rgPoolPhat$, Wilson LB $\rgPoolWil$.
 \item \textbf{Exact-binomial TOST vs.\ $0.95$ (H$_0$: $p\le0.95$).}
 \textcolor{ok}{Passes individually only on WildReceipt}
 ($p=\rgTostWrP$). \textcolor{bad}{CORD ($p=\rgTostCordP$) and SROIE
-($p=\rgTostSroieP$) do not} --- consistent with $>0.95$ but
+($p=\rgTostSroieP$) do not}, consistent with $>0.95$ but
 underpowered. The pool passes ($p=\rgTostPoolP$). We say this
 straight.
 \item \textbf{Required-$n$ for $0.8$ power:} CORD $\rgReqnCord$,
@@ -512,7 +512,7 @@ holds inside every corpus, not just pooled.
 \end{itemize}
 \keybox{The orthogonality is robust within every corpus. The
 $0.95$ ship-without-review floor is met \emph{individually} only
-where the sample is large enough to show it --- stated honestly, not
+where the sample is large enough to show it: stated honestly, not
 softened.}
 \end{frame}
 
@@ -522,7 +522,7 @@ raises precision and lowers coverage. Your gain might be that generic
 shrink, not real independence.''}
 \vspace{1em}
 \keybox{So we must prove $\sigma$'s mistakes are genuinely
-\emph{decorrelated} from softmax's --- not just ``another filter''.
+\emph{decorrelated} from softmax's, not just ``another filter''.
 That is what U and U2 test.}
 \end{frame}
 
@@ -531,7 +531,7 @@ We compare $\sigma$ against two fake ``placebo'' gates at the same
 coverage:
 \begin{itemize}
 \item \textbf{Random gate}: accepts a random subset. Carries no
-information --- isolates the pure ``shrinking coverage'' effect.
+information: it isolates the pure ``shrinking coverage'' effect.
 \item \textbf{Correlated gate}: a second gate \emph{built from
 softmax} with the same standalone quality as $\sigma$. Tests ``would
 any second good softmax-like gate do as well?''
@@ -549,7 +549,7 @@ ranges can overlap while the real difference is still significant.
 \item U said ``not cleanly separated''.
 \end{itemize}
 \keybox{Lesson learned mid-project: U used the wrong test. The fix was
-not to soften the claim --- it was to run the \emph{correct} test.}
+not to soften the claim; it was to run the \emph{correct} test.}
 \end{frame}
 
 \begin{frame}{U2: the correct test (paired difference)}
@@ -563,7 +563,7 @@ $\phi=\orthPhi$, permutation p $=\orthPhiP$. Verdict:
 \textcolor{ok}{\textbf{\orthEarned}}.}
 \vspace{0.4em}
 \plain{In words: $\sigma$'s mistakes really are decorrelated from
-softmax's --- this is established, not merely suggested.}
+softmax's: this is established, not merely suggested.}
 \end{frame}
 
 \begin{frame}{What ``\orthEarned'' honestly does and does not mean}
@@ -583,13 +583,13 @@ or that every dataset shows it alone. Both halves are stated.}
 remains. Compare softmax-alone vs.\ $\sigma$-gated at equal coverage.
 \begin{itemize}
 \item Pooled: $\sigma$-gating lowers AURC $0.054\!\to\!0.027$; the
-interval \emph{excludes zero} (one-sided $p=0.018$) --- a real but
+interval \emph{excludes zero} (one-sided $p=0.018$): a real but
 \emph{small} gain.
 \item Both already sit near-zero error here, so the absolute room to
 improve is limited; the gain is modest and costs coverage.
 \end{itemize}
 \keybox{We report this as a modest, statistically significant
-operational gain --- not a large one. It is separate from the
+operational gain, not a large one. It is separate from the
 orthogonality claim, which is a different question.}
 \end{frame}
 
@@ -597,7 +597,7 @@ orthogonality claim, which is a different question.}
 A risk reduction can only show up where there is real error to
 reduce.
 \begin{itemize}
-\item WildReceipt --- the one regime with appreciable base error --- is
+\item WildReceipt, the one regime with appreciable base error, is
 exactly where $\sigma$-gating is individually favourable.
 \item Where the model is already almost always right (CORD home
 turf), no gate can improve much.
@@ -607,9 +607,9 @@ expected (and seen) only when base error is non-trivial.}
 \end{frame}
 
 % ===================================================================
-\section{Part 5 --- honest summary}
+\section{Part 5: honest summary}
 % ===================================================================
-\begin{frame}{What this paper claims --- exactly}
+\begin{frame}{What this paper claims, exactly}
 \begin{itemize}
 \item[\textcolor{ok}{$\checkmark$}] A document-side arithmetic check
 $\sigma$ is \emph{statistically softmax-orthogonal}: its errors are
@@ -624,13 +624,13 @@ and three datasets; McNemar shows no asymmetry.
 
 \begin{frame}{What this paper does \emph{not} claim (kept stated)}
 \begin{itemize}
-\item[\textcolor{bad}{$\times$}] Not a large effect --- the pooled
+\item[\textcolor{bad}{$\times$}] Not a large effect: the pooled
 lift is small.
 \item[\textcolor{bad}{$\times$}] Not significant per-dataset on CORD
 or SROIE (only WildReceipt individually).
 \item[\textcolor{bad}{$\times$}] The pooled risk--coverage gain,
 though significant, is \emph{small} in absolute terms
-($0.054\!\to\!0.027$) and costs coverage --- not a large operational
+($0.054\!\to\!0.027$) and costs coverage, not a large operational
 win.
 \end{itemize}
 \keybox{Stating the limits \emph{is} the contribution's credibility.
@@ -641,11 +641,11 @@ We neither inflate nor disown them.}
 \bigq{The model's self-confidence is one opinion. Arithmetic on the
 receipt is a genuinely \emph{independent} second opinion.}
 \vspace{0.8em}
-\bigq{Their disagreements do not line up (proven, small p) --- so
+\bigq{Their disagreements do not line up (proven, small p), so
 combining them is principled, and where it matters most (real error),
 it visibly helps.}
 \vspace{0.8em}
-\plain{Honest, reproducible, and exactly scoped --- no more, no less.}
+\plain{Honest, reproducible, and exactly scoped: no more, no less.}
 \end{frame}
 
 \begin{frame}{Glossary (everything in one place)}

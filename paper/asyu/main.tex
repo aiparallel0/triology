@@ -231,8 +231,8 @@ of 114 (0.991) where each gate alone reaches only 0.953, and on CORD
 intersection (15 of 15) is too small (n = 15) to claim more than
 consistency. Pooled, this is 182 of 184 (Wilson lower bound 0.961),
 carried by WildReceipt, and we lead with the per-corpus read. We
-control the lift against two matched-coverage gates --- a random gate
-and a softmax-derived gate of equal standalone precision --- testing
+control the lift against two matched-coverage gates (a random gate
+and a softmax-derived gate of equal standalone precision), testing
 the paired difference (bootstrap). Pooled, sigma's lift exceeds the
 random gate by \orthDrand{} (p = \orthDrandP) and the correlated gate
 by \orthDcorr{} (p = \orthDcorrP), and a confound-free error-decorrelation
@@ -385,7 +385,7 @@ reconstruction~\cite{nassar2022tableformer}; what is new here is
 formalising an arithmetic check as a softmax-orthogonal selective
 predictor on fixed off-the-shelf KIE models, with paired statistical
 analysis across two architectures. Conformal
-prediction~\cite{angelopoulos2021gentle,rombach2026conformal} gives
+prediction~\cite{angelopoulos2021gentle} gives
 calibrated coverage but no verifier-style precision gate; the two are
 complementary and stackable (conformal calibrates from past
 prediction-truth pairs; $\sigma$ verifies one prediction against the
@@ -485,8 +485,8 @@ autoregressive output; for LayoutLMv3, the geometric mean of the
 predicted-class probability on input tokens tagged
 \texttt{Total\_value}. The two objects are architecture-specific
 (decoder vs.\ token-classifier probabilities) but conceptually
-analogous --- each is the model's self-assessed probability of its
-emitted total-value tokens --- and we treat them as the
+analogous, each being the model's self-assessed probability of its
+emitted total-value tokens, and we treat them as the
 architecture-appropriate ``model self-confidence,'' not as
 numerically interchangeable.
 
@@ -603,7 +603,7 @@ review for $(0.381{\cdot}0.046-0.181{\cdot}0.011)N\kappa
 \approx 0.0155N\kappa$ fewer silent errors: favourable whenever
 $\kappa\gtrsim 13\rho$, i.e.\ when one filed wrong total is worth more
 than roughly a dozen human reviews, which holds in tax/audit
-pipelines but not in low-stakes bulk capture --- a condition, not a
+pipelines but not in low-stakes bulk capture: a condition, not a
 universal claim. Table~\ref{tab:headline-percorpus} shows the lift is
 not a pooling artefact, with each corpus's intersection precision
 above either single gate; the pooled $n{=}1019$ is unevenly weighted
@@ -640,7 +640,7 @@ asymmetrically? A small $p$ would mean one gate strictly dominates
 the other on \emph{which} examples it gets right, weakening the case
 for intersection. Non-rejection on every corpus is consistent with
 the gates being similarly accurate on disjoint slices; the
-WildReceipt cell, $b{=}c{=}91$ exactly, is the cleanest example ---
+WildReceipt cell, $b{=}c{=}91$ exactly, is the cleanest example:
 equal-size disjoint correct-accept slices that combine into the
 $113/114{=}0.991$ intersection (Fig.~\ref{fig:wildreceipt}). McNemar
 non-rejection is, strictly, absence of evidence for asymmetry rather
@@ -672,8 +672,8 @@ Pooled, $\sigma$'s lift exceeds the random gate by $\orthDrand$
 and the correlated softmax-derived gate by $\orthDcorr$
 ($[\orthDcorrLo,\orthDcorrHi]$, $p{=}\orthDcorrP$): significant against
 \emph{both}. As a confound-free check we also measure error
-decorrelation directly --- within the softmax-accepted set, whether
-$\sigma$ rejects precisely the softmax-wrong receipts --- which gives
+decorrelation directly, within the softmax-accepted set: whether
+$\sigma$ rejects precisely the softmax-wrong receipts, which gives
 $\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$): positive evidence of
 orthogonality with no coverage-shrink or intersection-arithmetic
 confound, which the paired-McNemar absence of asymmetry
@@ -685,7 +685,7 @@ test+validation split ($n{=}200$); CORD-v2 \emph{train} is the Donut
 fine-tuning data and is excluded, so no result here is inflated by
 training-set leakage. Second, it does \emph{not} hold per corpus: an
 exact-binomial test clears the $0.95$ floor individually only on
-WildReceipt --- CORD ($54/55$) and SROIE ($15/15$) are consistent with
+WildReceipt: CORD ($54/55$) and SROIE ($15/15$) are consistent with
 $>0.95$ but underpowered and do \emph{not} individually pass
 (F2d below, Section~\ref{sec:results-percorpus-rigor}). We therefore
 claim a \emph{small, pooled, statistically-significant} orthogonality
@@ -696,7 +696,7 @@ and explicitly not a per-corpus or large one.
 \noindent\textbf{F2d: per-corpus rigor (Clopper--Pearson, LOCO, exact
 TOST).} Exact small-sample analysis of the leakage-free intersection cells
 (CORD $54/55$, SROIE $15/15$, WildReceipt $113/114$), pure stdlib (no
-SciPy/PyMC). Lower bounds agree across estimators --- CORD
+SciPy/PyMC). Lower bounds agree across estimators: CORD
 Clopper--Pearson/Jeffreys/Wilson $\rgCordCPlo$/$\rgCordJeff$/$\rgCordWil$,
 SROIE $\rgSroieCPlo$/$\rgSroieJeff$/$\rgSroieWil$ (SROIE
 Clopper--Pearson is exactly $0.05^{1/15}$), WildReceipt
@@ -706,15 +706,15 @@ $\rgPoolCPlo$); equal-corpus mean $\rgEqualMean$; leave-one-corpus-out
 worst Wilson LB $\rgLocoMinWil$. A one-sided exact-binomial TOST
 (H$_0$: $p\le0.95$, $\alpha{=}0.05$) clears the floor
 \emph{individually only on WildReceipt} ($p=\rgTostWrP$); CORD
-($p=\rgTostCordP$) and SROIE ($p=\rgTostSroieP$) do \emph{not} pass ---
-consistent with $>0.95$ but underpowered, stated plainly, not softened
---- while the pool does ($p=\rgTostPoolP$). Monte-Carlo required-$n$
+($p=\rgTostCordP$) and SROIE ($p=\rgTostSroieP$) do \emph{not} pass
+(consistent with $>0.95$ but underpowered, stated plainly, not
+softened), while the pool does ($p=\rgTostPoolP$). Monte-Carlo required-$n$
 for $0.8$ power: $\rgReqnCord$/$\rgReqnSroie$/$\rgReqnWr$
 (CORD/SROIE/WildReceipt), so CORD and SROIE are simply below it.
 Per-receipt vectors \emph{are} present in the artifacts: a
 within-corpus permutation test of $\sigma$'s orthogonal contribution,
 combined across corpora, gives Stouffer $p=\rgAFiveStouffer$ (weights
-$\sqrt{n_c}$) and Fisher $p=\rgAFiveFisher$ --- decorrelation holds
+$\sqrt{n_c}$) and Fisher $p=\rgAFiveFisher$: decorrelation holds
 within every corpus, not only pooled. Honest reading: the
 orthogonality is robust; the $0.95$ ship-without-review floor is met
 individually only where the sample is large enough to show it.
@@ -731,7 +731,7 @@ better). Pooled, AURC is $\rcAURCsoft$ (softmax-alone) versus
 $\rcAURCsig$ ($\sigma$-gating), a paired-bootstrap difference of
 $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
 $p{=}\rcAURCp$): the interval excludes zero, so at matched coverage
-$\sigma$-gating significantly lowers AURC --- verdict \rcEarned. We
+$\sigma$-gating significantly lowers AURC; verdict \rcEarned. We
 do not over-read this: the absolute difference is small
 ($\rcAURCsoft\!\to\!\rcAURCsig$) and the lift costs coverage, so we
 report it as a modest, statistically resolved operational gain, not a
