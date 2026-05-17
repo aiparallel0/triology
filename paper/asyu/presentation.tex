@@ -47,19 +47,61 @@
 \newcommand{\orthPhi}{0.200}
 \newcommand{\orthPhiP}{0.0002}
 \InputIfFileExists{numbers_orth.tex}{}{}
-\newcommand{\pcPoolPrec}{0.9950}
-\newcommand{\pcPoolN}{401}
-\newcommand{\pcPoolWilson}{0.9820}
-\newcommand{\pcBootLo}{0.9875}
+\newcommand{\pcPoolPrec}{0.9891}
+\newcommand{\pcPoolN}{184}
+\newcommand{\pcPoolWilson}{0.9612}
+\newcommand{\pcBootLo}{0.9728}
 \newcommand{\pcBootHi}{1.0000}
 \newcommand{\pcWeakCorpus}{SROIE}
 \newcommand{\pcWeakWilson}{0.7961}
-\newcommand{\pcLooMinWilson}{0.9574}
-\newcommand{\pcCordWilson}{0.9795}
+\newcommand{\pcLooMinWilson}{0.9234}
+\newcommand{\pcCordWilson}{0.9039}
 \newcommand{\pcSroieWilson}{0.7961}
 \newcommand{\pcWrWilson}{0.9520}
-\newcommand{\pcSurvives}{yes}
+\newcommand{\pcSurvives}{no}
 \InputIfFileExists{numbers_percorpus.tex}{}{}
+% Pooled cells (leakage-free CORD = test+validation, n=200)
+\newcommand{\poolN}{1019}
+\newcommand{\poolSigA}{388}
+\newcommand{\poolSigC}{367}
+\newcommand{\poolIntA}{184}
+\newcommand{\poolIntC}{182}
+\newcommand{\poolMcB}{185}
+\newcommand{\poolMcC}{188}
+\newcommand{\poolMcChi}{0.011}
+\newcommand{\poolMcP}{0.918}
+\newcommand{\wrN}{472}
+\newcommand{\wrIntA}{114}
+\newcommand{\wrIntC}{113}
+\InputIfFileExists{numbers_pooled.tex}{}{}
+% Option 1 per-corpus rigor
+\newcommand{\rgCordCPlo}{0.9166}
+\newcommand{\rgCordJeff}{0.9311}
+\newcommand{\rgCordWil}{0.9039}
+\newcommand{\rgSroieCPlo}{0.8190}
+\newcommand{\rgSroieJeff}{0.8817}
+\newcommand{\rgSroieWil}{0.7961}
+\newcommand{\rgWrCPlo}{0.9591}
+\newcommand{\rgWrJeff}{0.9662}
+\newcommand{\rgWrWil}{0.9520}
+\newcommand{\rgPoolPhat}{0.9891}
+\newcommand{\rgPoolWil}{0.9612}
+\newcommand{\rgPoolCPlo}{0.9662}
+\newcommand{\rgEqualMean}{0.9910}
+\newcommand{\rgLocoMinWil}{0.9234}
+\newcommand{\rgTostCordP}{0.2319}
+\newcommand{\rgTostSroieP}{0.4633}
+\newcommand{\rgTostWrP}{0.02021}
+\newcommand{\rgTostPoolP}{0.004565}
+\newcommand{\rgPassList}{WildReceipt}
+\newcommand{\rgUnderList}{CORD, SROIE}
+\newcommand{\rgReqnCord}{242}
+\newcommand{\rgReqnSroie}{71}
+\newcommand{\rgReqnWr}{161}
+\newcommand{\rgAFiveStouffer}{6.822e-11}
+\newcommand{\rgAFiveFisher}{3.139e-10}
+\newcommand{\rgAFiveAvail}{yes}
+\InputIfFileExists{numbers_percorpus_rigor.tex}{}{}
 
 \newcommand{\bigq}[1]{\begin{center}{\Large #1}\end{center}}
 \newcommand{\keybox}[1]{\begin{center}\colorbox{grey!15}{\parbox{0.92\linewidth}{\centering #1}}\end{center}}
@@ -407,8 +449,8 @@ are happy.
 \item On \textbf{WildReceipt}: both-agree is right $113$ of $114$ =
 \textcolor{ok}{$0.991$}, where each signal \emph{alone} is only
 $0.953$.
-\item On \textbf{CORD}: both-agree $32$ of $33$ = $0.970$, single
-gates below $0.93$.
+\item On \textbf{CORD} (test+validation, $n{=}200$, leakage-free):
+both-agree $54$ of $55$ = $0.982$, single gates below $0.93$.
 \item On \textbf{SROIE}: $15/15$, but $n{=}15$ is too small to claim
 more than ``consistent''.
 \end{itemize}
@@ -433,14 +475,45 @@ WildReceipt $\pcWrWilson$. The weakest single corpus
 precision \textcolor{ok}{$\pcPoolPrec$} over $n{=}\pcPoolN$, 95\% CI
 $[\pcBootLo,\pcBootHi]$, Wilson LB $\pcPoolWilson$.
 \item \textbf{Leave-one-corpus-out.} Drop SROIE entirely: the claim
-still holds on CORD$+$WildReceipt ($n{=}386$, Wilson LB $0.981$).
-Dropping \emph{any} corpus leaves the pooled Wilson LB
+still holds on CORD$+$WildReceipt ($169$ intersection accepts, Wilson
+LB $0.958$). Dropping \emph{any} corpus leaves the pooled Wilson LB
 $\ge\pcLooMinWilson$.
 \end{itemize}
 \keybox{The intersection claim does not rest on any one corpus ---
 throw SROIE away completely and it is unchanged. The small cell is
 reported with its honest floor, not hidden; the load-bearing number
 is the stratified pooled Wilson LB $\pcPoolWilson$.}
+\end{frame}
+
+\begin{frame}{Option 1: exact per-corpus rigor --- stated without spin}
+\plain{No SciPy, no PyMC --- exact small-sample statistics from
+scratch, on the leakage-free cells (CORD test+validation $54/55$,
+SROIE $15/15$, WildReceipt $113/114$).}
+\vspace{0.4em}
+\begin{itemize}
+\item \textbf{Exact lower bounds (Clopper--Pearson / Jeffreys).}
+CORD $\rgCordCPlo$/$\rgCordJeff$, SROIE $\rgSroieCPlo$/$\rgSroieJeff$
+(the SROIE bound is exactly $0.05^{1/15}$), WildReceipt
+$\rgWrCPlo$/$\rgWrJeff$.
+\item \textbf{Leave-one-corpus-out.} Worst-case pooled Wilson LB
+$\rgLocoMinWil$ (dropping WildReceipt); receipt-weighted pool
+$\rgPoolPhat$, Wilson LB $\rgPoolWil$.
+\item \textbf{Exact-binomial TOST vs.\ $0.95$ (H$_0$: $p\le0.95$).}
+\textcolor{ok}{Passes individually only on WildReceipt}
+($p=\rgTostWrP$). \textcolor{bad}{CORD ($p=\rgTostCordP$) and SROIE
+($p=\rgTostSroieP$) do not} --- consistent with $>0.95$ but
+underpowered. The pool passes ($p=\rgTostPoolP$). We say this
+straight.
+\item \textbf{Required-$n$ for $0.8$ power:} CORD $\rgReqnCord$,
+SROIE $\rgReqnSroie$, WildReceipt $\rgReqnWr$.
+\item \textbf{Within-corpus decorrelation (A5, data \emph{was}
+present).} Stouffer $p=\rgAFiveStouffer$, Fisher $p=\rgAFiveFisher$:
+holds inside every corpus, not just pooled.
+\end{itemize}
+\keybox{The orthogonality is robust within every corpus. The
+$0.95$ ship-without-review floor is met \emph{individually} only
+where the sample is large enough to show it --- stated honestly, not
+softened.}
 \end{frame}
 
 \begin{frame}{The fair objection (and why U/U2 exist)}

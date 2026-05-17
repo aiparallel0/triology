@@ -1,0 +1,186 @@
+{
+  "method": "Option 1 -- pure-stdlib per-corpus rigor",
+  "threshold": 0.95,
+  "alpha": 0.05,
+  "cells": {
+    "CORD": {
+      "k": 54,
+      "n": 55,
+      "n_corpus": 200
+    },
+    "SROIE": {
+      "k": 15,
+      "n": 15,
+      "n_corpus": 347
+    },
+    "WildReceipt": {
+      "k": 113,
+      "n": 114,
+      "n_corpus": 472
+    }
+  },
+  "A2_per_corpus_intervals": {
+    "CORD": {
+      "k": 54,
+      "n": 55,
+      "p_hat": 0.9818181818181818,
+      "clopper_pearson_lo": 0.9166286577491054,
+      "jeffreys_lo": 0.9311167970814531,
+      "wilson_lo": 0.903942239378376
+    },
+    "SROIE": {
+      "k": 15,
+      "n": 15,
+      "p_hat": 1.0,
+      "clopper_pearson_lo": 0.8189637274779153,
+      "jeffreys_lo": 0.8816933835472509,
+      "wilson_lo": 0.7961166989641515
+    },
+    "WildReceipt": {
+      "k": 113,
+      "n": 114,
+      "p_hat": 0.9912280701754386,
+      "clopper_pearson_lo": 0.959064249448836,
+      "jeffreys_lo": 0.9662324843460246,
+      "wilson_lo": 0.9519796532398638
+    }
+  },
+  "A3_pooled_weightings": {
+    "receipt_weighted": {
+      "k": 182,
+      "n": 184,
+      "p_hat": 0.9891304347826086,
+      "wilson_lo": 0.9612408144472387,
+      "clopper_pearson_lo": 0.9661809675851296
+    },
+    "equal_corpus_weighted": {
+      "mean_p_hat": 0.9910154173312069,
+      "per_corpus_p_hat": {
+        "CORD": 0.9818181818181818,
+        "SROIE": 1.0,
+        "WildReceipt": 0.9912280701754386
+      }
+    },
+    "leave_one_corpus_out": {
+      "drop_CORD": {
+        "kept": [
+          "SROIE",
+          "WildReceipt"
+        ],
+        "k": 128,
+        "n": 129,
+        "p_hat": 0.9922480620155039,
+        "wilson_lo": 0.9573965598582397
+      },
+      "drop_SROIE": {
+        "kept": [
+          "CORD",
+          "WildReceipt"
+        ],
+        "k": 167,
+        "n": 169,
+        "p_hat": 0.9881656804733728,
+        "wilson_lo": 0.9578834917163649
+      },
+      "drop_WildReceipt": {
+        "kept": [
+          "CORD",
+          "SROIE"
+        ],
+        "k": 69,
+        "n": 70,
+        "p_hat": 0.9857142857142858,
+        "wilson_lo": 0.9234181286879168
+      }
+    }
+  },
+  "A7_per_corpus_TOST": {
+    "CORD": {
+      "k": 54,
+      "n": 55,
+      "p_hat": 0.9818181818181818,
+      "H0": "p <= 0.95",
+      "exact_binom_p": 0.23188700409521168,
+      "pass_alpha_0.05": false
+    },
+    "SROIE": {
+      "k": 15,
+      "n": 15,
+      "p_hat": 1.0,
+      "H0": "p <= 0.95",
+      "exact_binom_p": 0.4632912301597586,
+      "pass_alpha_0.05": false
+    },
+    "WildReceipt": {
+      "k": 113,
+      "n": 114,
+      "p_hat": 0.9912280701754386,
+      "H0": "p <= 0.95",
+      "exact_binom_p": 0.02021105774715515,
+      "pass_alpha_0.05": true
+    },
+    "POOLED": {
+      "k": 182,
+      "n": 184,
+      "p_hat": 0.9891304347826086,
+      "H0": "p <= 0.95",
+      "exact_binom_p": 0.0045651981120818546,
+      "pass_alpha_0.05": true
+    }
+  },
+  "A10_required_n_monte_carlo": {
+    "CORD": {
+      "p_hat": 0.9818181818181818,
+      "required_n_for_0.8_power": 242,
+      "note": "Monte-Carlo, 3000 trials/step, exact critical value"
+    },
+    "SROIE": {
+      "p_hat": 1.0,
+      "required_n_for_0.8_power": 71,
+      "note": "Monte-Carlo, 3000 trials/step, exact critical value"
+    },
+    "WildReceipt": {
+      "p_hat": 0.9912280701754386,
+      "required_n_for_0.8_power": 161,
+      "note": "Monte-Carlo, 3000 trials/step, exact critical value"
+    }
+  },
+  "A5_permutation_decorrelation": {
+    "available": true,
+    "per_corpus": {
+      "CORD": {
+        "source": "runs/MB_cord_baseline.json",
+        "n_receipts": 200,
+        "sigma_only_set_size": 44,
+        "sigma_only_precision": 1.0,
+        "perm_one_sided_p": 0.00014999250037498125,
+        "stouffer_weight_sqrt_n": 14.142135623730951
+      },
+      "SROIE": {
+        "source": "runs/M_baseline_softmax.json",
+        "n_receipts": 347,
+        "sigma_only_set_size": 58,
+        "sigma_only_precision": 0.8275862068965517,
+        "perm_one_sided_p": 9.99950002499875e-05,
+        "stouffer_weight_sqrt_n": 18.627936010197157
+      },
+      "WildReceipt": {
+        "source": "runs/MF2_wildreceipt_softmax.json",
+        "n_receipts": 472,
+        "sigma_only_set_size": 100,
+        "sigma_only_precision": 0.91,
+        "perm_one_sided_p": 4.999750012499375e-05,
+        "stouffer_weight_sqrt_n": 21.72556098240043
+      }
+    },
+    "combined": {
+      "stouffer_one_sided_p": 6.822398201933311e-11,
+      "stouffer_z": 6.419806199097961,
+      "stouffer_weights": "sqrt(n_corpus)",
+      "fisher_one_sided_p": 3.139404292085146e-10,
+      "fisher_stat": 55.837706369260914,
+      "k_corpora": 3
+    }
+  },
+  "verdict": "Per-corpus one-sided exact-binomial TOST vs 0.95 (H0: p<=0.95, alpha=0.05): corpora that INDIVIDUALLY clear 0.95 = [WildReceipt]; corpora that DO NOT individually pass (consistent with >0.95 but underpowered at their sample size) = [CORD, SROIE]. Receipt-weighted pool (182/184, p_hat=0.9891) exact-binomial p=0.004565, pooled PASSES 0.95 at alpha=0.05. SROIE (15/15) and CORD (54/55) are small samples: their failure to individually clear 0.95 is a power limitation, not evidence against the method -- stated plainly, not softened."
+}

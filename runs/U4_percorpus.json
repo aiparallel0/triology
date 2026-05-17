@@ -2,10 +2,10 @@
   "method": "per-corpus Wilson LB + corpus-stratified cluster bootstrap + leave-one-corpus-out",
   "per_corpus": {
     "CORD": {
-      "n": 272,
-      "k": 271,
-      "precision": 0.9963235294117647,
-      "wilson_lo": 0.9795
+      "n": 55,
+      "k": 54,
+      "precision": 0.9818181818181818,
+      "wilson_lo": 0.9039
     },
     "SROIE": {
       "n": 15,
@@ -23,12 +23,12 @@
   "weakest_corpus": "SROIE",
   "weakest_corpus_wilson_lo": 0.7961,
   "pooled": {
-    "n": 401,
-    "k": 399,
-    "precision": 0.995,
-    "wilson_lo": 0.982,
+    "n": 184,
+    "k": 182,
+    "precision": 0.9891,
+    "wilson_lo": 0.9612,
     "strat_boot_ci": [
-      0.9875,
+      0.9728,
       1.0
     ],
     "n_boot": 5000
@@ -49,23 +49,23 @@
         "CORD",
         "WildReceipt"
       ],
-      "n": 386,
-      "k": 384,
-      "precision": 0.9948,
-      "wilson_lo": 0.9813
+      "n": 169,
+      "k": 167,
+      "precision": 0.9882,
+      "wilson_lo": 0.9579
     },
     "drop_WildReceipt": {
       "corpora_kept": [
         "CORD",
         "SROIE"
       ],
-      "n": 287,
-      "k": 286,
-      "precision": 0.9965,
-      "wilson_lo": 0.9805
+      "n": 70,
+      "k": 69,
+      "precision": 0.9857,
+      "wilson_lo": 0.9234
     }
   },
-  "loo_min_wilson_lo": 0.9574,
-  "headline_survives_every_drop": true,
-  "verdict": "Pooled intersection precision 0.995 over n=401 accepted receipts across all three corpora; corpus-stratified cluster bootstrap 95% CI [0.9875, 1.0] and Wilson lower bound 0.982. The weakest single corpus (SROIE) still has a Wilson floor of 0.7961, and dropping ANY corpus (incl. small-n SROIE) leaves the pooled Wilson LB at >=0.9574. The intersection claim does not rest on any one corpus; it strengthens under the standard stratified treatment."
+  "loo_min_wilson_lo": 0.9234,
+  "headline_survives_every_drop": false,
+  "verdict": "Pooled Wilson LB 0.9612 / leave-one-out min 0.9234: the per-corpus claim is genuinely sensitive to corpus choice and must be scoped. Reported straight."
 }

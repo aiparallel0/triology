@@ -1,0 +1,133 @@
+{
+  "per_corpus": {
+    "SROIE": {
+      "n_total": 347,
+      "sigma": {
+        "n_accept": 73,
+        "n_correct": 63,
+        "precision": 0.863013698630137,
+        "wilson_95_ci": [
+          0.7658736406081267,
+          0.9238569220037918
+        ],
+        "bootstrap_95_ci": [
+          0.7808219178082192,
+          0.9315068493150684
+        ]
+      },
+      "softmax_matched": {
+        "n_accept": 73,
+        "n_correct": 69,
+        "precision": 0.9452054794520548,
+        "wilson_95_ci": [
+          0.8674081222635519,
+          0.9784878507510651
+        ],
+        "bootstrap_95_ci": [
+          0.8904109589041096,
+          0.9863013698630136
+        ]
+      },
+      "mcnemar_paired_test": {
+        "b_sigma_correct_softmax_not": 48,
+        "c_softmax_correct_sigma_not": 54,
+        "chi2": 0.24509803921568626,
+        "p_value": 0.6205480473200617,
+        "method": "chi2_continuity_correction",
+        "significant_at_0.05": false
+      },
+      "sigma_only": {
+        "n": 58,
+        "n_correct": 48,
+        "precision": 0.8275862068965517,
+        "wilson_95_ci": [
+          0.7109149994332448,
+          0.9035581060491489
+        ]
+      },
+      "softmax_only": {
+        "n": 58,
+        "n_correct": 54,
+        "precision": 0.9310344827586207,
+        "wilson_95_ci": [
+          0.8356610516539494,
+          0.9728561924018316
+        ]
+      },
+      "intersect": {
+        "n": 15,
+        "n_correct": 15,
+        "precision": 1.0,
+        "wilson_95_ci": [
+          0.7961107336956521,
+          1.0
+        ]
+      }
+    },
+    "CORD": {
+      "n_total": 200,
+      "sigma": {
+        "n_accept": 99,
+        "n_correct": 98,
+        "precision": 0.98989898989899,
+        "wilson_95_ci": [
+          0.9449833445859679,
+          0.9982147386799481
+        ],
+        "bootstrap_95_ci": [
+          0.9696969696969697,
+          1.0
+        ]
+      },
+      "softmax_matched": {
+        "n_accept": 99,
+        "n_correct": 95,
+        "precision": 0.9595959595959596,
+        "wilson_95_ci": [
+          0.9006783167602219,
+          0.9841776170253277
+        ],
+        "bootstrap_95_ci": [
+          0.9191919191919192,
+          0.98989898989899
+        ]
+      },
+      "mcnemar_paired_test": {
+        "b_sigma_correct_softmax_not": 44,
+        "c_softmax_correct_sigma_not": 41,
+        "chi2": 0.047058823529411764,
+        "p_value": 0.8282625408353115,
+        "method": "chi2_continuity_correction",
+        "significant_at_0.05": false
+      },
+      "sigma_only": {
+        "n": 44,
+        "n_correct": 44,
+        "precision": 1.0,
+        "wilson_95_ci": [
+          0.919701682217986,
+          0.9999999999999998
+        ]
+      },
+      "softmax_only": {
+        "n": 44,
+        "n_correct": 41,
+        "precision": 0.9318181818181818,
+        "wilson_95_ci": [
+          0.817746786633828,
+          0.9765410298271597
+        ]
+      },
+      "intersect": {
+        "n": 55,
+        "n_correct": 54,
+        "precision": 0.9818181818181818,
+        "wilson_95_ci": [
+          0.9039399953951678,
+          0.9967833024077472
+        ]
+      }
+    }
+  },
+  "interpretation": "McNemar test: p_value < 0.05 means sigma and softmax have statistically different accept-correctness rates on paired receipts. Wilson CI is the analytical 95% confidence interval for a binomial proportion (preferred over normal-approximation for small n). Bootstrap CI is via 2000-sample resampling. For headline claims, quote Wilson CI: e.g. CORD sigma_only precision is 22/22, Wilson [0.85, 1.00], i.e. 95%-CI lower bound 85%."
+}

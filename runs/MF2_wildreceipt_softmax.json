@@ -2886,46 +2886,46 @@
     }
   ],
   "Pooled": {
-    "n": 919,
-    "sigma_acc": 344,
-    "sigma_corr": 323,
-    "smax_acc": 344,
-    "smax_corr": 326,
-    "int_acc": 162,
-    "int_corr": 160,
-    "sigonly_acc": 182,
-    "sigonly_corr": 163,
-    "smonly_acc": 182,
-    "smonly_corr": 166,
-    "b_mcnemar": 163,
-    "c_mcnemar": 166
+    "n": 1019,
+    "sigma_acc": 388,
+    "sigma_corr": 367,
+    "smax_acc": 388,
+    "smax_corr": 370,
+    "int_acc": 184,
+    "int_corr": 182,
+    "sigonly_acc": 204,
+    "sigonly_corr": 185,
+    "smonly_acc": 204,
+    "smonly_corr": 188,
+    "b_mcnemar": 185,
+    "c_mcnemar": 188
   },
   "Pooled_CIs": {
     "sigma": [
-      0.908,
-      0.96
+      0.919,
+      0.964
     ],
     "smax": [
-      0.919,
-      0.967
+      0.928,
+      0.97
     ],
     "int": [
-      0.956,
+      0.961,
       0.997
     ],
     "sigonly": [
-      0.843,
-      0.932
+      0.859,
+      0.94
     ],
     "smonly": [
-      0.862,
-      0.945
+      0.876,
+      0.951
     ]
   },
   "Pooled_McNemar": {
-    "b": 163,
-    "c": 166,
-    "chi2": 0.0122,
-    "p_value": 0.9122
+    "b": 185,
+    "c": 188,
+    "chi2": 0.0107,
+    "p_value": 0.9175
   }
 }

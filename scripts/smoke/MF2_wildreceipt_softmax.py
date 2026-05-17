@@ -33,14 +33,17 @@ OUT_TEX = ROOT / "paper/asyu/numbers_pooled.tex"
 BATCH = 16
 
 LOCKED = {
+    # Leakage-free CORD = CORD-v2 test+validation (n=200). CORD-v2 *train*
+    # (the Donut fine-tuning split) is excluded. Values from the restored
+    # leakage-free runs/MB_cord_baseline.json (commit 073cabc).
     "CORD": {
-        "n": 100,
-        "sigma_acc": 55,  "sigma_corr": 54,
-        "smax_acc":  55,  "smax_corr":  51,
-        "int_acc":   33,  "int_corr":   32,
-        "sigonly_acc": 22, "sigonly_corr": 22,
-        "smonly_acc":  22, "smonly_corr": 19,
-        "b_mcnemar": 22, "c_mcnemar": 19,
+        "n": 200,
+        "sigma_acc": 99,  "sigma_corr": 98,
+        "smax_acc":  99,  "smax_corr":  95,
+        "int_acc":   55,  "int_corr":   54,
+        "sigonly_acc": 44, "sigonly_corr": 44,
+        "smonly_acc":  44, "smonly_corr": 41,
+        "b_mcnemar": 44, "c_mcnemar": 41,
     },
     "SROIE": {
         "n": 347,

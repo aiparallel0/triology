@@ -135,6 +135,7 @@ def build_T1_headline():
                 import math
                 mc_p = math.erfc((chi2 / 2) ** 0.5)
         wr_row.update({
+            "n": wr.get("n"),
             "sigma_acc":  wr["sigma_acc"], "sigma_corr": wr["sigma_corr"],
             "sigma_coverage": wr["sigma_acc"] / max(1, wr["n"]),
             "sigma_precision": wr["sigma_corr"] / max(1, wr["sigma_acc"]),
@@ -196,26 +197,102 @@ def build_T7_tolerance():
     return (load("V_tolerance_sweep_cord.json") or {}).get("per_eps")
 
 
-def build_T8_pooled():
-    mf2 = load("MF2_wildreceipt_softmax.json")
-    if not mf2: return None
+def build_T8_pooled(rows=None):
+    """Recompute pooled cells from the (leakage-free) per-corpus headline
+    rows so the pooled row stays consistent with the canonical CORD
+    test+validation evaluation. Falls back to the stale MF2 cache only if
+    rows are unavailable."""
+    if rows is None:
+        rows = build_T1_headline()
+    if not rows:
+        mf2 = load("MF2_wildreceipt_softmax.json")
+        if not mf2:
+            return None
+        return {
+            "Pooled": mf2.get("Pooled"),
+            "Pooled_CIs": mf2.get("Pooled_CIs"),
+            "Pooled_McNemar": mf2.get("Pooled_McNemar"),
+        }
+
+    def s(key):
+        return sum(int(r.get(key) or 0) for r in rows)
+
+    n_total = s("n")
+    sigma_acc = s("sigma_acc")
+    sigma_corr = s("sigma_corr")
+    smax_acc = s("softmax_acc")
+    smax_corr = s("softmax_corr")
+    int_acc = s("intersect_n")
+    int_corr = s("intersect_corr")
+    sigonly_acc = s("sigma_only_n")
+    sigonly_corr = s("sigma_only_corr")
+    smonly_acc = s("softmax_only_n")
+    smonly_corr = s("softmax_only_corr")
+
+    pooled = {
+        "n": n_total,
+        "sigma_acc": sigma_acc,
+        "sigma_corr": sigma_corr,
+        "smax_acc": smax_acc,
+        "smax_corr": smax_corr,
+        "int_acc": int_acc,
+        "int_corr": int_corr,
+        "sigonly_acc": sigonly_acc,
+        "sigonly_corr": sigonly_corr,
+        "smonly_acc": smonly_acc,
+        "smonly_corr": smonly_corr,
+        # discordant proxy (sigma-only vs softmax-only correct counts),
+        # same convention as the prior MF2 pooled cache.
+        "b_mcnemar": sigonly_corr,
+        "c_mcnemar": smonly_corr,
+    }
+
+    def rnd(ci):
+        return None if ci is None else [round(ci[0], 3), round(ci[1], 3)]
+
+    pooled_cis = {
+        "sigma": rnd(wilson_ci(sigma_corr, sigma_acc)),
+        "smax": rnd(wilson_ci(smax_corr, smax_acc)),
+        "int": rnd(wilson_ci(int_corr, int_acc)),
+        "sigonly": rnd(wilson_ci(sigonly_corr, sigonly_acc)),
+        "smonly": rnd(wilson_ci(smonly_corr, smonly_acc)),
+    }
+
+    b, c = sigonly_corr, smonly_corr
+    if (b + c) > 0:
+        chi2 = (abs(b - c) - 1) ** 2 / (b + c) if (b + c) > 0 else 0.0
+        try:
+            from scipy.stats import chi2 as _chi2
+            p_value = float(1 - _chi2.cdf(chi2, 1))
+        except Exception:
+            import math
+            p_value = math.erfc((chi2 ** 0.5) / (2 ** 0.5))
+    else:
+        chi2, p_value = 0.0, 1.0
+    pooled_mcnemar = {
+        "b": b, "c": c,
+        "chi2": round(chi2, 4),
+        "p_value": round(p_value, 4),
+    }
+
     return {
-        "Pooled": mf2.get("Pooled"),
-        "Pooled_CIs": mf2.get("Pooled_CIs"),
-        "Pooled_McNemar": mf2.get("Pooled_McNemar"),
+        "Pooled": pooled,
+        "Pooled_CIs": pooled_cis,
+        "Pooled_McNemar": pooled_mcnemar,
     }
 
 
 def main():
+    t1 = build_T1_headline()
     data = {
-        "T1_headline":          build_T1_headline(),
+        "T1_headline":          t1,
         "T2_latency":           build_T2_latency(),
         "T3_guard_ablation":    build_T3_guard_ablation(),
         "T4_failure_modes":     build_T4_failure_modes(),
         "T5_noise_sensitivity": build_T5_noise(),
         "T6_pareto_front":      build_T6_pareto(),
         "T7_tolerance_sweep":   build_T7_tolerance(),
-        "T8_pooled":            build_T8_pooled(),
+        "T8_pooled":            build_T8_pooled(t1),
     }
     OUT_JSON.write_text(json.dumps(data, indent=2))
     summary = {
