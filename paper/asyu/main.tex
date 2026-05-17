@@ -467,9 +467,9 @@ OCR-derived amounts);
 per-token annotations). Pooled $n{=}1019$.
 
 \noindent\textbf{Models.} Donut~\cite{kim2022donut} checkpoints
-\texttt{naver-clova-ix/donut-base-finetuned-cord-v2} and
-\texttt{philschmid/donut-base-sroie}; LayoutLMv3~\cite{huang2022layoutlmv3}
-\texttt{Theivaprakasham/layoutlmv3-finetuned-wildreceipt}. Inference-only.
+\path{naver-clova-ix/donut-base-finetuned-cord-v2} and
+\path{philschmid/donut-base-sroie}; LayoutLMv3~\cite{huang2022layoutlmv3}
+\path{Theivaprakasham/layoutlmv3-finetuned-wildreceipt}. Inference-only.
 
 \noindent\textbf{Operating point.} $\varepsilon{=}0.02$ and
 $k_{\min}{=}2$ unless stated otherwise.
@@ -573,6 +573,7 @@ only disjoint errors.}
 \caption{Per-corpus intersection. Wilson lower bounds span $[0.796,
 0.952]$ across regimes and AI backbones.}
 \label{tab:headline-percorpus}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrrl}
 \toprule
 Corpus & Backbone & $n_\text{tot}$ &
@@ -583,7 +584,8 @@ CORD-v2     & Donut       & 200 &  55 &  54 & [0.904, 0.997] \\
 SROIE       & Donut       & 347 &  15 &  15 & [0.796, 1.000] \\
 WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Table~\ref{tab:headline-pooled} is the pooled headline on all
