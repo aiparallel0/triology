@@ -1,0 +1,33 @@
+{
+  "what": "Standalone CPU latency of the canonical sigma subset-sum verifier DP (eps=0.02, kmin=1 if |tau|>eps else 2), timed VERBATIM over a per-receipt workload whose amount count equals every real SROIE and WildReceipt receipt's stored amount count (money_count / items_count), the DP's dominant cost driver, including the WildReceipt heavy tail.",
+  "honesty_note": "Raw amount multisets are not persisted and source corpora are unavailable on this CPU host. SROIE and WildReceipt receipts are timed at their real stored per-receipt amount count. CORD does not persist a per-receipt amount count and CORD-v2 is unavailable here, so CORD is EXCLUDED rather than fabricated. The timed code path is the paper's exact DP. This is a faithful compute reconstruction at the real per-receipt input sizes, not a replay of literal stored amount values.",
+  "n": 819,
+  "n_per_corpus": {
+    "SROIE": 347,
+    "WildReceipt": 472
+  },
+  "repeats_per_receipt": 200,
+  "eps": 0.02,
+  "reconstruction_check": {
+    "amount_count_checked": 819,
+    "amount_count_mismatches": 0,
+    "faithful": true
+  },
+  "latency_us": {
+    "median": 4.07,
+    "mean": 19.833969474969475,
+    "p95": 72.23,
+    "p99": 311.646,
+    "max": 715.059,
+    "min": 0.713
+  },
+  "provenance": {
+    "python": "3.11.15",
+    "implementation": "CPython",
+    "processor": "x86_64",
+    "machine": "x86_64",
+    "system": "Linux",
+    "threads": "single (one Python thread, no multiprocessing)",
+    "timer": "time.perf_counter_ns, min over 200 repeats/receipt"
+  }
+}
