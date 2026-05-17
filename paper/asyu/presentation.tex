@@ -207,7 +207,7 @@ makes that number is called \textbf{softmax}; the number is the
 model's \textbf{confidence}.
 \vspace{1em}
 \keybox{\textbf{softmax confidence} = the model grading its own
-homework. For 30+ years this self-grade was the only ``should I trust
+homework. Until now this self-grade was the only ``should I trust
 it?'' signal practitioners had.}
 \end{frame}
 
@@ -450,7 +450,7 @@ are happy.
 \textcolor{ok}{$0.991$}, where each signal \emph{alone} is only
 $0.953$.
 \item On \textbf{CORD} (test+validation, $n{=}200$, leakage-free):
-both-agree $54$ of $55$ = $0.982$, single gates below $0.93$.
+both-agree $54$ of $55$ = $0.982$, the exclusive single-gate slices fall below $0.93$.
 \item On \textbf{SROIE}: $15/15$, but $n{=}15$ is too small to claim
 more than ``consistent''.
 \end{itemize}
@@ -485,7 +485,7 @@ reported with its honest floor, not hidden; the load-bearing number
 is the stratified pooled Wilson LB $\pcPoolWilson$.}
 \end{frame}
 
-\begin{frame}{Option 1: exact per-corpus rigor --- stated without spin}
+\begin{frame}{Exact per-corpus rigor --- stated without spin}
 \plain{No SciPy, no PyMC --- exact small-sample statistics from
 scratch, on the leakage-free cells (CORD test+validation $54/55$,
 SROIE $15/15$, WildReceipt $113/114$).}

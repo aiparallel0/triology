@@ -244,8 +244,8 @@ individually significant only on WildReceipt; at matched coverage
 sigma-gating lowers AURC by a small but statistically significant
 margin (Section~\ref{sec:results-riskcov}). These bounds scope the
 operational payoff; they do not weaken the orthogonality claim. The
-lift costs coverage: the intersection fires on 17.6 percent of
-receipts versus 37.4 percent for either single gate (SROIE only 4.3
+lift costs coverage: the intersection fires on 18.1 percent of
+receipts versus 38.1 percent for either single gate (SROIE only 4.3
 percent); at a human-review cost of 100 to 1000 times one inference,
 the trade is favourable only when a silent wrong total is costlier
 than the deferred reviews it buys
@@ -272,7 +272,7 @@ orthogonality, cross-architecture
 receipt image and outputs named fields: vendor, date, taxes, and
 especially the \texttt{total}. The outputs flow directly into
 tax filings, expense pipelines, audit logs, and
-bookkeeping~\cite{rombach2026conformal}. A silently wrong
+bookkeeping. A silently wrong
 \texttt{total} is not recoverable downstream; commercial vendors
 (Expensify, Concur, QuickBooks, SAP Concur) process millions of
 receipts per day and a wrong total at scale translates into real audit
@@ -523,9 +523,12 @@ softmax-only           & 204 & 188 & 0.922 & [0.876, 0.951] \\
 \caption{Per-corpus orthogonality. Bars: $\sigma$ (blue),
 matched-coverage softmax (orange), the intersection
 $\sigma\sqcap\text{softmax}$ (hatched), and the $\sigma$-only slice.
-The hatched bar strictly exceeds either alone on every corpus.
-WildReceipt is the cleanest case: equal at $0.953$ alone, $0.991$ in
-intersection.}
+At matched coverage the intersection exceeds either single gate on
+WildReceipt and SROIE; on CORD it exceeds the matched-coverage softmax
+gate while $\sigma$-alone at full coverage is nominally higher on a
+different (larger) accept set, consistent with the
+strongest-per-corpus (not pooled) framing. WildReceipt is the cleanest
+case: equal at $0.953$ alone, $0.991$ in intersection.}
 \label{fig:overview}
 \end{figure*}
 
@@ -588,7 +591,7 @@ $n{=}1019$ receipts. The intersection accepts $184$ receipts and is
 right on $182$, Wilson lower bound $0.961$, above the $0.95$
 operational floor; both single gates have lower bounds below $0.92$.
 The lift is purchased with coverage: the intersection fires on
-$17.6\%$ of receipts versus $37.4\%$ for either single gate, and on
+$18.1\%$ of receipts versus $38.1\%$ for either single gate, and on
 SROIE only $4.3\%$ ($15/347$). The economics are explicit. With a
 human review costing $\rho$ inference passes ($\rho\in[10^2,10^3]$,
 Section~\ref{sec:intro}) and a silent wrong total costing $\kappa$,
@@ -751,11 +754,13 @@ Single-gate $\sigma$ precision is regime-mechanistic: on CORD (clean
 per-field labels) $\sigma$ beats softmax by $5.5$ points ($0.982$
 vs.\ $0.927$); on WildReceipt (per-token annotations) the gates tie at
 $0.953$; on SROIE (OCR-derived $M$) $\sigma$ trails ($0.867$
-vs.\ $0.947$). We attribute the SROIE loss to upstream OCR, not the
-verifier: digit confusions and phantom amounts inflate $T(M)$ with
-coincidental witnesses. A hand-OCR-corrected SROIE subsample is the
-controlled test and remains future work. On every corpus the
-intersection still rises strictly above both single gates.
+vs.\ $0.947$). We hypothesise the SROIE loss is consistent with
+upstream OCR rather than the verifier: digit confusions and phantom
+amounts can inflate $T(M)$ with coincidental witnesses. This remains a
+hypothesis; the controlled hand-OCR-corrected SROIE subsample test
+remains future work. At matched coverage the
+intersection rises above both single gates on WildReceipt and SROIE,
+and above the matched-coverage softmax gate on CORD.
 
 \subsection{Cardinality guard, noise robustness, latency}
 \label{sec:results-robust}
@@ -896,8 +901,8 @@ with matched-coverage softmax is right $182$ of $184$ times it accepts
 is non-significant on every corpus. Single-gate $\sigma$ tracks
 amount-multiset cleanliness: it beats softmax on labelled amounts,
 ties on per-token annotations, and trails on OCR-derived inputs
-($0.867$ vs.\ $0.947$ on SROIE), the trail localisable to upstream
-OCR. The result is narrow: an independent arithmetic check, when the
+($0.867$ vs.\ $0.947$ on SROIE), a trail we hypothesise is consistent
+with upstream OCR (controlled test future work). The result is narrow: an independent arithmetic check, when the
 receipt admits one, is precision-orthogonal to softmax confidence and
 the two signals are usefully combined.
 
