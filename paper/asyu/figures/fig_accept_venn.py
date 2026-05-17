@@ -20,9 +20,8 @@ RUNS = ROOT / "runs"
 OUT = Path(__file__).parent / "fig_accept_venn.pdf"
 
 
-def panel(ax, corpus, sigma_n, smax_n, inter_n, inter_p, sigma_only_p, smax_only_p):
-    sigma_only_n = sigma_n - inter_n
-    smax_only_n = smax_n - inter_n
+def panel(ax, corpus, sigma_only_n, smax_only_n, inter_n,
+          inter_p, sigma_only_p, smax_only_p):
     r = 1.0
     cx_l, cx_r = -0.55, 0.55
     ax.add_patch(Circle((cx_l, 0), r, alpha=0.35, color="#1f77b4"))
@@ -40,9 +39,6 @@ def panel(ax, corpus, sigma_n, smax_n, inter_n, inter_p, sigma_only_p, smax_only
     ax.set_title(corpus, fontsize=10.5)
 
 
-SIGMA_N = {"CORD": 55, "SROIE": 75, "WildReceipt": 214}
-
-
 def main():
     data = json.loads((RUNS / "PAPER_TABLE.json").read_text())["T1_headline"]
     order = {"CORD": 0, "SROIE": 1, "WildReceipt": 2}
@@ -54,13 +50,13 @@ def main():
     if n_panels == 1: axes = [axes]
 
     for ax, row in zip(axes, data):
-        sigma_n = SIGMA_N.get(row["corpus"], row["intersect_n"] * 2)
-        # softmax_only_precision may be None on CORD/SROIE; compute from softmax-matched minus intersect
+        # Counts/precisions taken straight from PAPER_TABLE.json so the
+        # Venn regions are exactly consistent with the headline table.
         smax_only_p = row.get("softmax_only_precision")
         if smax_only_p is None:
-            # Fall back: not in JSON, leave a sensible placeholder
             smax_only_p = 0.0
-        panel(ax, row["corpus"], sigma_n, sigma_n, row["intersect_n"],
+        panel(ax, row["corpus"],
+              row["sigma_only_n"], row["softmax_only_n"], row["intersect_n"],
               row["intersect_precision"],
               row["sigma_only_precision"] if row["sigma_only_precision"] is not None else 0.0,
               smax_only_p)
