@@ -105,14 +105,14 @@
 
 % Pooled cells (leakage-free)
 \newcommand{\poolN}{1019}
-\newcommand{\poolSigA}{388}
-\newcommand{\poolSigC}{367}
+\newcommand{\poolSigA}{386}
+\newcommand{\poolSigC}{365}
 \newcommand{\poolIntA}{184}
 \newcommand{\poolIntC}{182}
-\newcommand{\poolMcB}{185}
-\newcommand{\poolMcC}{188}
+\newcommand{\poolMcB}{183}
+\newcommand{\poolMcC}{186}
 \newcommand{\poolMcChi}{0.011}
-\newcommand{\poolMcP}{0.918}
+\newcommand{\poolMcP}{0.917}
 \newcommand{\wrN}{472}
 \newcommand{\wrIntA}{114}
 \newcommand{\wrIntC}{113}
@@ -217,8 +217,9 @@ way~\cite{guo2017calibration}: a model can score 0.97 and still be
 wrong. We propose sigma, an arithmetic verifier that ignores the model
 and asks the receipt directly: does any subset of the visible line
 amounts sum to the predicted total? The check is a textbook
-0/1-knapsack dynamic program at roughly 1.5 microseconds per receipt,
-under 0.01 percent of end-to-end inference time on Donut. The witness
+0/1-knapsack dynamic program at a median of 5 microseconds per
+receipt (p99 547 microseconds, max 791 over 347 SROIE receipts),
+under 0.01 percent of end-to-end Donut inference at the median. The witness
 exists by construction on well-formed receipts; where it does not
 (rounding-only lines, post-subtotal discounts, hidden service charges)
 sigma silently rejects valid totals, and we localise its losses to
@@ -232,10 +233,12 @@ Task-3~\cite{huang2019sroie}, WildReceipt~\cite{sun2021wildreceipt};
 pooled n = 1019). The intersection (sigma AND softmax) is strongest
 per corpus, not as a pool: on WildReceipt (LayoutLMv3) it is right 113
 of 114 (0.991) where each gate alone reaches only 0.953, and on CORD
-(Donut) 54 of 55 (0.982) versus single gates below 0.93; the SROIE
-intersection (15 of 15) is too small (n = 15) to claim more than
-consistency. Pooled, this is 182 of 184 (Wilson lower bound 0.961),
-carried by WildReceipt, and we lead with the per-corpus read. We
+(Donut) 54 of 55 (0.982) above its matched-coverage softmax gate
+(0.960); the SROIE intersection (15 of 15) is too small (n = 15) to
+claim more than consistency. Pooled, this is 182 of 184 (Wilson lower
+bound 0.961) where each gate's exclusive-accept slice is below 0.93
+(0.906, 0.921), carried by WildReceipt, and we lead with the
+per-corpus read. We
 control the lift against two matched-coverage gates (a random gate
 and a softmax-derived gate of equal standalone precision), testing
 the paired difference (bootstrap). Pooled, sigma's lift exceeds the
@@ -255,9 +258,10 @@ percent); at a human-review cost of 100 to 1000 times one inference,
 the trade is favourable only when a silent wrong total is costlier
 than the deferred reviews it buys
 (Section~\ref{sec:results-headline}). We are candid about regime:
-where the amount multiset is clean sigma beats softmax (CORD 0.982
-vs.\ 0.927), but in the OCR-derived regime that most resembles
-production (SROIE) sigma trails softmax (0.867 vs.\ 0.947); it helps
+where the amount multiset is clean sigma beats softmax (CORD 0.990
+vs.\ 0.960 at matched coverage), but in the OCR-derived regime that
+most resembles production (SROIE) sigma trails softmax (0.863
+vs.\ 0.945); it helps
 most exactly where clean amounts are available. Paired McNemar tests
 are non-significant on every corpus (WildReceipt b = c = 91 exactly).
 Precision stays within 0.949 to 0.980 under up to 40 percent injected
@@ -423,8 +427,8 @@ $\sigma$ accepts $\pi$ iff $\inf_{t\in T(M)}|t-\pi|\leq\varepsilon$:
 some subset of receipt amounts sums to the predicted total within
 $\varepsilon$. $T(M)$ is computed by a textbook $0/1$-knapsack
 DP. Amounts are stored as integer cents to avoid floating-point
-surprises. Empirically $p_{99}{=}0.55\,\text{ms}$ per receipt
-(Fig.~\ref{fig:latency}).
+surprises. Empirically the per-receipt DP has median $5\,\mu$s and
+$p_{99}{=}547\,\mu$s (Fig.~\ref{fig:latency}).
 
 \noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on
 whether the total typically appears on the receipt as a labelled
@@ -476,8 +480,12 @@ per-token annotations). Pooled $n{=}1019$.
 \path{philschmid/donut-base-sroie}; LayoutLMv3~\cite{huang2022layoutlmv3}
 \path{Theivaprakasham/layoutlmv3-finetuned-wildreceipt}. Inference-only.
 
-\noindent\textbf{Operating point.} $\varepsilon{=}0.02$ and
-$k_{\min}{=}2$ unless stated otherwise.
+\noindent\textbf{Operating point.} $\varepsilon{=}0.02$ throughout;
+$k_{\min}$ follows the label-free cardinality-guard rule of
+Section~\ref{sec:method} ($k_{\min}{=}2$ on CORD and WildReceipt,
+$k_{\min}{=}1$ on SROIE). The fixed-$k_{\min}$ sweep of
+Table~\ref{tab:guard} is the only departure, and is explicitly an
+ablation of that rule.
 
 \noindent\textbf{Statistics.} Per-cell precision is reported with
 Wilson 95\% confidence intervals; agreement between the two gates is
@@ -513,11 +521,11 @@ without a human in the loop''.}
 \toprule
 Gate & $n_\text{acc}$ & $n_\text{corr}$ & Precision & 95\% CI \\
 \midrule
-$\sigma$               & 388 & 367 & 0.946 & [0.919, 0.964] \\
-softmax (matched)      & 388 & 370 & 0.954 & [0.928, 0.970] \\
+$\sigma$               & 386 & 365 & 0.946 & [0.918, 0.964] \\
+softmax (matched)      & 386 & 368 & 0.953 & [0.927, 0.970] \\
 $\sigma\sqcap$ softmax & 184 & 182 & \textbf{0.989} & \textbf{[0.961, 0.997]} \\
-$\sigma$-only          & 204 & 185 & 0.907 & [0.859, 0.940] \\
-softmax-only           & 204 & 188 & 0.922 & [0.876, 0.951] \\
+$\sigma$-only          & 202 & 183 & 0.906 & [0.858, 0.939] \\
+softmax-only           & 202 & 186 & 0.921 & [0.875, 0.951] \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -634,7 +642,7 @@ orthogonality the intersection exploits.}
 \toprule
 Set & $b$ & $c$ & $\chi^2$ & $p$-value \\
 \midrule
-\textbf{Pooled}            & 185 & 188 & 0.011 & 0.918 \\
+\textbf{Pooled}            & 183 & 186 & 0.011 & 0.917 \\
 CORD-v2     (Donut)        &  44 &  41 & 0.047 & 0.828 \\
 SROIE       (Donut)        &  50 &  56 & 0.236 & 0.627 \\
 WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
@@ -750,18 +758,16 @@ softmax-orthogonality}, established directly at high significance in
 Section~\ref{sec:results-control} (error decorrelation $\phi$,
 permutation $p{=}\orthPhiP$, clearing a random and a
 correlated-softmax control), plus an independent document-side audit
-signal. We claim the orthogonality and report the matched-coverage
-AURC reduction as modest, significant, and concentrated in the
-non-trivial-error regime; we neither inflate nor disown it.
+signal.
 
 \subsection{F3: where $\sigma$ wins, ties, and loses}
 \label{sec:results-regime}
 
 Single-gate $\sigma$ precision is regime-mechanistic: on CORD (clean
-per-field labels) $\sigma$ beats softmax by $5.5$ points ($0.982$
-vs.\ $0.927$); on WildReceipt (per-token annotations) the gates tie at
-$0.953$; on SROIE (OCR-derived $M$) $\sigma$ trails ($0.867$
-vs.\ $0.947$). We hypothesise the SROIE loss is consistent with
+per-field labels) $\sigma$ beats softmax by $3.0$ points ($0.990$
+vs.\ $0.960$ at matched coverage); on WildReceipt (per-token
+annotations) the gates tie at $0.953$; on SROIE (OCR-derived $M$)
+$\sigma$ trails ($0.863$ vs.\ $0.945$). We hypothesise the SROIE loss is consistent with
 upstream OCR rather than the verifier: digit confusions and phantom
 amounts can inflate $T(M)$ with coincidental witnesses. This remains a
 hypothesis; the controlled hand-OCR-corrected SROIE subsample test
@@ -777,7 +783,14 @@ and above the matched-coverage softmax gate on CORD.
 \caption{Cardinality-guard ablation on SROIE: dropping
 $k_{\min}{=}2$ wins on both axes because the total often appears as
 a clean labelled line in the OCR regime, so the singleton witness is
-legitimate.}
+legitimate. To isolate $k_{\min}$, this ablation uses the
+single-scalar-$\tau$ extractor with $k_{\min}$ \emph{forced} fixed;
+its accept set therefore differs from the
+Fig.~\ref{fig:overview}/Table~\ref{tab:headline-pooled} SROIE headline
+($n{=}73$, precision $0.863$), which uses the multi-candidate-$\tau$
+extractor (union over $3.12$ candidates/receipt, rule-selected
+per-receipt $k_{\min}$). Different extractor configurations, not three
+answers to one experiment.}
 \label{tab:guard}
 \begin{tabular}{lrr}
 \toprule
@@ -816,14 +829,15 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 
 \draw[fill=ok!60,draw=ok!80,thick] (0,-1.0) rectangle (0.0009,-0.4);
 \draw[->,thick] (1.0,-0.7) -- (0.05,-0.7);
-\node[anchor=west] at (1.05,-0.7) {$\sigma$ verifier $\sim$\,1.5\,$\mu$s};
+\node[anchor=west] at (1.05,-0.7) {$\sigma$ verifier median $5\,\mu$s};
 
-\node at (5.25,-1.9) [font=\Large,text=ok]{\textbf{0.0016\%}};
-\node at (5.25,-2.4) [font=\small]{of total inference time: $\sigma$ is operationally free};
+\node at (5.25,-1.9) [font=\Large,text=ok]{\textbf{$<0.01\%$}};
+\node at (5.25,-2.4) [font=\small]{of total inference time at the median: $\sigma$ is operationally free};
 \end{tikzpicture}
-\caption{$\sigma$ adds $0.0016\%$ to inference time on Donut. The
-verifier is operationally free: median $5\,\mu$s, $p_{99}{=}547\,\mu$s,
-$\max{=}791\,\mu$s per receipt over $n{=}347$ SROIE receipts.}
+\caption{$\sigma$ adds under $0.01\%$ to Donut inference at the median
+(5\,$\mu$s vs.\ $\sim$175\,ms) and under $0.5\%$ at $p_{99}$. Median
+$5\,\mu$s, $p_{99}{=}547\,\mu$s, $\max{=}791\,\mu$s over $n{=}347$
+SROIE receipts.}
 \label{fig:latency}
 \end{figure}
 
@@ -838,25 +852,22 @@ more than $\$5.00$, so any tolerance below that resolves the same
 witness set.
 
 \noindent\textbf{Latency.} Per-receipt $\sigma$ DP over $n{=}347$ SROIE
-receipts: median $5\,\mu$s, $p_{99}{=}547\,\mu$s. Paired against
-Donut generate latency on the same GPU, $\sigma$ contributes
-$\mathbf{0.0016\%}$ of inference time (Fig.~\ref{fig:latency}); the gate is operationally free.
+receipts: median $5\,\mu$s, $p_{99}{=}547\,\mu$s, $\max{=}791\,\mu$s;
+against $\sim$175\,ms Donut generate this is $\mathbf{<0.01\%}$ at the
+median (Fig.~\ref{fig:latency}), so the gate is operationally free.
 
 \section{Discussion}
 \label{sec:discussion}
 
 \noindent\textbf{Why $\sigma$ wins, ties, loses, and why the
 intersection still wins.} Where $M$ comes from reliable annotations
-(CORD JSON, WildReceipt per-token labels) $\sigma$ beats or ties
-softmax; SROIE is the sole inversion regime, which we attribute to
-OCR-derived $M$, not the verifier (a hypothesis;
-Section~\ref{sec:results-regime}). On WildReceipt both signals are equally precise
-alone ($0.953$) yet their intersection reaches $0.991$: orthogonality
-needs only \emph{errors on different inputs}, not dominance, and
-McNemar non-significance on every corpus confirms it. Swapping Donut
-for LayoutLMv3 keeps the intersection above $0.95$, so $\sigma$ is
-signal-orthogonal to softmax across architectures, not just one
-backbone.
+$\sigma$ beats or ties softmax; SROIE is the sole inversion regime,
+attributed to OCR-derived $M$, not the verifier (hypothesis;
+Section~\ref{sec:results-regime}). Orthogonality needs only errors on
+different inputs, not dominance (WildReceipt: $0.953$ alone, $0.991$
+intersected). Swapping Donut for LayoutLMv3 keeps the intersection
+above $0.95$, so $\sigma$ is signal-orthogonal to softmax across
+architectures, not just one backbone.
 
 \noindent\textbf{Operational recipe.} (1)~Pick any KIE model; get
 $\pi$ and softmax $s$ per receipt. (2)~Extract $M$ (labelled fields if
@@ -886,7 +897,7 @@ presented as secondary. The SROIE intersection ($n{=}15$) is too small
 for more than a consistency statement.
 (vii)~$\sigma$ helps most where the amount multiset is clean; in the
 OCR-derived regime that most resembles production it trails softmax as
-a single gate ($0.867$ vs.\ $0.947$), its value there purely in the
+a single gate ($0.863$ vs.\ $0.945$), its value there purely in the
 intersection, not standalone.
 (viii)~Novelty is deliberately scoped: arithmetic cross-checks are
 long-standing engineering practice, and our contribution is their
@@ -909,7 +920,7 @@ with matched-coverage softmax is right $182$ of $184$ times it accepts
 is non-significant on every corpus. Single-gate $\sigma$ tracks
 amount-multiset cleanliness: it beats softmax on labelled amounts,
 ties on per-token annotations, and trails on OCR-derived inputs
-($0.867$ vs.\ $0.947$ on SROIE), a trail we hypothesise is consistent
+($0.863$ vs.\ $0.945$ on SROIE), a trail we hypothesise is consistent
 with upstream OCR (controlled test future work). The result is narrow: an independent arithmetic check, when the
 receipt admits one, is precision-orthogonal to softmax confidence and
 the two signals are usefully combined.
