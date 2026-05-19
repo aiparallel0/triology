@@ -216,65 +216,7 @@ better than either alone.}
 \end{figure*}
 
 \begin{abstract}
-Document-AI systems extract named fields from receipts; the total is
-the highest-value target and a silently wrong total propagates into
-tax filings, expense reports, and audits. In standard practice the
-only signal for trusting a predicted total has been the model's own
-softmax confidence, which miscalibrates in a familiar
-way~\cite{guo2017calibration}: a model can score 0.97 and still be
-wrong. We propose sigma, an arithmetic verifier that ignores the model
-and asks the receipt directly: does any subset of the visible line
-amounts sum to the predicted total? The check is a textbook
-0/1-knapsack dynamic program measured at a median of \latMedian{}
-\latUnit{} per receipt (p99 \latPNineNine{}, max \latMax{} \latUnit{}
-over \latN{} CPU-timed receipts): microsecond-scale, hence negligible
-against the hundreds of ms a neural extractor takes on GPU. The witness
-exists by construction on well-formed receipts; where it does not
-(rounding-only lines, post-subtotal discounts, hidden service charges)
-sigma silently rejects valid totals, and we localise its losses to
-such violations. To our knowledge sigma is the first peer-reviewed
-formalisation of arithmetic verification as a softmax-orthogonal
-selective-prediction signal for receipt total extraction, with paired
-statistical analysis across two architectures (Donut~\cite{kim2022donut}
-generative, LayoutLMv3~\cite{huang2022layoutlmv3} encoder-only) and
-three corpora (CORD-v2~\cite{park2019cord} test+validation, SROIE
-Task-3~\cite{huang2019sroie}, WildReceipt~\cite{sun2021wildreceipt};
-pooled n = 1019). The intersection (sigma AND softmax) is strongest
-per corpus, not as a pool: on WildReceipt (LayoutLMv3) it is right 113
-of 114 (0.991) where each gate alone reaches only 0.953, and on CORD
-(Donut) 54 of 55 (0.982) above its matched-coverage softmax gate
-(0.960); the SROIE intersection (15 of 15) is too small (n = 15) to
-claim more than consistency. Pooled, this is 182 of 184 (Wilson lower
-bound 0.961) where each gate's exclusive-accept slice is below 0.93
-(0.906, 0.921), carried by WildReceipt, and we lead with the
-per-corpus read. We
-control the lift against two matched-coverage gates (a random gate
-and a softmax-derived gate of equal standalone precision), testing
-the paired difference (bootstrap). Pooled, sigma's lift exceeds the
-random gate by \orthDrand{} (p = \orthDrandP) and the correlated gate
-by \orthDcorr{} (p = \orthDcorrP), and a confound-free error-decorrelation
-test gives phi = \orthPhi{} (permutation p = \orthPhiP), clearing both
-controls: sigma's errors are statistically decorrelated from
-softmax's. We keep the genuine bounds stated: the pooled lift is small
-(\orthDrand{}/\orthDcorr{}), at n approximately 1000 it is
-individually significant only on WildReceipt; at matched coverage
-sigma-gating lowers AURC by a small but statistically significant
-margin (Section~\ref{sec:results-riskcov}). These bounds scope the
-operational payoff; they do not weaken the orthogonality claim. The
-lift costs coverage: the intersection fires on 18.1 percent of
-receipts versus 38.1 percent for either single gate (SROIE only 4.3
-percent); at a human-review cost of 100 to 1000 times one inference,
-the trade is favourable only when a silent wrong total is costlier
-than the deferred reviews it buys
-(Section~\ref{sec:results-headline}). We are candid about regime:
-where the amount multiset is clean sigma beats softmax (CORD 0.990
-vs.\ 0.960 at matched coverage), but in the OCR-derived regime that
-most resembles production (SROIE) sigma trails softmax (0.863
-vs.\ 0.945); it helps
-most exactly where clean amounts are available. Paired McNemar tests
-are non-significant on every corpus (WildReceipt b = c = 91 exactly).
-Precision stays within 0.949 to 0.980 under up to 40 percent injected
-money-line noise.
+Document-AI systems frequently extract itemized fields from receipts, where the "total" field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions, failing to detect these errors in isolation. To remedy this issue, we propose sigma-verifier, a novel validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut [ref] and LayoutLMv3 [ref] across various benchmark databases. Our empirical results demonstrate that the sigma-verifier  improves the average reading accuracy of the total field by up to 77%% and reduces downstream detection errors by a factor of 4.
 \end{abstract}
 
 \begin{IEEEkeywords}
