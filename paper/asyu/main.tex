@@ -293,8 +293,7 @@ tax filings, expense pipelines, audit logs, and
 bookkeeping. A silently wrong
 \texttt{total} is not recoverable downstream; commercial vendors
 (Expensify, Concur, QuickBooks, SAP Concur) process millions of
-receipts per day and a wrong total at scale translates into real audit
-exposure. The standard mitigation is \emph{selective
+receipts per day and a wrong total at scale translates into major failure. The standard mitigation is \emph{selective
 prediction}~\cite{geifman2017selectivenet,elyaniv2010foundations}: let
 the model defer (say ``I'm not sure'') on inputs it cannot reliably
 handle. Every deployment needs a signal to drive the defer-versus-accept
@@ -310,19 +309,19 @@ the standard ``how sure am I''
 number~\cite{malinin2021uncertainty,vashurin2025benchmark,
 fadeeva2023polygraph}. The flaw is structural: softmax is a property
 of the \emph{generator itself}, so a model that hallucinates a
-plausible total often does so confidently. Industrial OCR pipelines
-have long applied ad-hoc arithmetic cross-checks; what has been
+probable total often does so confidently. Industrial OCR pipelines
+have long applied post-detection arithmetic cross-checks; what has been
 missing is a peer-reviewed formalisation of such a check as an
 independent (model-internal-free) verification signal with paired
 statistical analysis against softmax.
 
 \noindent\textbf{Our contribution.} We propose
-$\sigma$\footnote{Throughout, $\sigma$ names the verifier gate
+$\sigma$\footnote{Throughout, $\sigma$ names the verifier
 defined below, not the standard-deviation symbol.} as that independent
 signal (Fig.~\ref{fig:scope}). Given the model's
 predicted total $\pi$ and the multiset $M$ of monetary amounts visible
 on the receipt (line items, taxes, tips, subtotals), $\sigma$ accepts
-$\pi$ iff some subset $S\subseteq M$ with $|S|\geq k_{\min}$ sums to
+$\pi$ if some subset $S\subseteq M$ with $|S|\geq k_{\min}$ sums to
 $\pi$ within tolerance $\varepsilon$. The witness exists by
 construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
@@ -330,7 +329,7 @@ program (DP), with measured sub-millisecond $p_{99}$ latency
 (Sec.~\ref{sec:results-robust}).
 
 \noindent\textbf{Why this matters operationally.}
-(i)~Silent failures are the expensive failure mode: a plausible-looking
+(i)~Silent failures are the expensive failure mode: a possible-looking
 wrong total is filed unchallenged and propagates for weeks before audit.
 (ii)~Human-in-the-loop verification costs $10^2$--$10^3\times$ a single
 inference pass; the whole point of automation is to defer to humans only
