@@ -219,7 +219,7 @@ better than either alone.}
 \end{figure*}
 
 \begin{abstract}
-Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions, failing to detect these errors in isolation. To remedy this issue, we propose sigma-verifier, a novel validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Our empirical results demonstrate that the sigma-verifier improves the average reading accuracy of the total field by up to 77\% and reduces downstream detection errors by a factor of 4.
+Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we propose sigma-verifier, a novel validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Our empirical results demonstrate that the sigma-verifier yields up to a 77\% relative reduction in the silent-wrong-total rate among accepted receipts and reduces downstream detection errors by a factor of 4.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -441,8 +441,9 @@ Table~\ref{tab:guard} is the only departure, and is explicitly an
 ablation of that rule.
 
 \noindent\textbf{Statistics.} Per-cell precision is reported with
-Wilson 95\% confidence intervals; agreement between the two gates is
-tested with paired McNemar ($\chi^2$ with continuity correction).
+Wilson 95\% confidence intervals~\cite{wilson1927ci}; agreement
+between the two gates is tested with paired
+McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 
 \noindent\textbf{Softmax extraction across architectures.} For Donut
 the softmax score is the geometric mean of per-token probabilities
@@ -694,8 +695,8 @@ Statistical orthogonality is necessary but not sufficient for
 deployment value; does $\sigma$-gating beat simply thresholding
 softmax? We answer with a matched-coverage risk--coverage comparison
 (no inference): at each coverage, softmax-alone versus $\sigma$-gated
-at the \emph{same} achieved coverage, integrated to an AURC (lower
-better). Pooled, AURC is $\rcAURCsoft$ (softmax-alone) versus
+at the \emph{same} achieved coverage, integrated to an
+AURC~\cite{geifman2019aurc} (lower better). Pooled, AURC is $\rcAURCsoft$ (softmax-alone) versus
 $\rcAURCsig$ ($\sigma$-gating), a paired-bootstrap difference of
 $\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
 $p{=}\rcAURCp$): the interval excludes zero, so at matched coverage
