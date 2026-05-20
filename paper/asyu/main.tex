@@ -160,8 +160,8 @@
 \newcommand{\latHardware}{CPU}
 \InputIfFileExists{numbers_latency.tex}{}{}
 
-\title{Sigma-Verifier: Improvement of Receipt Reading\\
-Through Itemized Field Detection and Total Verification}
+\title{Sigma-Verifier: Reducing Silent Errors in Receipt\\
+Total Extraction via Structural Arithmetic Verification}
 
 \author{\IEEEauthorblockN{Authors Anonymized}}
 
@@ -212,7 +212,7 @@ trust this number?'' signal has been the model's own
 \emph{softmax confidence} (a number it produces about its own answer).
 This paper adds $\sigma$, an arithmetic check on the receipt itself
 that doesn't read the model at all; on $1019$ real receipts across two
-AI architectures and three corpora, intersecting the two signals
+AI architectures and three corpora, combining the two signals
 yields $0.989$ precision (Wilson 95\% lower bound $0.961$), strictly
 better than either alone.}
 \label{fig:scope}
@@ -223,7 +223,7 @@ Document-AI systems frequently extract itemized fields from receipts, where the 
 \end{abstract}
 
 \begin{IEEEkeywords}
-Document Understanding, Receipt Reading, Itemized Fields Extraction, Model-Agnostic Verification, 0/1-Knapsack Programming.
+Document Understanding, Selective Prediction, Receipt Reading, Key-Information Extraction, Model-Agnostic Verification, 0/1-Knapsack Programming.
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -270,6 +270,16 @@ construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
 program (DP), with measured sub-millisecond $p_{99}$ latency
 (Sec.~\ref{sec:results-robust}).
+
+\noindent\textbf{In plain terms.} The sigma verifier reads the
+receipt the same way a careful clerk would: it lists the monetary
+numbers it can see (line prices, taxes, tips, subtotals) and asks
+whether any subset of those numbers adds up to the total the model
+reported. If yes, the receipt passes; if no, it is flagged. The check
+looks at the document, not at the model's internal scores, so it
+cannot be fooled by an overconfident prediction. We then accept a
+receipt only when this structural decision rule and the model's own
+softmax decision rule both fire.
 
 \noindent\textbf{Why this matters operationally.}
 (i)~Silent failures are the expensive failure mode: a possible-looking
@@ -347,7 +357,7 @@ formalising an arithmetic check as a softmax-orthogonal selective
 predictor on fixed off-the-shelf KIE models, with paired statistical
 analysis across two architectures. Conformal
 prediction~\cite{angelopoulos2021gentle} gives
-calibrated coverage but no verifier-style precision gate; the two are
+calibrated coverage but no verifier-style precision decision rule; the two are
 complementary and stackable (conformal calibrates from past
 prediction-truth pairs; $\sigma$ verifies one prediction against the
 document's own arithmetic).
@@ -357,14 +367,14 @@ document's own arithmetic).
 
 \noindent\textbf{Problem.} Given a receipt image $x$, a KIE model emits a
 predicted total $\pi(x)\in\mathbb{Q}_{\geq 0}$. Let $y(x)$ be the
-gold total. A selective predictor is a binary gate
+gold total. A selective predictor is a binary decision rule
 $g:x\mapsto\{\text{accept},\text{reject}\}$ with
 \emph{coverage} $C(g)=\Pr[g{=}\text{accept}]$ (how often it doesn't
 defer) and \emph{precision}
 $P(g)=\Pr(\pi{=}y\mid g{=}\text{accept})$ (how often it's right when
 it doesn't defer).
 
-\noindent\textbf{The $\sigma$ gate.} Let $M(x)=\{m_1,\dots,m_n\}$ be the
+\noindent\textbf{The $\sigma$ decision rule.} Let $M(x)=\{m_1,\dots,m_n\}$ be the
 multiset of monetary amounts extracted from $x$. Fix
 $k_{\min}\in\{1,2\}$ (the smallest subset size we'll accept as a
 witness; without this, a single line item that happens to equal the
@@ -411,29 +421,31 @@ On WildReceipt (encoder-only), $M$ comes from
 \texttt{Prod\_price\_value} token annotations.
 
 \noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
-confidence. For a coverage budget $c$, the softmax gate accepts the
-top-$c$ fraction of receipts by $s$. We compose at per-corpus matched
-coverage: $c$ equal to $\sigma$'s coverage on that corpus. The
-intersection $\sigma\sqcap\text{softmax}$ accepts iff both fire.
+confidence. For a coverage budget $c$, the softmax decision rule
+accepts the top-$c$ fraction of receipts by $s$. We compose at
+per-corpus matched coverage: $c$ equal to $\sigma$'s coverage on that
+corpus. The combination of the two decision rules,
+$\sigma\sqcap\text{softmax}$, accepts iff both fire.
 
 \section{Experimental Setup}
 \label{sec:setup}
 
-\noindent\textbf{Pooled benchmark.} \textbf{CORD-v2}~\cite{park2019cord}
-test+validation ($n{=}200$, labelled per-field amounts; CORD-v2
-\emph{train} is the Donut fine-tuning split and is excluded to keep the
-evaluation leakage-free);
-\textbf{SROIE Task-3}~\cite{huang2019sroie} canonical ($n{=}347$,
-OCR-derived amounts);
-\textbf{WildReceipt}~\cite{sun2021wildreceipt} test ($n{=}472$,
-per-token annotations). Pooled $n{=}1019$.
+\noindent\textbf{Datasets.} We use three public receipt benchmarks,
+chosen to span the labelling regimes that matter in practice.
+\textbf{CORD-v2}~\cite{park2019cord} test+validation ($n{=}200$,
+labelled per-field amounts; CORD-v2 \emph{train} is the Donut
+fine-tuning split and is excluded to keep the evaluation
+leakage-free); \textbf{SROIE Task-3}~\cite{huang2019sroie} canonical
+($n{=}347$, OCR-derived amounts); \textbf{WildReceipt}
+\cite{sun2021wildreceipt} test ($n{=}472$, per-token annotations).
+Pooled $n{=}\poolN{}$.
 
-\noindent\textbf{Models.} Donut~\cite{kim2022donut} checkpoints
+\noindent\textbf{AI Models.} Donut~\cite{kim2022donut} checkpoints
 \path{naver-clova-ix/donut-base-finetuned-cord-v2} and
 \path{philschmid/donut-base-sroie}; LayoutLMv3~\cite{huang2022layoutlmv3}
 \path{Theivaprakasham/layoutlmv3-finetuned-wildreceipt}. Inference-only.
 
-\noindent\textbf{Operating point.} $\varepsilon{=}0.02$ throughout;
+\noindent\textbf{Settings.} $\varepsilon{=}0.02$ throughout;
 $k_{\min}$ follows the label-free cardinality-guard rule of
 Section~\ref{sec:method} ($k_{\min}{=}2$ on CORD and WildReceipt,
 $k_{\min}{=}1$ on SROIE). The fixed-$k_{\min}$ sweep of
@@ -442,7 +454,7 @@ ablation of that rule.
 
 \noindent\textbf{Statistics.} Per-cell precision is reported with
 Wilson 95\% confidence intervals~\cite{wilson1927ci}; agreement
-between the two gates is tested with paired
+between the two decision rules is tested with paired
 McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 
 \noindent\textbf{Softmax extraction across architectures.} For Donut
@@ -460,20 +472,21 @@ numerically interchangeable.
 \section{Results}
 \label{sec:results}
 
-\subsection{F1: precision-orthogonal intersection on three corpora}
+\subsection{Headline pooled precision across three corpora}
 \label{sec:results-headline}
 
 \begin{table}[t]
 \centering\small
-\caption{F1 pooled headline ($n{=}1019$, CORD = test+validation,
-leakage-free). \emph{Precision} = right when the gate accepts. The
-intersection lower bound (\textbf{0.961}) exceeds both single-gate
-lower bounds; $0.95$ is the operationally meaningful floor for ``ship
-without a human in the loop''.}
+\caption{Pooled headline ($n{=}\poolN{}$, CORD = test+validation,
+leakage-free). \emph{Precision} = fraction of accepted receipts on
+which the predicted total is correct. The combination keeps
+$\poolIntC{}$ of $\poolIntA{}$ correct, Wilson 95\,\% lower bound
+\textbf{\pcPoolWilson{}}, clearing the $0.95$ ``ship without a human
+in the loop'' floor; both single rules sit below $0.92$.}
 \label{tab:headline-pooled}
 \begin{tabular}{lrrrl}
 \toprule
-Gate & $n_\text{acc}$ & $n_\text{corr}$ & Precision & 95\% CI \\
+Decision rule & $n_\text{acc}$ & $n_\text{corr}$ & Precision & 95\% CI \\
 \midrule
 $\sigma$               & 386 & 365 & 0.946 & [0.918, 0.964] \\
 softmax (matched)      & 386 & 368 & 0.953 & [0.927, 0.970] \\
@@ -488,14 +501,14 @@ softmax-only           & 202 & 186 & 0.921 & [0.875, 0.951] \\
 \centering
 \includegraphics[width=0.92\textwidth]{figures/fig_overview.pdf}
 \caption{Per-corpus orthogonality. Bars: $\sigma$ (blue),
-matched-coverage softmax (orange), the intersection
+matched-coverage softmax (orange), the combination of decision rules
 $\sigma\sqcap\text{softmax}$ (hatched), and the $\sigma$-only slice.
-At matched coverage the intersection exceeds either single gate on
+At matched coverage the combination exceeds either single rule on
 WildReceipt and SROIE; on CORD it exceeds the matched-coverage softmax
-gate while $\sigma$-alone at full coverage is nominally higher on a
+rule while $\sigma$-alone at full coverage is nominally higher on a
 different (larger) accept set, consistent with the
 strongest-per-corpus (not pooled) framing. WildReceipt is the cleanest
-case: equal at $0.953$ alone, $0.991$ in intersection.}
+case: equal at $0.953$ alone, $0.991$ when combined.}
 \label{fig:overview}
 \end{figure*}
 
@@ -527,9 +540,9 @@ case: equal at $0.953$ alone, $0.991$ in intersection.}
 \node at (3.3,-1.05) [text=ok!70!black,font=\bfseries,align=center]{\textbf{113 / 114} correct in the joint slice};
 \end{tikzpicture}
 \caption{\textbf{The striking case: WildReceipt.} $\sigma$ and softmax
-achieve identical $0.953$ single-gate precision yet fail on
+achieve identical $0.953$ single-rule precision yet fail on
 \emph{disjoint} receipts (McNemar $b{=}c{=}91$ exactly,
-Table~\ref{tab:mcnemar}). Their intersection rises to $0.991$
+Table~\ref{tab:mcnemar}). Their combination rises to $0.991$
 ($113/114$). The orthogonality argument doesn't require dominance,
 only disjoint errors.}
 \label{fig:wildreceipt}
@@ -537,8 +550,15 @@ only disjoint errors.}
 
 \begin{table}[t]
 \centering\small
-\caption{Per-corpus intersection. Wilson lower bounds span $[0.796,
-0.952]$ across regimes and AI backbones.}
+\caption{Per-corpus combination of decision rules. For each corpus
+and AI backbone we report the total receipts $n_\text{tot}$, the
+number accepted by the combination
+$n_{\sigma\sqcap\text{sm}}$, the number on which the predicted total
+is then correct $n_\text{corr}$, and the Wilson 95\,\% interval.
+Wilson lower bounds span $[\rgSroieWil{}, \rgWrWil{}]$ across the
+three regimes and two backbones. WildReceipt clears the $0.95$ floor
+individually; CORD and SROIE are consistent with $>0.95$ but
+underpowered at $n=55$ and $n=15$ respectively, stated plainly.}
 \label{tab:headline-percorpus}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrrl}
@@ -556,41 +576,49 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \end{table}
 
 Table~\ref{tab:headline-pooled} is the pooled headline on all
-$n{=}1019$ receipts. The intersection accepts $184$ receipts and is
-right on $182$, Wilson lower bound $0.961$, above the $0.95$
-operational floor; both single gates have lower bounds below $0.92$.
-The lift is purchased with coverage: the intersection fires on
-$18.1\%$ of receipts versus $38.1\%$ for either single gate, and on
+$n{=}\poolN{}$ receipts. Reading the numbers in plain language: when
+both decision rules agree to accept a receipt, the predicted total
+is correct on $\poolIntC{}$ of $\poolIntA{}$ receipts, a Wilson
+95\,\% lower bound of $\pcPoolWilson{}$, which clears the $0.95$
+operationally meaningful floor for ``ship without a human in the
+loop''. Each decision rule used on its own falls below that floor:
+$\sigma$ alone has a lower bound near $0.918$ and softmax alone near
+$0.927$. The lift comes at a coverage cost. The combination fires on
+$18.1\%$ of receipts versus $38.1\%$ for either single rule, and on
 SROIE only $4.3\%$ ($15/347$). The economics: with a human review
 costing $\rho$ inference passes ($\rho\in[10^2,10^3]$,
 Section~\ref{sec:intro}) and a silent wrong total costing $\kappa$,
 automating at coverage $c$, precision $p$ on $N$ receipts costs
 $cN(1{-}p)\kappa$ in undetected errors plus $(1{-}c)N\rho$ in reviews.
 Moving from softmax-matched ($c{=}0.381$, $p{=}0.954$) to the
-intersection ($c{=}0.181$, $p{=}0.989$) trades $0.200N\rho$ extra
+combination ($c{=}0.181$, $p{=}0.989$) trades $0.200N\rho$ extra
 review for $(0.381{\cdot}0.046-0.181{\cdot}0.011)N\kappa
 \approx 0.0155N\kappa$ fewer silent errors: favourable whenever
 $\kappa\gtrsim 13\rho$, i.e.\ when one filed wrong total is worth more
 than roughly a dozen human reviews, which holds in tax/audit
 pipelines but not in low-stakes bulk capture: a condition, not a
-universal claim. Table~\ref{tab:headline-percorpus} shows the lift is
-not a pooling artefact, with each corpus's intersection precision
-above either single gate; the pooled $n{=}1019$ is unevenly weighted
-at $200/347/472$ and carried by WildReceipt, so the per-corpus table,
-not the pool, is the headline. Fig.~\ref{fig:overview} gives the
-per-corpus four-cell matrix and Fig.~\ref{fig:wildreceipt} singles
-out the WildReceipt case.
+universal claim. Table~\ref{tab:headline-percorpus} shows the lift is not a pooling
+artefact, with each corpus's combined-rule precision above either
+single rule (WildReceipt $113/114$, Wilson LB $\rgWrWil{}$; CORD
+$54/55$, LB $\rgCordWil{}$; SROIE $15/15$, LB $\rgSroieWil{}$, where
+$n{=}15$ supports only a consistency statement). The pooled
+$n{=}\poolN{}$ is unevenly weighted at $200/347/472$ and carried by
+WildReceipt, so the per-corpus table, not the pool, is the headline.
+Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
+Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
 
-\subsection{F2: paired McNemar orthogonality}
+\subsection{Paired McNemar: where the two decision rules disagree}
 \label{sec:results-mcnemar}
 
 \begin{table}[t]
 \centering\small
-\caption{F2 paired McNemar. $b$ counts receipts $\sigma$ accepts
-correctly that softmax does not; $c$ symmetric. Discordant cells are
-large in \emph{both} directions on all three corpora. The
-non-rejection here is not weakness; it is consistent with the
-orthogonality the intersection exploits.}
+\caption{Paired McNemar on accept-and-correct outcomes. $b$ counts
+receipts $\sigma$ accepts correctly that softmax does not; $c$ is
+symmetric. Discordant cells are large in \emph{both} directions on
+all three corpora. Non-rejection (all $p>0.6$, pooled $0.917$) is not
+weakness; it is exactly the regime in which combining the two
+decision rules has room to lift precision, because each catches
+different mistakes. WildReceipt with $b=c=91$ is the cleanest case.}
 \label{tab:mcnemar}
 \begin{tabular}{lrrrl}
 \toprule
@@ -604,47 +632,50 @@ WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
 \end{tabular}
 \end{table}
 
-McNemar asks: when the two gates disagree, do they do so
-asymmetrically? A small $p$ would mean one gate strictly dominates
+McNemar asks: when the two decision rules disagree, do they do so
+asymmetrically? A small $p$ would mean one rule strictly dominates
 the other on \emph{which} examples it gets right, weakening the case
-for intersection. Non-rejection on every corpus is consistent with
-the gates being similarly accurate on disjoint slices; the
+for combining them. Non-rejection on every corpus is consistent with
+the two rules being similarly accurate on disjoint slices; the
 WildReceipt cell, $b{=}c{=}91$ exactly, is the cleanest example:
 equal-size disjoint correct-accept slices that combine into the
-$113/114{=}0.991$ intersection (Fig.~\ref{fig:wildreceipt}). McNemar
+$113/114{=}0.991$ combined-rule precision
+(Fig.~\ref{fig:wildreceipt}). McNemar
 non-rejection is, strictly, absence of evidence for asymmetry rather
 than positive evidence of error-decorrelation; the direct
 correlation-on-errors test (Section~\ref{sec:results-control})
 supplies the latter.
 
-\subsection{F2b: the intersection lift is not a mechanical artefact}
+\subsection{Is the combination lift a mechanical artefact?}
 \label{sec:results-control}
 
-Intersecting any two better-than-random gates with imperfectly
+Combining any two better-than-random decision rules with imperfectly
 correlated errors raises precision and lowers coverage; is the
 headline just that generic effect? We re-analyse the same per-receipt
 accept/correct vectors (no inference). Define the lift
 $L=P(\sigma\sqcap\text{softmax})-P(\text{softmax at matched
 coverage})$ and compare it, at identical coverage, against two
-controls: (A)~a \emph{random} gate accepting a uniform random subset
-of size $|\sigma{=}1|$ (no information; pure coverage-shrink), and
-(B)~a \emph{correlated} gate
+controls: (A)~a \emph{random} decision rule accepting a uniform
+random subset of size $|\sigma{=}1|$ (no information; pure
+coverage-shrink), and (B)~a \emph{correlated} decision rule
 $\text{softmax}'=\text{softmax}+\text{noise}$, noise-calibrated so
 $\text{softmax}'$ has $\sigma$-equal standalone precision (a
-softmax-built, hence non-independent, gate of equal quality). We test
+softmax-built, hence non-independent, decision rule of equal
+quality). We test
 the difference \emph{directly} with a paired bootstrap ($B{=}4000$):
 each resample recomputes $L_\sigma$ and both control lifts on the
 \emph{same} resample and takes the paired difference (non-overlap of
 separately bootstrapped CIs is over-conservative and is not the test).
-Pooled, $\sigma$'s lift exceeds the random gate by $\orthDrand$
-(95\,\% CI $[\orthDrandLo,\orthDrandHi]$, one-sided $p{=}\orthDrandP$)
-and the correlated softmax-derived gate by $\orthDcorr$
+Pooled, $\sigma$'s lift exceeds the random decision rule by
+$\orthDrand$ (95\,\% CI $[\orthDrandLo,\orthDrandHi]$, one-sided
+$p{=}\orthDrandP$) and the correlated softmax-derived decision rule by
+$\orthDcorr$
 ($[\orthDcorrLo,\orthDcorrHi]$, $p{=}\orthDcorrP$): significant against
 \emph{both}. As a confound-free check we also measure error
 decorrelation directly, within the softmax-accepted set: whether
 $\sigma$ rejects precisely the softmax-wrong receipts, which gives
 $\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$): positive evidence of
-orthogonality with no coverage-shrink or intersection-arithmetic
+orthogonality with no coverage-shrink or combination-arithmetic
 confound, which the paired-McNemar absence of asymmetry
 (Section~\ref{sec:results-mcnemar}) only implies indirectly.
 The pooled verdict is \orthEarned, but two honest caveats bound it.
@@ -662,8 +693,9 @@ and explicitly not a per-corpus or large one.
 
 \smallskip
 \label{sec:results-percorpus-rigor}
-\noindent\textbf{F2d: per-corpus rigor (Clopper--Pearson, LOCO, exact
-TOST).} Exact small-sample analysis of the leakage-free intersection cells
+\noindent\textbf{Per-corpus rigor (Clopper--Pearson, LOCO, exact
+TOST).} Exact small-sample analysis of the leakage-free
+combination cells
 (CORD $54/55$, SROIE $15/15$, WildReceipt $113/114$), pure stdlib (no
 SciPy/PyMC). Lower bounds agree across estimators: CORD
 Clopper--Pearson/Jeffreys/Wilson $\rgCordCPlo$/$\rgCordJeff$/$\rgCordWil$,
@@ -688,25 +720,26 @@ within every corpus, not only pooled. Honest reading: the
 orthogonality is robust; the $0.95$ ship-without-review floor is met
 individually only where the sample is large enough to show it.
 
-\subsection{F2c: is it operationally useful? Risk--coverage}
+\subsection{Is it operationally useful? Risk--coverage}
 \label{sec:results-riskcov}
 
 Statistical orthogonality is necessary but not sufficient for
-deployment value; does $\sigma$-gating beat simply thresholding
-softmax? We answer with a matched-coverage risk--coverage comparison
-(no inference): at each coverage, softmax-alone versus $\sigma$-gated
-at the \emph{same} achieved coverage, integrated to an
-AURC~\cite{geifman2019aurc} (lower better). Pooled, AURC is $\rcAURCsoft$ (softmax-alone) versus
-$\rcAURCsig$ ($\sigma$-gating), a paired-bootstrap difference of
-$\rcAURCd$ (95\,\% CI $[\rcAURCdLo,\rcAURCdHi]$, one-sided
-$p{=}\rcAURCp$): the interval excludes zero, so at matched coverage
-$\sigma$-gating significantly lowers AURC; verdict \rcEarned. We
-do not over-read this: the absolute difference is small
+deployment value; does the $\sigma$ decision rule beat simply
+thresholding softmax? We answer with a matched-coverage risk--coverage comparison
+(no inference): at each coverage, softmax-alone versus the $\sigma$
+decision rule at the \emph{same} achieved coverage, integrated to an
+AURC~\cite{geifman2019aurc} (lower better). Pooled, AURC is
+$\rcAURCsoft$ (softmax-alone) versus $\rcAURCsig$ ($\sigma$ decision
+rule), a paired-bootstrap difference of $\rcAURCd$ (95\,\% CI
+$[\rcAURCdLo,\rcAURCdHi]$, one-sided $p{=}\rcAURCp$): the interval
+excludes zero, so at matched coverage the $\sigma$ decision rule
+significantly lowers AURC; verdict \rcEarned. We do not over-read
+this: the absolute difference is small
 ($\rcAURCsoft\!\to\!\rcAURCsig$) and the lift costs coverage, so we
 report it as a modest, statistically resolved operational gain, not a
 large one, and it is concentrated where base error is non-trivial
-(WildReceipt, the one regime with appreciable error, is where
-$\sigma$-gating is individually favourable). It is independent of, and
+(WildReceipt, the one regime with appreciable error, is where the
+$\sigma$ decision rule is individually favourable). It is independent of, and
 consistent with, the paper's central claim: \emph{statistical
 softmax-orthogonality}, established directly at high significance in
 Section~\ref{sec:results-control} (error decorrelation $\phi$,
@@ -714,37 +747,41 @@ permutation $p{=}\orthPhiP$, clearing a random and a
 correlated-softmax control), plus an independent document-side audit
 signal.
 
-\subsection{F3: where $\sigma$ wins, ties, and loses}
+\subsection{Where the $\sigma$ decision rule wins, ties, and loses}
 \label{sec:results-regime}
 
-Single-gate $\sigma$ precision is regime-mechanistic: on CORD (clean
+Single-rule $\sigma$ precision is regime-mechanistic: on CORD (clean
 per-field labels) $\sigma$ beats softmax by $3.0$ points ($0.990$
 vs.\ $0.960$ at matched coverage); on WildReceipt (per-token
-annotations) the gates tie at $0.953$; on SROIE (OCR-derived $M$)
-$\sigma$ trails ($0.863$ vs.\ $0.945$). We hypothesise the SROIE loss is consistent with
-upstream OCR rather than the verifier: digit confusions and phantom
-amounts can inflate $T(M)$ with coincidental witnesses. This remains a
-hypothesis; the controlled hand-OCR-corrected SROIE subsample test
-remains future work. At matched coverage the
-intersection rises above both single gates on WildReceipt and SROIE,
-and above the matched-coverage softmax gate on CORD.
+annotations) the two decision rules tie at $0.953$; on SROIE
+(OCR-derived $M$) $\sigma$ trails ($0.863$ vs.\ $0.945$). We
+hypothesise the SROIE loss is consistent with upstream OCR rather
+than the verifier: digit confusions and phantom amounts can inflate
+$T(M)$ with coincidental witnesses. This remains a hypothesis; the
+controlled hand-OCR-corrected SROIE subsample test remains future
+work. At matched coverage the combination of decision rules rises
+above both single rules on WildReceipt and SROIE, and above the
+matched-coverage softmax decision rule on CORD.
 
 \subsection{Cardinality guard, noise robustness, latency}
 \label{sec:results-robust}
 
 \begin{table}[t]
 \centering\small
-\caption{Cardinality-guard ablation on SROIE: dropping
-$k_{\min}{=}2$ wins on both axes because the total often appears as
-a clean labelled line in the OCR regime, so the singleton witness is
-legitimate. To isolate $k_{\min}$, this ablation uses the
-single-scalar-$\tau$ extractor with $k_{\min}$ \emph{forced} fixed;
-its accept set therefore differs from the
-Fig.~\ref{fig:overview}/Table~\ref{tab:headline-pooled} SROIE headline
-($n{=}73$, precision $0.863$), which uses the multi-candidate-$\tau$
-extractor (union over $3.12$ candidates/receipt, rule-selected
-per-receipt $k_{\min}$). Different extractor configurations, not three
-answers to one experiment.}
+\caption{Cardinality-guard ablation on SROIE. With the guard off
+($k_{\min}{=}1$) the verifier accepts $16.1\%$ of receipts at
+precision $0.929$; with the guard on ($k_{\min}{=}2$) it accepts
+only $2.9\%$ at precision $0.900$. In the OCR regime the total
+often appears as a clean labelled line, so a singleton witness is
+legitimate rather than a coincidence, and dropping the guard wins on
+both coverage and precision. To isolate $k_{\min}$ alone, this
+ablation uses the single-scalar-$\tau$ extractor with $k_{\min}$
+\emph{forced} fixed; its accept set therefore differs from the
+Fig.~\ref{fig:overview}/Table~\ref{tab:headline-pooled} SROIE
+headline ($n{=}73$, precision $0.863$), which uses the
+multi-candidate-$\tau$ extractor (union over $3.12$ candidates per
+receipt, rule-selected per-receipt $k_{\min}$). Different extractor
+configurations, not three answers to one experiment.}
 \label{tab:guard}
 \begin{tabular}{lrr}
 \toprule
@@ -759,8 +796,10 @@ $k_{\min}{=}2$ (guard on)  & 0.029 & 0.900 \\
 \begin{table}[t]
 \centering\small
 \caption{Noise robustness on CORD ($10$ seeds, bootstrap 95\% CI).
-$\sigma$ precision stays in $[0.949, 0.980]$ under up to $40\%$
-injected money-line noise; coverage falls, precision does not.}
+Injecting random distractor money lines at rates $r$ up to $40\%$:
+coverage falls from $26.7\%$ at $r=0$ to $9.1\%$ at $r=0.40$, but
+precision stays in $[0.949, 0.980]$. The verifier degrades gracefully
+on coverage, not precision.}
 \label{tab:robust}
 \begin{tabular}{lrrl}
 \toprule
@@ -789,10 +828,11 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \node[above] at (7.35,0.12) {max \latMax};
 \end{tikzpicture}
 \caption{Measured standalone per-receipt $\sigma$ DP latency
-(\latUnit{}): median \latMedian{}, $p_{99}$ \latPNineNine{}, max
-\latMax{}, over $\latN{}$ SROIE${+}$WildReceipt receipts, single
-thread CPU (\latHardware). Microsecond scale; end-to-end ratio not
-measured on this CPU-only host.}
+(\latUnit{}). Over $\latN{}$ SROIE${+}$WildReceipt receipts on a
+single-thread CPU (\latHardware): median \latMedian{}, $p_{99}$
+\latPNineNine{}, max \latMax{}. Microsecond scale, negligible
+against neural inference; end-to-end ratio not measured on this
+CPU-only host.}
 \label{fig:latency}
 \end{figure}
 
@@ -815,63 +855,67 @@ median \latMedian~\latUnit{}, $p_{99}$ \latPNineNine~\latUnit{}, max
 negligible against neural inference (hundreds of ms on GPU); the
 end-to-end ratio was not measured here, so we claim no percentage.
 
-\section{Discussion}
+\section{Discussion and Limitations}
 \label{sec:discussion}
 
-\noindent\textbf{Why $\sigma$ wins, ties, loses, and why the
-intersection still wins.} Where $M$ comes from reliable annotations
-$\sigma$ beats or ties softmax; SROIE is the sole inversion regime,
-attributed to OCR-derived $M$, not the verifier (hypothesis;
-Section~\ref{sec:results-regime}). Orthogonality needs only errors on
-different inputs, not dominance (WildReceipt: $0.953$ alone, $0.991$
-intersected). Swapping Donut for LayoutLMv3 keeps the intersection
-above $0.95$, so $\sigma$ is signal-orthogonal to softmax across
-architectures, not just one backbone.
+\noindent\textbf{Where $\sigma$ works best, and where it does not.}
+Where $M$ comes from reliable annotations $\sigma$ beats or ties
+softmax: CORD leads by $3.0$ precision points at matched coverage;
+WildReceipt ties at $0.953$ standalone and rises to $0.991$ in
+combination. SROIE is the sole inversion regime, attributed to
+OCR-derived $M$ (a hypothesis; the hand-OCR-corrected subsample test
+is future work).
 
-\noindent\textbf{Operational recipe.} (1)~Pick any KIE model; get
+\noindent\textbf{Why combining the two signals works.} Orthogonality
+needs only errors on different inputs, not dominance. WildReceipt is
+the cleanest demonstration: equal-size disjoint correct slices
+(McNemar $b{=}c{=}91$) combine into $113/114=0.991$. Swapping Donut
+for LayoutLMv3 keeps combined precision above $0.95$, so $\sigma$ is
+signal-orthogonal to softmax across architectures.
+
+\noindent\textbf{Operational guidance.} (1)~Pick any KIE model; get
 $\pi$ and softmax $s$ per receipt. (2)~Extract $M$ (labelled fields if
-available; OCR + multi-candidate $\tau$ otherwise). (3)~Run $\sigma$ at
-$\varepsilon{=}0.02$, $k_{\min}{=}2$ on labelled corpora and
-$k_{\min}{=}1$ on OCR. (4)~Accept iff $\sigma{=}1$ \emph{and} $s\geq$ a
-fixed-coverage softmax threshold; defer otherwise.
+available; OCR plus multi-candidate $\tau$ otherwise). (3)~Run
+$\sigma$ at $\varepsilon{=}0.02$, with $k_{\min}{=}2$ on labelled
+corpora and $k_{\min}{=}1$ on OCR-derived corpora, selected by the
+label-free cardinality-guard rule of Section~\ref{sec:method}.
+(4)~Accept iff $\sigma{=}1$ \emph{and} $s\geq$ a fixed-coverage
+softmax threshold; defer otherwise.
 
-\section{Limitations}
-\label{sec:limitations}
+\noindent\textbf{What $\sigma$ cannot do.} (i)~$\sigma$ requires
+arithmetic closure of the target field; totals, subtotals, and taxes,
+not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
+integer-cent inputs; fractional-cent rounding jurisdictions may need
+a different sweep. (iii)~$\sigma$ assumes $\pi$ is a parsed numeric
+scalar; format-hallucinated outputs require an upstream normaliser we
+do not benchmark. (iv)~In the OCR-derived regime $\sigma$ trails
+softmax as a single decision rule ($0.863$ vs.\ $0.945$), its value
+there purely in the combination.
 
-(i)~$\sigma$ requires arithmetic closure of the target field; it
-applies to totals, subtotals, taxes, not vendor/date/address.
-(ii)~We evaluate one field across two backbones and three corpora;
+\noindent\textbf{Statistical scope.} The headline is a per-corpus
+claim; the pooled $n{=}\poolN{}$ figure is carried by WildReceipt
+($\wrIntA{}$ of $\poolIntA{}$ combined-rule accepts) and is presented
+as secondary. The SROIE combined-rule cell ($n{=}15$) supports only
+a consistency statement. The cardinality-guard inversion is measured
+directly only on SROIE; the CORD-side claim is structural. We
+evaluate one field across two backbones and three corpora;
 multi-field $\sigma$ is journal work.
-(iii)~The cardinality-guard inversion is measured directly only on
-SROIE; the CORD-side claim is structural.
-(iv)~$\varepsilon{=}0.02$ assumes integer-cent inputs; fractional-cent
-rounding jurisdictions may need a different sweep.
-(v)~$\sigma$ assumes $\pi$ is a parsed numeric scalar;
-format-hallucinated outputs (trailing currency strings, post-hoc tax
-annotations, formatting noise) require an upstream normaliser before
-$\sigma$ can verify them, and we do not benchmark that normaliser.
-(vi)~The headline is a per-corpus claim; the pooled $n{=}1019$ figure
-is carried by WildReceipt ($114$ of $184$ intersection accepts) and is
-presented as secondary. The SROIE intersection ($n{=}15$) is too small
-for more than a consistency statement.
-(vii)~$\sigma$ helps most where the amount multiset is clean; in the
-OCR-derived regime that most resembles production it trails softmax as
-a single gate ($0.863$ vs.\ $0.945$), its value there purely in the
-intersection, not standalone.
-(viii)~Novelty is deliberately scoped: arithmetic cross-checks are
-long-standing engineering practice, and our contribution is their
-formalisation as a softmax-orthogonal selective predictor with the
-paired and control statistics of
-Sections~\ref{sec:results-mcnemar}--\ref{sec:results-control}, not the
-idea of checking arithmetic. This is an applied contribution; we do
-not claim methodological novelty in the verifier itself.
+
+\noindent\textbf{Scope of novelty.} Novelty is deliberately scoped.
+Arithmetic cross-checks are long-standing engineering practice. Our
+contribution is the peer-reviewed formalisation of such a check as a
+softmax-orthogonal selective predictor with the paired and control
+statistics of
+Sections~\ref{sec:results-mcnemar}--\ref{sec:results-control}, not
+the idea of checking arithmetic. This is an applied contribution; we
+do not claim methodological novelty in the verifier itself.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
 In this work, we presented the sigma-verifier, a model-agnostic validation layer that directly evaluates a document by checking whether any subset of extracted itemized lines sums to the predicted total. We evaluated its performance across two document AI architectures, Donut and LayoutLMv3, on three receipt databases: CORD, SROIE, and WildReceipt.
 
-Our results show that intersecting the sigma-verifier with the model's softmax confidence substantially reduces the silent-wrong-total rate among the receipts it accepts. On CORD the rate drops from 4.0\% to 1.8\% (a 55\% relative reduction); on WildReceipt from 4.7\% to 0.9\% ($\approx$81\%); on SROIE from 5.5\% to 0.0\% (n = 15, consistency only). Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the cost of lower coverage: the intersection accepts about 18\% of receipts versus about 38\% for either gate alone, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
+Our results show that combining the sigma-verifier with the model's softmax confidence substantially reduces the silent-wrong-total rate among the receipts it accepts. On CORD the rate drops from 4.0\% to 1.8\% (a 55\% relative reduction); on WildReceipt from 4.7\% to 0.9\% ($\approx$81\%); on SROIE from 5.5\% to 0.0\% (n = 15, consistency only). Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the cost of lower coverage: the combination accepts about 18\% of receipts versus about 38\% for either decision rule alone, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
 
 % Tighten only the bibliography list spacing (purely typographic; no
 % reference is dropped or shortened).
