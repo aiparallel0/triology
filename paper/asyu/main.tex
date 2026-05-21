@@ -112,8 +112,8 @@
 \newcommand{\poolSigC}{365}
 \newcommand{\poolIntA}{184}
 \newcommand{\poolIntC}{182}
-\newcommand{\poolMcB}{183}
-\newcommand{\poolMcC}{186}
+\newcommand{\poolMcB}{185}
+\newcommand{\poolMcC}{188}
 \newcommand{\poolMcChi}{0.011}
 \newcommand{\poolMcP}{0.917}
 \newcommand{\wrN}{472}
@@ -577,7 +577,7 @@ reaches this threshold: $\sigma$ alone has a lower bound of $0.918$
 and softmax alone $0.927$.
 
 This precision gain comes at the cost of coverage. The combination
-accepts only $18.1\%$ of receipts, compared to $38.1\%$ for either
+accepts only $18.1\%$ of receipts, compared to $37.9\%$ for either
 gate alone, meaning more receipts are deferred to human review.
 Whether this tradeoff is worthwhile depends on the deployment
 context: it is favorable when the cost of a silently wrong total,
@@ -631,7 +631,7 @@ dataset.}
 \toprule
 Set & $b$ & $c$ & $\chi^2$ & $p$-value \\
 \midrule
-\textbf{Pooled}            & 183 & 186 & 0.011 & 0.917 \\
+\textbf{Pooled}            & 185 & 188 & 0.011 & 0.917 \\
 CORD-v2     (Donut)        &  44 &  41 & 0.047 & 0.828 \\
 SROIE       (Donut)        &  50 &  56 & 0.236 & 0.627 \\
 WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
@@ -841,7 +841,7 @@ $0.980$ at every noise level. This means the arithmetic check becomes
 more selective under noisy conditions, it accepts fewer receipts, but
 the receipts it does accept remain reliably correct. It degrades
 gracefully rather than catastrophically. The tolerance sweep
-$\varepsilon \in \{0.01, \dots, 5.0\}$ on CORD returns identical
+$\varepsilon \in \{0.01, 0.02, \dots, 5.0\}$ on CORD returns identical
 (coverage, precision) at every value, reflecting sparsity of the
 reachable set: adjacent reachable subset sums on CORD are spaced by
 more than $\$5.00$.
