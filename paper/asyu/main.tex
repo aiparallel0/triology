@@ -586,7 +586,7 @@ outweighs the cost of additional human review, which holds in
 high-stakes financial pipelines but not in low-stakes bulk capture.
 Quantitatively, with a human review costing $\rho$ inference passes
 ($\rho\in[10^2,10^3]$) and a silent wrong total costing $\kappa$,
-moving from softmax-matched ($c{=}0.381$, $p{=}0.954$) to the
+moving from softmax-matched ($c{=}0.379$, $p{=}0.953$) to the
 combination ($c{=}0.181$, $p{=}0.989$) is favourable whenever
 $\kappa\gtrsim 13\rho$: a condition, not a universal claim.
 
@@ -781,7 +781,11 @@ $k_{\min}{=}2$ (guard on)  & 0.029 & 0.900 \\
 \centering\small
 \caption{Precision and coverage of $\sigma$ on CORD under increasing
 levels of artificially injected noise (10 seeds, bootstrap 95\%
-confidence intervals reported for each result).}
+confidence intervals reported for each result). This experiment uses
+the fixed single-candidate extractor uniformly across all noise
+levels, as in the Table~\ref{tab:guard} ablation, so the $r{=}0$
+baseline ($0.267$ coverage) differs from the multi-candidate-$\tau$
+CORD $\sigma$ headline of Fig.~\ref{fig:overview}.}
 \label{tab:robust}
 \begin{tabular}{lrrl}
 \toprule
