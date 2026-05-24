@@ -909,7 +909,7 @@ claim no methodological novelty in the verifier itself.
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this work, we presented the sigma-verifier, a model-agnostic validation layer that directly evaluates a document by checking whether any subset of extracted itemized lines sums to the predicted total. We evaluated its performance across two document AI architectures, Donut and LayoutLMv3, on three receipt databases: CORD, SROIE, and WildReceipt.
+In this work, we presented the sigma-verifier, a model-agnostic validation layer that directly evaluates a document by checking whether any subset of extracted itemized lines sums to the predicted total. We evaluated its performance across two document AI architectures, Donut and LayoutLMv3, on three receipt databases: CORD~\cite{park2019cord}, SROIE~\cite{huang2019sroie}, and WildReceipt~\cite{sun2021wildreceipt}.
 
 Our results show that combining the sigma-verifier with the model's softmax confidence substantially reduces the silent-wrong-total rate among the receipts it accepts. On CORD the rate drops from 4.0\% to 1.8\% (a 55\% relative reduction); on WildReceipt from 4.7\% to 0.9\% ($\approx$81\%); on SROIE from 5.5\% to 0.0\% (n = 15, consistency only). Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the cost of lower coverage: the combination accepts about 18\% of receipts versus about 38\% for either decision rule alone, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
 
