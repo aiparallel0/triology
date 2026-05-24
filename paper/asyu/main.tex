@@ -231,10 +231,10 @@ Document Understanding, Selective Prediction, Receipt Reading, Key-Information E
 
 \emph{Receipt key-information extraction} (KIE) means: a model reads a
 receipt image and outputs named fields: vendor, date, taxes, and
-especially the \texttt{total}. The outputs flow directly into
+especially the \emph{total}. The outputs flow directly into
 tax filings, expense pipelines, audit logs, and
 bookkeeping. A silently wrong
-\texttt{total} is not recoverable downstream; commercial vendors
+\emph{total} is not recoverable downstream; commercial vendors
 (Expensify, QuickBooks, SAP Concur) process millions of
 receipts per day and a wrong total at scale translates into major failure. The standard mitigation is \emph{selective
 prediction}~\cite{geifman2017selectivenet,elyaniv2010foundations}: let
@@ -348,7 +348,7 @@ We evaluate two architectures. Donut~\cite{kim2022donut} is a
 \emph{generative} vision-encoder-decoder producing structured JSON;
 LayoutLMv3~\cite{huang2022layoutlmv3} is an \emph{encoder-only}
 token-classifier (tagging each token with a class such as
-\texttt{Total\_value}). Their softmax confidences are
+\emph{Total\_value}). Their softmax confidences are
 architecture-specific but conceptually identical: average per-token
 probability on the predicted total-value tokens. Structure-aware
 verification has appeared for table
@@ -418,7 +418,7 @@ when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), we keep
 both interpretations as candidates $M_k$ and accept $\pi$ if any
 candidate yields a witness ($3.12$ candidates per receipt on average).
 On WildReceipt (encoder-only), $M$ comes from
-\texttt{Prod\_price\_value} token annotations.
+\emph{Prod\_price\_value} token annotations.
 
 \noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
 confidence. For a coverage budget $c$, the softmax decision rule
@@ -442,10 +442,10 @@ leakage-free); \textbf{SROIE Task-3}~\cite{huang2019sroie} canonical
 \cite{sun2021wildreceipt} test ($n{=}472$, per-token annotations).
 Pooled $n{=}\poolN{}$.
 
-\noindent\textbf{AI Models.} Donut~\cite{kim2022donut} checkpoints
-\path{naver-clova-ix/donut-base-finetuned-cord-v2} and
-\path{philschmid/donut-base-sroie}; LayoutLMv3~\cite{huang2022layoutlmv3}
-\path{Theivaprakasham/layoutlmv3-finetuned-wildreceipt}. Inference-only.
+\noindent\textbf{AI Models.} We use Donut~\cite{kim2022donut}
+fine-tuned on CORD-v2 and on SROIE, and
+LayoutLMv3~\cite{huang2022layoutlmv3} fine-tuned on WildReceipt; all
+inference-only.
 
 \noindent\textbf{Settings.} $\varepsilon{=}0.02$ throughout;
 $k_{\min}$ follows the label-free cardinality-guard rule of
@@ -461,10 +461,10 @@ McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 
 \noindent\textbf{Softmax extraction across architectures.} For Donut
 the softmax score is the geometric mean of per-token probabilities
-over the predicted \texttt{total\_value} span in the decoder's
+over the predicted \emph{total\_value} span in the decoder's
 autoregressive output; for LayoutLMv3, the geometric mean of the
 predicted-class probability on input tokens tagged
-\texttt{Total\_value}. The two objects are architecture-specific
+\emph{Total\_value}. The two objects are architecture-specific
 (decoder vs.\ token-classifier probabilities) but conceptually
 analogous, each being the model's self-assessed probability of its
 emitted total-value tokens, and we treat them as the
