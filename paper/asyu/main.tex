@@ -347,8 +347,8 @@ over visible quantities.
 We evaluate two architectures. Donut~\cite{kim2022donut} is a
 \emph{generative} vision-encoder-decoder producing structured JSON;
 LayoutLMv3~\cite{huang2022layoutlmv3} is an \emph{encoder-only}
-token-classifier (tagging each token with a class such as
-\emph{Total\_value}). Their softmax confidences are
+token-classifier (tagging each token with a class such as the
+total-value label). Their softmax confidences are
 architecture-specific but conceptually identical: average per-token
 probability on the predicted total-value tokens. Structure-aware
 verification has appeared for table
@@ -417,8 +417,8 @@ corpora (SROIE), we use a multi-candidate extractor over the OCR text:
 when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), we keep
 both interpretations as candidates $M_k$ and accept $\pi$ if any
 candidate yields a witness ($3.12$ candidates per receipt on average).
-On WildReceipt (encoder-only), $M$ comes from
-\emph{Prod\_price\_value} token annotations.
+On WildReceipt (encoder-only), $M$ comes from per-token
+product-price annotations.
 
 \noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
 confidence. For a coverage budget $c$, the softmax decision rule
@@ -461,10 +461,10 @@ McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 
 \noindent\textbf{Softmax extraction across architectures.} For Donut
 the softmax score is the geometric mean of per-token probabilities
-over the predicted \emph{total\_value} span in the decoder's
+over the predicted total-value span in the decoder's
 autoregressive output; for LayoutLMv3, the geometric mean of the
-predicted-class probability on input tokens tagged
-\emph{Total\_value}. The two objects are architecture-specific
+predicted-class probability on input tokens tagged with the
+total-value class. The two objects are architecture-specific
 (decoder vs.\ token-classifier probabilities) but conceptually
 analogous, each being the model's self-assessed probability of its
 emitted total-value tokens, and we treat them as the
