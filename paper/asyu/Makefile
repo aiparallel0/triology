@@ -11,6 +11,7 @@
 #   make distclean  -> also remove cached figure PDFs
 #
 #   make audit      -> run the conformance audit (see audit/README.md)
+#   make package    -> dist/*.zip, self-contained, ready to upload to Overleaf
 #   make review     -> red change boxes ON, then build   (do not submit this)
 #   make submit     -> red change boxes OFF, build, then gate on the page limit
 
@@ -52,9 +53,16 @@ figures/fig_accept_venn.pdf: figures/fig_accept_venn.py $(RUNS)
 # Conformance audit. Rendered-PDF checks report SKIP without a TeX
 # distribution rather than passing quietly -- SKIP is not PASS.
 PAGE_LIMIT ?= 6
-.PHONY: audit review submit
+.PHONY: audit review submit package
 audit:
 	@PAGE_LIMIT=$(PAGE_LIMIT) bash audit/run_audit.sh
+
+# Self-contained Overleaf packages, both modes. Derived from this tree every
+# time -- the zip is never edited in place, or it becomes a second source of
+# truth and the tracked copy becomes the one nobody compiles.
+package:
+	@bash audit/tools/make_package.sh review
+	@bash audit/tools/make_package.sh submit
 
 # Review copy: every change from the conformance pass inside a red box, plus
 # the change index page after the bibliography.
