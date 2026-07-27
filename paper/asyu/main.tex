@@ -644,9 +644,17 @@ numerically interchangeable.
 \toprule
 Decision rule & $n_\text{acc}$ & $n_\text{corr}$ & Precision & 95\% CI \\
 \midrule
-$\sigma$               & 386 & 365 & 0.946 & [0.918, 0.964] \\
-softmax (matched)      & 386 & 368 & 0.953 & [0.927, 0.970] \\
-$\sigma\sqcap$ softmax & 184 & 182 & \textbf{0.989} & \textbf{[0.961, 0.997]} \\
+% CHANGE 13: route these cells through the generated macros instead of typing
+% them. \poolSigA/\poolSigC/\poolIntA/\poolIntC come from numbers_pooled.tex,
+% which the results pipeline writes; they were sitting unused while the same
+% values were typed here. Two copies of one number can drift, and this table's
+% sibling did drift: Table III's pooled row once printed b=183, c=186 where the
+% per-corpus rows summed to 185/188 (fixed in b9edc78 by correcting the
+% literal, which left it a literal). Rendered output is unchanged, so there is
+% no red box: see the change index.
+$\sigma$               & \poolSigA{} & \poolSigC{} & 0.946 & [0.918, 0.964] \\
+softmax (matched)      & \poolSigA{} & 368 & 0.953 & [0.927, 0.970] \\
+$\sigma\sqcap$ softmax & \poolIntA{} & \poolIntC{} & \textbf{0.989} & \textbf{[0.961, 0.997]} \\
 $\sigma$-only          & 202 & 183 & 0.906 & [0.858, 0.939] \\
 softmax-only           & 202 & 186 & 0.921 & [0.875, 0.951] \\
 \bottomrule
@@ -718,7 +726,7 @@ Wilson 95\% \\
 \midrule
 CORD-v2     & Donut       & 200 &  55 &  54 & [0.904, 0.997] \\
 SROIE       & Donut       & 347 &  15 &  15 & [0.796, 1.000] \\
-WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
+WildReceipt & LayoutLMv3  & \wrN{} & \wrIntA{} & \wrIntC{} & [0.952, 0.998] \\
 \bottomrule
 \end{tabular}%
 }
@@ -749,9 +757,23 @@ $\kappa\gtrsim 13\rho$: a condition, not a universal claim.
 Table~\ref{tab:headline-percorpus} breaks down the combined decision
 rule results per dataset to confirm that the pooled finding in
 Table~\ref{tab:headline-pooled} is not an artefact of combining three
-datasets into one number. Across all three datasets and both
-architectures, the combination consistently outperforms either gate
-alone.
+datasets into one number.
+
+% CHANGE 14 (claim strength). This paragraph read "across all three datasets
+% and both architectures, the combination consistently outperforms either gate
+% alone" -- which the paper's own Fig. 2 caption contradicts: on CORD,
+% sigma-alone at full coverage is nominally higher on a larger accept set. The
+% claim was one rung above its evidence. Corrected to the comparison that is
+% actually true, at matched coverage, with the exception named. Found by
+% docs/research-pipeline/tools/claim_strength.py.
+\begin{chgblock}
+\noindent Across all three datasets and both architectures the combination
+exceeds the matched-coverage softmax rule, and exceeds $\sigma$-alone on
+WildReceipt and SROIE. CORD is the one exception, and it is a comparison
+between different accept sets rather than a reversal:
+$\sigma$-alone at full coverage sits nominally higher there on a larger
+accepted set (Fig.~\ref{fig:overview}).
+\end{chgblock}
 
 The results do vary by dataset however. WildReceipt, tested on
 LayoutLMv3, produces the most reliable combination with a Wilson
@@ -786,7 +808,9 @@ Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
 \toprule
 Set & $b$ & $c$ & $\chi^2$ & $p$-value \\
 \midrule
-\textbf{Pooled}            & 185 & 188 & 0.011 & 0.917 \\
+% CHANGE 13 (cont.). This is the row that drifted: it printed 183/186 while the
+% per-corpus rows below sum to 185/188. Now computed, not typed.
+\textbf{Pooled}            & \poolMcB{} & \poolMcC{} & \poolMcChi{} & \poolMcP{} \\
 CORD-v2     (Donut)        &  44 &  41 & 0.047 & 0.828 \\
 SROIE       (Donut)        &  50 &  56 & 0.236 & 0.627 \\
 WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
@@ -1162,6 +1186,15 @@ wearing a plausible face. Asserted at
 line-breaking at explicit compound hyphens, so \emph{softmax-orthogonal}
 cannot extract as \emph{softmaxorthogonal}. Applied document-wide, not to
 flagged instances only.
+\item[13.] \textbf{Nine table cells routed through their generated macros.}
+Tables~I, II and III typed values that \texttt{numbers\_pooled.tex} already
+produces, leaving \texttt{\textbackslash poolSigA},
+\texttt{\textbackslash poolIntC}, \texttt{\textbackslash poolMcB} and six
+others unused. Two copies of one number can drift, and this one did: Table~III's
+pooled row once printed $b{=}183$, $c{=}186$ where the per-corpus rows sum to
+$185$, $188$. Found by \texttt{docs/research-pipeline/tools/number\_provenance.py}.
+\textbf{No red box:} the rendered output is byte-identical, so there is nothing
+to see on the page --- which is exactly why it is listed here.
 \end{enumerate}
 
 \noindent\textbf{Deliberately not changed.} The \texttt{booktabs} rule style

@@ -217,3 +217,47 @@ the request was scoped to the sigma-verifier paper.
 | `paper/asyu/presentation.tex` | beamer talk, not a venue submission. Structure balanced. Six sentence-case headings — Title Case is a paper rule, not a slide rule, so this is a non-finding. No `caption` package. No floats. **Untouched.** |
 | `paper/asyu/caveats_explained.tex` | beamer, internal explainer. Structure balanced. No `caption` package. No floats. **Untouched.** |
 | `aiparallel0/arith-gating` — the beam-margin paper | **Not audited.** It is the sibling that has not had the attention, which is exactly the shape that produced the source project's stage 12: *"Paper 2 finally audited — full repeat of stages 8–10."* Two artifacts, one gets the attention, and divergence is invisible because each looks fine on its own. Run `audit/` against it before submitting either. |
+
+---
+
+## Changes 13–14 — from the research-pipeline audit
+
+Added after `docs/research-pipeline/` was distilled from both repos' history and
+its two checks were run against this paper. Both findings survived four
+editorial revisions and two numeric audit passes.
+
+**13 — Nine table cells routed through their generated macros.**
+*Found by `docs/research-pipeline/tools/number_provenance.py`.*
+
+Tables I, II and III typed values that `numbers_pooled.tex` already produces,
+leaving `\poolSigA`, `\poolSigC`, `\poolIntA`, `\poolIntC`, `\poolMcB`,
+`\poolMcC`, `\poolMcChi`, `\poolMcP`, `\wrN`, `\wrIntA` and `\wrIntC` unused
+beside the literals that duplicated them.
+
+This is not hypothetical drift. **Table III's pooled row once printed b=183,
+c=186 where the per-corpus rows sum to 185 and 188** — corrected at `b9edc78`
+by fixing the literal, which left it a literal and the mechanism untouched. Nine
+cells now render from the generated file.
+
+**No red box:** the rendered output is byte-identical. There is nothing to see
+on the page, which is exactly why it is on the change-index page instead.
+
+**14 — An overclaim contradicting this paper's own figure caption.**
+*Found by `docs/research-pipeline/tools/claim_strength.py`.*
+
+Section V-A read:
+
+> *"Across all three datasets and both architectures, the combination
+> consistently outperforms either gate alone."*
+
+Fig. 2's caption says otherwise: *"on CORD it exceeds the matched-coverage
+softmax rule while σ-alone at full coverage is nominally higher on a different
+(larger) accept set."* The body claim was one rung above its evidence, and the
+correction was already sitting in the paper's own float.
+
+Rewritten to the comparison that is true — at matched coverage, with CORD named
+as the exception and characterised as a comparison between different accept sets
+rather than a reversal. Marked with a red `chgblock`.
+
+Both are the shapes catalogued at `docs/research-pipeline/01-FAILURE-CATALOG.md`
+D4 and C6.
