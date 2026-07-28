@@ -43,7 +43,9 @@ HEDGE = re.compile(r"""
         absence\s+of\s+evidence|underpowered|future\s+work|
         we\s+do\s+not\s+claim|explicitly\s+not|only\s+implies|
         cannot\s+conclude|not\s+establish\w*|scoped|
-        consistency\s+only|nominally|too\s+small\s+a\s+sample)\b
+        consistency\s+only|nominally|too\s+small\s+a\s+sample|
+        absence\s+of\s+evidence|rather\s+than\s+positive\s+evidence|
+        are\s+consistent\s+with|not\s+aware\s+of|to\s+our\s+knowledge)\b
 """, re.I | re.X)
 
 # Claims that are unfalsifiable by construction and drift upward over revisions.
@@ -83,6 +85,12 @@ NULL_CLAIM = re.compile(r"""
 
 def sentences(src):
     src = re.sub(r'(?<!\\)%.*', '', src)
+    # The paper's claims end at the bibliography. Anything after it is review
+    # apparatus -- a change index, an appendix of notes -- and scanning it
+    # produced a false "small cell n=27" from the phrase "changes 19-27".
+    cut = src.find('\\bibliography{')
+    if cut > 0:
+        src = src[:cut]
     src = re.sub(r'\\begin\{(?:tabular|tikzpicture|equation|align)\*?\}.*?'
                  r'\\end\{(?:tabular|tikzpicture|equation|align)\*?\}',
                  ' ', src, flags=re.S)
@@ -116,6 +124,11 @@ def main(argv):
         strong_bare, supers, nulls, smalls = [], [], [], []
         n_hedged = 0
         for s in sents:
+            # A question is not a claim. RQ headings ("Does combining beat
+            # either alone?") tripped STRONG on "beat" and buried the real
+            # findings under three false positives.
+            if s.rstrip().endswith('?'):
+                continue
             has_ev = bool(EVIDENCE.search(s))
             if HEDGE.search(s):
                 n_hedged += 1
