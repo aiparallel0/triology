@@ -57,6 +57,33 @@
 % page count, looks finished, and is missing a figure and a table. A marker
 % that only shows up in the output can only be seen if the output still
 % typesets -- which is exactly what the error prevents.
+% ======================================================================
+%  ASYU EDITOR REQUESTS (e-mail, 4 items) -- CHANGES 15-18
+% ----------------------------------------------------------------------
+%  16 "Abstract - Keywords arasi 10 nk aralik" and
+%  18 "Cizelge etiketlerinden sonra . kullaniniz (TABLE I. gibi)"
+%  are set up here; 15 (line spacing) and 17 (6 nk after each paragraph)
+%  are applied at the points they take effect, below.
+%
+%  CHANGE 18. IEEEtran.cls sets the table caption label WITHOUT a period:
+%    \def\fnum@table{\tablename\nobreakspace\thetable}      % -> "TABLE I"
+%  The editor asks for "TABLE I." explicitly, so the venue instruction
+%  overrides the class default -- an explicit request from the organising
+%  committee outranks the class file, which is only the authority in the
+%  absence of one.
+%
+%  NOT done with \usepackage{caption}. That package has no IEEEtran
+%  support: it discards the class's \@makecaption wholesale and imposes
+%  its own separator and font, which would silently delete the small-caps
+%  table titles and put colons on every figure caption. Redefining
+%  \fnum@table alone changes exactly the one thing that was asked for.
+%  Figure captions already end in a period ({#1.} in the figure branch),
+%  so they need no change.
+\makeatletter
+\def\fnum@table{\tablename\nobreakspace\thetable.}
+\makeatother
+% ======================================================================
+
 \newcommand{\PH}[1]{%
   \PackageError{sigma-audit}{Unsubstituted \string\PH\space placeholder}{%
     An unfilled placeholder silently deletes the floats that follow it.
@@ -102,7 +129,7 @@
 %  The page-limit gate is only meaningful with the boxes OFF: they add height.
 % ======================================================================
 \newif\ifshowchanges
-\showchangestrue            % <<<< \showchangesfalse for the submission copy
+\showchangestrue             % <<<< \showchangesfalse for the submission copy
 \definecolor{chgred}{HTML}{CC0000}
 
 % "framed" gives a box that breaks across lines, columns and pages; without it
@@ -346,17 +373,34 @@ better than either alone.}
 % yalnizca bazi kelimeler kalindir"). IEEEtran already bolds abstract *text*;
 % what looked inconsistent is that inline math stays upright. \boldmath fixes
 % the actual defect. Rule applied to the whole abstract, not the flagged words.
+% CHANGE 15 (editor item 1): line spacing 1 in the Abstract and Keywords.
 \begin{abstract}
 \boldmath
+\linespread{1}\selectfont
 Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we propose sigma-verifier, a novel validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Our empirical results demonstrate that the sigma-verifier yields up to a 77\% relative reduction in the silent-wrong-total rate among accepted receipts and reduces downstream detection errors by a factor of 4.
 \end{abstract}
 
+% CHANGE 16 (editor item 2): 10 nk between the Abstract and the Keywords.
+\vspace{10pt}
+
 % CHANGE 3 (reviewer rule 2: the whole keyword list italic, not just the
 % "Keywords---" lead-in, which is all IEEEtran italicises by default).
+% CHANGE 15 (cont., editor item 1): line spacing 1 here too.
 \begin{IEEEkeywords}
 \itshape
+\linespread{1}\selectfont
 Document Understanding, Selective Prediction, Receipt Reading, Key-Information Extraction, Model-Agnostic Verification, 0/1-Knapsack Programming.
 \end{IEEEkeywords}
+
+% CHANGE 15 (cont., editor item 1): "Abstract bolumunden sonra satir araligi
+% 0,95" -- from here to the end of the paper the body is set at 0.95.
+% CHANGE 17 (editor item 3): 6 nk after every paragraph.
+% \parskip is the space BETWEEN paragraphs, which is "after each paragraph"
+% for every paragraph but the last. Never less than 6pt: the stretch is
+% one-sided so a column can be filled without the gap ever falling under the
+% requested 6 nk.
+\linespread{0.95}\selectfont
+\setlength{\parskip}{6pt plus 1pt minus 0pt}
 
 \section{Introduction}
 \label{sec:intro}
@@ -421,15 +465,13 @@ softmax decision rule both fire.
 % relevant paragraph. The test is grammatical position, and the fix is to give
 % the figure a clause of its own. Verified by audit/tools/float_refs.py.
 \begin{chgblock}
-\noindent Fig.~\ref{fig:scope} shows the whole argument in one picture. An
-AI model reads a receipt and predicts a total; in standard practice the only
-``should I trust this number?'' signal available is the model's own softmax
-confidence, which can be confidently wrong. $\sigma$ supplies a second
-opinion computed from the receipt's own arithmetic rather than from the
-model, so the two signals can be required to agree. The right-hand column of
-the figure carries the headline: on $\poolN{}$ pooled receipts the two
-together accept at $0.989$ precision (Wilson $95\%$ lower bound $0.961$),
-which neither signal alone attains.
+\noindent Fig.~\ref{fig:scope} shows the argument in one picture. An AI reads
+a receipt and predicts a total; in standard practice the only trust signal is
+the model's own softmax confidence, which can be confidently wrong. $\sigma$
+supplies a second opinion computed from the receipt's arithmetic rather than
+from the model, so the two can be required to agree. Its right-hand column
+carries the headline: on $\poolN{}$ receipts the pair accepts at $0.989$
+precision (Wilson $95\%$ lower bound $0.961$), which neither attains alone.
 \end{chgblock}
 
 \noindent\textbf{Why this matters operationally.}
@@ -769,10 +811,9 @@ datasets into one number.
 \begin{chgblock}
 \noindent Across all three datasets and both architectures the combination
 exceeds the matched-coverage softmax rule, and exceeds $\sigma$-alone on
-WildReceipt and SROIE. CORD is the one exception, and it is a comparison
-between different accept sets rather than a reversal:
-$\sigma$-alone at full coverage sits nominally higher there on a larger
-accepted set (Fig.~\ref{fig:overview}).
+WildReceipt and SROIE. CORD is the exception, and a comparison between
+different accept sets rather than a reversal: $\sigma$-alone at full coverage
+sits nominally higher on a larger accepted set (Fig.~\ref{fig:overview}).
 \end{chgblock}
 
 The results do vary by dataset however. WildReceipt, tested on
@@ -1033,13 +1074,12 @@ gracefully rather than catastrophically.
 % without re-siting them here would have silently dropped a method detail and
 % a caveat that reconciles two apparently conflicting CORD numbers.
 \begin{chgblock}
-\noindent The intervals in Table~\ref{tab:robust} are bootstrap $95\%$
-intervals over the ten seeds. The experiment holds the extractor fixed at
-its single-candidate setting across every noise level, as in the
-Table~\ref{tab:guard} ablation, so its $r{=}0$ baseline ($0.267$ coverage)
-is not the same quantity as the multi-candidate-$\tau$ CORD $\sigma$
-headline of Fig.~\ref{fig:overview}: the two differ by extractor
-configuration, not by result.
+\noindent Intervals in Table~\ref{tab:robust} are bootstrap $95\%$ over the
+ten seeds. The extractor is held at its single-candidate setting across every
+noise level, as in the Table~\ref{tab:guard} ablation, so the $r{=}0$
+baseline ($0.267$ coverage) is not the multi-candidate-$\tau$ CORD $\sigma$
+headline of Fig.~\ref{fig:overview}: they differ by extractor configuration,
+not by result.
 \end{chgblock}
 
 The tolerance sweep
@@ -1113,9 +1153,16 @@ Our results show that combining the sigma-verifier with the model's softmax conf
 
 % Tighten only the bibliography list spacing (purely typographic; no
 % reference is dropped or shortened).
+%
+% CHANGE 17 (cont.). The 6 nk inter-paragraph space does NOT apply here. A
+% reference is a list item, not a paragraph -- the editor's request is about
+% the prose. Left in, \parskip would add 6pt to each of the 20 entries,
+% 120pt of dead space at the very end of the paper, which is where the page
+% limit is decided.
 \let\oldthebibliography\thebibliography
 \renewcommand{\thebibliography}[1]{%
   \oldthebibliography{#1}%
+  \setlength{\parskip}{0pt}%
   \setlength{\itemsep}{0pt}%
   \setlength{\parsep}{0pt}%
   \setlength{\topsep}{0pt}%
@@ -1195,7 +1242,38 @@ pooled row once printed $b{=}183$, $c{=}186$ where the per-corpus rows sum to
 $185$, $188$. Found by \texttt{docs/research-pipeline/tools/number\_provenance.py}.
 \textbf{No red box:} the rendered output is byte-identical, so there is nothing
 to see on the page --- which is exactly why it is listed here.
+\item[14.] \textbf{An overclaim corrected.} \S V-A read ``the combination
+consistently outperforms either gate alone'', which Fig.~2's own caption
+contradicts: on CORD, $\sigma$-alone at full coverage is nominally higher on a
+larger accept set. Rewritten to the comparison that holds at matched coverage,
+with CORD named. Found by
+\texttt{docs/research-pipeline/tools/claim\_strength.py}.
+\item[15.] \textbf{Line spacing} (editor item 1). Abstract and Keywords at
+\texttt{\textbackslash linespread\{1\}}; the body from the Keywords onward at
+\texttt{\textbackslash linespread\{0.95\}}.
+\item[16.] \textbf{10\,nk between Abstract and Keywords} (editor item 2).
+\item[17.] \textbf{6\,nk after every paragraph} (editor item 3).
+\texttt{\textbackslash parskip} $=6$\,pt \texttt{plus 1pt minus 0pt} --- the
+stretch is one-sided, so a column can be filled without the gap ever falling
+below the requested 6\,nk. Not applied inside the bibliography: a reference is
+a list item, not a paragraph, and 20 entries would have spent 120\,pt at the
+exact place the page limit is decided.
+\item[18.] \textbf{A period after the table label} (editor item 4).
+\texttt{TABLE I.} via \texttt{\textbackslash fnum@table}, \emph{not} via the
+\texttt{caption} package --- that package has no IEEEtran support, replaces
+\texttt{\textbackslash @makecaption} wholesale, and would put colons on every
+figure caption while deleting the small-caps table titles. Figure captions
+already end in a period and were not touched.
 \end{enumerate}
+
+\medskip
+\noindent\textbf{On the page count.} The submission copy targets 6 pages.
+\emph{This review copy will be 7}, and the extra page is this one: the change
+index begins with a \texttt{\textbackslash clearpage}. Turn the boxes off
+before counting. Editor items 1 and 3 very nearly cancel --- the 0.95 body
+spacing buys back roughly what the 6\,nk paragraph spacing costs --- and the
+shortened captions plus a tightening of the three paragraphs added by
+changes~5, 7 and 14 cover the remainder.
 
 \noindent\textbf{Deliberately not changed.} The \texttt{booktabs} rule style
 was left alone. Converting to the ruled-grid style is a real possibility, but

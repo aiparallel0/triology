@@ -46,6 +46,8 @@ run "6. self-contained package (Phase 6 exit condition)" \
     bash "$T/selfcontained.sh" "$d"
 run "7. heading Title Case (reviewer rule 6)" \
     python3 "$T/headings_titlecase.py" main.tex
+run "7b. ASYU editor e-mail: the four requested items" \
+    python3 "$T/editor_items.py" main.tex
 run "8. numbers consistency (READ THIS ONE YOURSELF)" \
     bash "$T/numbers_consistency.sh" main.tex
 run "9. disclosure verification (READ THIS ONE YOURSELF)" \
