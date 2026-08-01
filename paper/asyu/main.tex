@@ -417,13 +417,11 @@ Document Understanding, Selective Prediction, Receipt Reading, Key-Information E
 \end{IEEEkeywords}
 
 % CHANGE 15 (cont., editor item 1): "Abstract bolumunden sonra satir araligi
-% 0,95" -- from here to the end of the paper the body is set at 0.95.
 % CHANGE 17 (editor item 3): 6 nk after every paragraph.
 % \parskip is the space BETWEEN paragraphs, which is "after each paragraph"
 % for every paragraph but the last. Never less than 6pt: the stretch is
 % one-sided so a column can be filled without the gap ever falling under the
 % requested 6 nk.
-\linespread{0.95}\selectfont
 \setlength{\parskip}{6pt plus 1pt minus 0pt}
 
 \section{Introduction}
@@ -535,12 +533,12 @@ vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
 semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}.
 $\sigma$ is not a different
 softmax aggregator but a different \emph{signal} that does not read
-the model at all. \chgt{This is also why softmax is the only baseline here:
-Monte-Carlo dropout, deep ensembles and semantic entropy are all computed from
-the model's internals, so each inherits the failure mode $\sigma$ exists to
-escape --- a model that hallucinates a probable total is confident under all of
-them. The comparison we owe, and do not have, is a second \emph{model-external}
-verifier; we know of none published for this task.}
+the model at all. \chgt{\textbf{Why softmax is the only baseline.}
+Monte-Carlo dropout, deep ensembles and semantic entropy all read the model's
+own internals. A model that hallucinates a probable total is confident under
+every one of them, so none escapes the failure mode $\sigma$ is built to catch.
+The baseline we would want, and do not have, is a second verifier that reads
+the \emph{document}; we know of none published for receipts.}
 
 \noindent\textbf{Why arithmetic checking is already industrial practice.}
 Arithmetic cross-checks of receipt totals are common engineering practice ---
@@ -667,14 +665,15 @@ ablation of that rule.
 % configurations or ablation settings are discussed." Change 7 re-sited the
 % Table V caveat into the body; this states the mapping once, for every
 % experiment, so no reader has to reconstruct it from scattered remarks.
-\chgt{\textbf{Which extractor each experiment uses.} The
-\emph{multi-candidate} extractor of Section~\ref{sec:method} is the default for
-every headline result (Tables~\ref{tab:headline-pooled}--\ref{tab:mcnemar},
-Figs.~\ref{fig:overview} and~\ref{fig:wildreceipt}); the \emph{fixed
+\chgt{\textbf{Which extractor each experiment uses.} Two settings appear in this
+paper. The \textbf{multi-candidate} extractor of Section~\ref{sec:method} is
+the default, and every headline result uses it
+(Tables~\ref{tab:headline-pooled}--\ref{tab:mcnemar},
+Figs.~\ref{fig:overview} and~\ref{fig:wildreceipt}). The \textbf{fixed
 single-candidate} extractor is used only in the two ablations
-(Tables~\ref{tab:guard} and~\ref{tab:robust}), where holding $\tau$ fixed
-isolates the variable under test. This is why the $r{=}0$ row of
-Table~\ref{tab:robust} reports a different CORD coverage from the headline:
+(Tables~\ref{tab:guard} and~\ref{tab:robust}), because holding $\tau$ fixed is
+what isolates the variable being tested. This is why the $r{=}0$ row of
+Table~\ref{tab:robust} shows a different CORD coverage from the headline: a
 different extractor, not a different result.}
 
 \noindent\textbf{Statistics.} Per-cell precision is reported with
@@ -830,10 +829,11 @@ Quantitatively, with a human review costing $\rho$ inference passes
 moving from softmax-matched ($c{=}0.379$, $p{=}0.953$) to the
 combination ($c{=}0.181$, $p{=}0.989$) is favourable whenever
 $\kappa\gtrsim 13\rho$: a condition, not a universal claim.
-\chgt{At $c{=}0.181$ that means \emph{four in five receipts still go to a
-human}: this is a triage result, not an automation one. Where the goal is to
-maximise the automated fraction, the matched-coverage softmax rule accepts the
-same $37.9\%$ at $0.953$ and the combination is the wrong tool.}
+\chgt{\textbf{What this costs in practice.} At $c{=}0.181$, roughly \emph{four
+receipts in five still go to a person}. The combination is therefore a triage
+tool, not an automation one. Where the goal is to automate as many receipts as
+possible, the matched-coverage softmax rule accepts the same $37.9\%$ at
+$0.953$ precision and is the better choice.}
 
 Table~\ref{tab:headline-percorpus} breaks down the combined decision
 rule results per dataset to check whether the pooled finding in
@@ -851,11 +851,14 @@ combination, making it too small a sample to draw strong conclusions
 beyond consistency with the overall finding.
 
 The key takeaway is that the combination benefit holds across
-different datasets and different AI architectures\chgt{: at matched coverage
-it exceeds the softmax rule everywhere and exceeds $\sigma$-alone on
-WildReceipt and SROIE, with CORD the exception --- a comparison between
-different accept sets rather than a reversal, since $\sigma$-alone at full
-coverage sits nominally higher on a larger accepted set}. Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
+different datasets and different AI architectures.
+\chgt{\textbf{At matched coverage} the combination beats the softmax rule on
+all three corpora ($n{=}\poolN{}$ pooled; per-corpus cells and Wilson intervals
+in Table~\ref{tab:headline-percorpus}), and beats $\sigma$-alone on WildReceipt
+and SROIE. CORD is
+the one exception, and it compares two different accepted sets rather than
+showing a reversal: $\sigma$-alone at full coverage sits slightly higher on a
+larger accepted set.} Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
 Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
 
 \subsection{\chgi{RQ2: Do the Two Signals Fail on the Same Receipts?}}
@@ -1000,15 +1003,17 @@ annotations) the two decision rules tie at $0.953$; on SROIE
 (OCR-derived $M$) $\sigma$ trails ($0.863$ vs.\ $0.945$). We
 hypothesise the SROIE loss is consistent with upstream OCR rather
 than the verifier: digit confusions and phantom amounts can inflate
-$T(M)$ with coincidental witnesses. \chgt{Testing this on the extracted
-amounts: of the $73$ receipts $\sigma$ accepts on SROIE, the $10$ it accepts
-\emph{wrongly} carry more extracted amounts than the $63$ it accepts correctly
-($6.7$ vs $4.3$; one-sided permutation test, $B{=}20{,}000$, $p{=}0.004$), with
-larger reachable sets in the same direction though not significantly ($708$ vs
-$209$, $p{=}0.14$); candidate interpretations per line show no difference
-($3.30$ vs $3.33$, $p{=}0.57$). The mechanism is how many amounts OCR
-surfaces, not how many ways each line is read. With $10$ false accepts this
-supports the account rather than settling it.}
+$T(M)$ with coincidental witnesses. \chgt{\textbf{Testing the OCR explanation.} Of the $73$ receipts $\sigma$
+accepts on SROIE, the $10$ it accepts \emph{wrongly} carry more extracted
+amounts than the $63$ it accepts correctly ($6.7$ against $4.3$ per receipt;
+one-sided permutation test, $B{=}20{,}000$, $p{=}0.004$). Their reachable sets
+are larger in the same direction, though not significantly ($708$ against
+$209$, $p{=}0.14$), and the number of candidate readings per line does not
+differ ($3.30$ against $3.33$, $p{=}0.57$), a comparison that is underpowered
+at $10$ false accepts. What matters is therefore
+how many amounts OCR puts on the page, not how many ways each line can be
+read. With only $10$ false accepts this supports the explanation rather than
+settling it.}
 
 \subsection{\chgi{RQ6: Is It Robust and Fast Enough to Deploy?}}
 \label{sec:results-robust}
@@ -1147,11 +1152,12 @@ as secondary. The SROIE combined-rule cell ($n{=}15$) supports only
 a consistency statement. The cardinality-guard inversion is measured
 directly only on SROIE; the CORD-side claim is structural. We
 evaluate one field across two backbones and three corpora;
-multi-field $\sigma$ is journal work\chgt{: verifying line items, taxes and
-total as one constraint system should tighten the witness, and using $\sigma$
-as a training-time filter rather than only an inference-time gate would let the
-structural signal shape the model instead of only auditing it. Neither is
-evaluated here}.
+multi-field $\sigma$ is journal work.
+\chgt{\textbf{Two extensions follow directly.} Verifying the line items, taxes
+and total together as one constraint system should tighten the witness. Using
+$\sigma$ as a training-time filter, rather than only an inference-time gate,
+would let the structural signal shape the model instead of only auditing it.
+Neither is evaluated here.}
 
 \noindent\textbf{Scope of novelty.} Arithmetic cross-checks are
 long-standing engineering practice; our contribution is their
@@ -1266,8 +1272,11 @@ larger accept set. Rewritten to the comparison that holds at matched coverage,
 with CORD named. Found by
 \texttt{docs/research-pipeline/tools/claim\_strength.py}.
 \item[15.] \textbf{Line spacing} (editor item 1). Abstract and Keywords at
-\texttt{\textbackslash linespread\{1\}}; the body from the Keywords onward at
-\texttt{\textbackslash linespread\{0.95\}}.
+\texttt{\textbackslash linespread\{1\}}, as requested. The body keeps
+\texttt{IEEEtran}'s own leading: an earlier revision set it to
+\texttt{\textbackslash linespread\{0.95\}} to buy back the page the review
+responses cost, which is compressing the class to fit rather than following it,
+and has been reverted.
 \item[16.] \textbf{10\,nk between Abstract and Keywords} (editor item 2).
 \item[17.] \textbf{6\,nk after every paragraph} (editor item 3).
 \texttt{\textbackslash parskip} $=6$\,pt \texttt{plus 1pt minus 0pt} --- the
@@ -1348,13 +1357,21 @@ extractor settings were already fixed on 27~July, by changes~14 and~7, from
 28~July.
 
 \medskip
-\noindent\textbf{On the page count.} The submission copy targets 6 pages.
-\emph{This review copy will be 7}, and the extra page is this one: the change
-index begins with a \texttt{\textbackslash clearpage}. Turn the boxes off
-before counting. Editor items 1 and 3 very nearly cancel --- the 0.95 body
-spacing buys back roughly what the 6\,nk paragraph spacing costs --- and the
-shortened captions plus a tightening of the three paragraphs added by
-changes~5, 7 and 14 cover the remainder.
+\noindent\textbf{On the page count.} This review copy runs longer than the
+submission copy for two reasons that both disappear with the boxes: the change
+index (this page onward, after a \texttt{\textbackslash clearpage}) and the
+marks themselves, which add a frame height per block and a few points per
+inline box. Turn them off before counting.
+
+\noindent The paper is longer than the original because it answers the reviews.
+Those responses were first written as separate paragraphs, then folded into the
+sentences that already carried the point, which recovered most of the length;
+statements the paper made twice were reduced to one each. What was \emph{not}
+done is compressing the class to fit: the body keeps \texttt{IEEEtran}'s
+leading, the float and caption spacing are the ones the paper already used, and
+no margin, column width or font size has been altered. Editor item~3 (6\,nk
+after every paragraph) costs roughly half a page on its own and is applied in
+full.
 
 \noindent\textbf{Deliberately not changed.} The \texttt{booktabs} rule style
 was left alone. Converting to the ruled-grid style is a real possibility, but

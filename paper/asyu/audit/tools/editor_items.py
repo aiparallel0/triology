@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ASYU editor e-mail -- the four requested items, checked in the source.
 
-  1. Abstract and Keywords at line spacing 1; after the Abstract, 0.95.
+  1. Abstract and Keywords at line spacing 1.
   2. 10 nk between Abstract and Keywords.
   3. 6 nk after every paragraph.
   4. A period after the table label: "TABLE I."
@@ -21,13 +21,29 @@ import os
 import re
 import sys
 
+def check_no_body_linespread(src):
+    """True when the body is NOT overridden away from the class default."""
+    import re as _re
+    for m in _re.finditer(r'\\linespread\{([0-9.]+)\}', src):
+        if abs(float(m.group(1)) - 1.0) > 1e-9:
+            return False
+    return True
+
+
+
 CHECKS = [
     ("1a", "Abstract at line spacing 1",
      r'\\begin\{abstract\}(?:[^\n]*\n){0,4}[^\n]*\\linespread\{1\}'),
     ("1b", "Keywords at line spacing 1",
      r'\\begin\{IEEEkeywords\}(?:[^\n]*\n){0,4}[^\n]*\\linespread\{1\}'),
-    ("1c", "body after the Abstract at 0.95",
-     r'\\linespread\{0\.95\}\\selectfont'),
+    # The editor asked for spacing 1 in the Abstract and Keywords. Nothing was
+    # asked about the body, and an earlier revision set it to 0.95 to buy back
+    # the page the review responses cost -- compressing the class to fit rather
+    # than following it. This check REQUIRED that hack, so it encoded our own
+    # decision as if the editor had made it. It now checks the opposite: that
+    # the body is left at IEEEtran's leading.
+    ("1c", "body left at the IEEEtran default (no linespread hack)",
+     check_no_body_linespread),
     ("2 ", "10 nk between Abstract and Keywords",
      r'\\end\{abstract\}(?:[^\n]*\n){0,8}[^\n]*\\vspace\{10pt\}'),
     ("3 ", "6 nk after every paragraph",
@@ -49,7 +65,11 @@ def main(argv):
     fail = 0
     print(f"ASYU editor items in {os.path.basename(tex)}:")
     for n, desc, pat in CHECKS:
-        if re.search(pat, src):
+        # An entry is either a regex to find or a predicate to satisfy. Item 1c
+        # is the second kind: it asserts the ABSENCE of an override, and a
+        # regex for "no match anywhere" is easy to get subtly wrong.
+        ok = pat(src) if callable(pat) else bool(re.search(pat, src))
+        if ok:
             print(f"  ok    {n}  {desc}")
         else:
             print(f"  MISS  {n}  {desc}")
