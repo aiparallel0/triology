@@ -302,21 +302,20 @@ reliably handle. That substitutes one problem for another. Every deployment
 now needs a \emph{signal} on which to base the accept-or-defer call, and
 which signal that should be is the question this paper takes up.
 
-\noindent\textbf{The longstanding default and its flaw.} In neural KIE that
-signal has almost always been \emph{softmax confidence}: the model's own
-estimate of how sure it is, computed as the geometric mean of the
+\noindent\textbf{The longstanding default is softmax confidence}, the model's
+own estimate of how sure it is, computed as the geometric mean of the
 probabilities it assigned to the tokens it actually
 emitted~\cite{malinin2021uncertainty,vashurin2025benchmark,fadeeva2023polygraph}.
-The flaw is structural rather than a matter of calibration. Softmax is a
+Its flaw is structural rather than a matter of calibration: softmax is a
 property of the \emph{generator itself}, so a model that hallucinates a
 plausible total typically does so with high confidence, and the one signal
 available to catch the error is produced by the very process that made it.
 What a deployment wants instead is a second opinion computed from something
 other than the model.
 
-\noindent\textbf{Our contribution.} We propose
-$\sigma$\footnote{Throughout, $\sigma$ names the verifier
-defined below, not the standard-deviation symbol.} as that second opinion.
+\noindent\textbf{We propose $\sigma$ as that second
+opinion}\footnote{Throughout, $\sigma$ names the verifier
+defined below, not the standard-deviation symbol.}.
 Fig.~\ref{fig:scope} sets out the whole argument: an AI predicts a total,
 standard practice trusts only the model's own softmax confidence, and
 $\sigma$ checks the same number against the receipt's arithmetic, so the two
@@ -328,9 +327,9 @@ amounts. The verifier is a textbook $0/1$-knapsack dynamic program (DP),
 with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
-\noindent\textbf{The significance of this issue.} Silent failures are the
-expensive part of the problem: a plausible wrong total is filed unchallenged
-and propagates downstream for weeks before audit. Deferring therefore has to
+\noindent\textbf{Silent failures are the expensive part of the problem}: a
+plausible wrong total is filed unchallenged and propagates downstream for
+weeks before audit. Deferring therefore has to
 be selective, because human
 review is orders of magnitude costlier than an inference pass
 (Section~\ref{sec:results-headline}). Regulation (EU AI Act,
@@ -338,16 +337,15 @@ financial-services model-risk rules) increasingly mandates documented
 per-prediction trust signals, and $\sigma$ is computed on the document rather
 than the model, so it produces a separate audit trail.
 
-\noindent\textbf{The general principle.} \emph{When a task's output meets a
-verifiable structural rule, a deterministic verifier acts as a confidence
-signal. This signal is statistically orthogonal to the model's softmax, as its
-errors arise from the document's structure, not from decoder logits.} Receipts
-clearly illustrate this concept, and the framework applies wherever a
-structural invariant is checkable: \textbf{balancing tables},
-\textbf{schemas} with referential constraints, \textbf{code} with type checks,
-and \textbf{logic} with a solver.
+\noindent\textbf{The principle generalises beyond receipts.} \emph{When a
+task's output meets a verifiable structural rule, a deterministic verifier
+acts as a confidence signal, statistically orthogonal to the model's softmax
+because its errors arise from the document's structure rather than from
+decoder logits.} The construction applies wherever a structural invariant is
+checkable: balancing tables, schemas with referential constraints, code with
+type checks, and logic with a solver.
 
-\noindent\textbf{Contributions.} (i)~A measurement of $\sigma$ as a
+We contribute the following. (i)~A measurement of $\sigma$ as a
 selective-prediction signal on receipts (Section~\ref{sec:method}). The check
 itself is established industrial practice and we claim no methodological
 novelty for it; the contribution is the measurement, with the paired
@@ -365,7 +363,7 @@ $40\%$ injected money-line noise plus a cardinality-guard ablation
 \section{Related Work}
 \label{sec:related}
 
-\noindent\textbf{Signals that read the model.} Selective prediction has a long
+\noindent\textbf{Signals that read the model} have a long
 history~\cite{geifman2017selectivenet,elyaniv2010foundations,jaeger2024augrc}.
 For sequence-to-sequence generators the standard signals come from the
 generator's own token-level
@@ -376,8 +374,8 @@ and deep ensembles belong here as well. These differ in how they aggregate,
 but every one of them interrogates the model. $\sigma$ is not a further
 softmax aggregator; it is a signal that does not read the model at all.
 
-\noindent\textbf{Signals that read the output.} Arithmetic cross-checks of
-receipt totals are common engineering practice, and expense-management
+\noindent\textbf{Signals that read the output} are older still: arithmetic
+cross-checks of receipt totals are common engineering practice, and expense-management
 software has used them for at least a decade. Program- and logic-level
 verification of generative outputs appears in narrower settings such as
 code-execution validation and faithful chain-of-thought, and structure-aware
@@ -389,8 +387,8 @@ a softmax-orthogonal selective predictor on fixed off-the-shelf models, with
 paired statistics across architectures. The check is old; the measurement is
 what is missing.
 
-\noindent\textbf{The two backbones we verify.} Because $\sigma$ is
-model-agnostic we test it on two structurally opposite designs.
+\noindent\textbf{The two backbones we verify are structurally opposite}, since
+$\sigma$ is model-agnostic and should hold across both.
 Donut~\cite{kim2022donut} is \emph{generative} and OCR-free: a
 vision-encoder-decoder that reads pixels and emits structured JSON one token
 at a time. LayoutLMv3~\cite{huang2022layoutlmv3} is \emph{encoder-only}: it
@@ -405,8 +403,8 @@ $\sigma$ verifies one prediction against the document's own arithmetic.
 \section{Method}
 \label{sec:method}
 
-\noindent\textbf{Problem.} Given a receipt image $x$, the KIE model emits a
-predicted total, written $\pi(x)$, a non-negative rational number of currency
+\noindent\textbf{Given a receipt image $x$, the KIE model emits a predicted
+total}, written $\pi(x)$, a non-negative rational number of currency
 units; write $y(x)$ for the gold total. A \emph{selective predictor} is a rule
 $g$ that makes one of two calls on every receipt: \emph{accept} the predicted
 total, or \emph{reject} it and defer to a person. Two numbers describe such a
@@ -416,8 +414,8 @@ $P(g)=\Pr(\pi{=}y\mid g{=}\text{accept})$ is how often it is right when it
 does answer. Raising one normally lowers the other, and this paper is about
 buying precision at an acceptable price in coverage.
 
-\noindent\textbf{The $\sigma$ decision rule.} Let $M(x)=\{m_1,\dots,m_n\}$ be
-the multiset of monetary amounts recovered from $x$ by an extractor $\tau$
+\noindent\textbf{The $\sigma$ decision rule works from the amounts the receipt
+prints.} Let $M(x)=\{m_1,\dots,m_n\}$ be the multiset of monetary amounts recovered from $x$ by an extractor $\tau$
 (defined per corpus below). Fix a tolerance $\varepsilon\geq0$ in currency
 units and a minimum witness size $k_{\min}\in\{1,2\}$, the smallest subset we
 accept as evidence; without it a single line item that happens to equal the
@@ -446,16 +444,15 @@ predicted $24.90$, the nearest reachable total would be $24.70$ and $\sigma$
 would defer.
 \end{steps}
 
-\noindent\textbf{Cardinality guard.} The correct $k_{\min}$ hinges on whether the total appears on the receipt as a labeled line. When amounts are labeled, that line is included in $M$, making a singleton witness $\pi{=}m_j$ a coincidence rather than the intended structural match. Thus, $k_{\min}{=}2$ excludes it. In OCR-derived corpora, the labeled total is often surfaced by OCR, rendering the singleton legitimate. Here, $k_{\min}{=}1$ is beneficial on both axes (Table~\ref{tab:guard}). We apply $k_{\min}{=}2$ on CORD and WildReceipt, while $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ if the extractor identifies a single amount equal to $\pi$ on more than a fraction $\theta$ of receipts, which is a computable property of the $(\pi,M)$ stream alone. The corpora separate cleanly ($0.07/0.05/0.41$), indicating the rule is insensitive to $\theta$ over $[0.1,0.4]$. This is a deployment-time rule, not a hyperparameter adjusted on labels.
+\noindent\textbf{The correct $k_{\min}$ hinges on whether the total appears on the receipt as a labeled line.} When amounts are labeled, that line is included in $M$, making a singleton witness $\pi{=}m_j$ a coincidence rather than the intended structural match. Thus, $k_{\min}{=}2$ excludes it. In OCR-derived corpora, the labeled total is often surfaced by OCR, rendering the singleton legitimate. Here, $k_{\min}{=}1$ is beneficial on both axes (Table~\ref{tab:guard}). We apply $k_{\min}{=}2$ on CORD and WildReceipt, while $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ if the extractor identifies a single amount equal to $\pi$ on more than a fraction $\theta$ of receipts, which is a computable property of the $(\pi,M)$ stream alone. The corpora separate cleanly ($0.07/0.05/0.41$), indicating the rule is insensitive to $\theta$ over $[0.1,0.4]$. This is a deployment-time rule, not a hyperparameter adjusted on labels.
 
-\noindent\textbf{The extractor $\tau$.} $\tau$ is the method that generates $M$ from $x$, and it is the sole part of $\sigma$ that is corpus-specific. In labeled-amount corpora (CORD), $M$ is derived directly from the per-field JSON. In OCR-derived corpora (SROIE), $\tau$ functions as a multi-candidate extractor over the OCR text: when a line is ambiguous (e.g., tax rate vs. tax amount), it retains both interpretations as candidates $M_k$ and accepts $\pi$ if any candidate produces a witness (averaging $3.12$ candidates per receipt). On WildReceipt (encoder-only), $M$ is obtained from the per-token Prod_price_value annotations.
+\noindent\textbf{The extractor $\tau$ is the sole part of $\sigma$ that is corpus-specific.} It is the method that generates $M$ from $x$. In labeled-amount corpora (CORD), $M$ is derived directly from the per-field JSON. In OCR-derived corpora (SROIE), $\tau$ functions as a multi-candidate extractor over the OCR text: when a line is ambiguous (e.g., tax rate vs. tax amount), it retains both interpretations as candidates $M_k$ and accepts $\pi$ if any candidate produces a witness (averaging $3.12$ candidates per receipt). On WildReceipt (encoder-only), $M$ is obtained from the per-token Prod_price_value annotations.
 
-\noindent\textbf{Composition with softmax.} Let $s(x)$ denote the softmax confidence. For a coverage budget $c$, the softmax decision rule accepts the top-$c$ fraction of receipts based on $s$. We compose at per-corpus matched coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, ensuring the two rules are compared at the same operating point rather than at the same threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts if and only if both accept.
+\noindent\textbf{We compose the two rules at matched coverage.} Let $s(x)$ denote the softmax confidence. For a coverage budget $c$, the softmax decision rule accepts the top-$c$ fraction of receipts based on $s$. We compose at per-corpus matched coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, ensuring the two rules are compared at the same operating point rather than at the same threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts if and only if both accept.
 \section{Experimental Setup}
 \label{sec:setup}
 
-\noindent\textbf{Datasets.} We use three public receipt benchmarks,
-chosen to span the labeling regimes that matter in practice.
+\noindent\textbf{We use three public receipt benchmarks}, chosen to span the labeling regimes that matter in practice.
 \textbf{CORD-v2}~\cite{park2019cord} test+validation ($n{=}200$,
 labeled per-field amounts; CORD-v2 \emph{train} is the Donut
 fine-tuning split and is excluded to keep the evaluation
@@ -464,24 +461,21 @@ leakage-free); \textbf{SROIE Task-3}~\cite{huang2019sroie} canonical
 \cite{sun2021wildreceipt} test ($n{=}472$, per-token annotations).
 Pooled $n{=}\poolN{}$.
 
-\noindent\textbf{AI models.} We use Donut~\cite{kim2022donut}
-fine-tuned on CORD-v2 and on SROIE, and
-LayoutLMv3~\cite{huang2022layoutlmv3} fine-tuned on WildReceipt; all
-inference-only.
+\noindent Both backbones are off-the-shelf and inference-only: Donut~\cite{kim2022donut} fine-tuned on CORD-v2 and on SROIE, and
+LayoutLMv3~\cite{huang2022layoutlmv3} fine-tuned on WildReceipt.
 
-\noindent\textbf{Settings.} $\varepsilon{=}0.02$ throughout;
-$k_{\min}$ follows the label-free cardinality-guard rule of
+\noindent We set $\varepsilon{=}0.02$ throughout, and $k_{\min}$ follows the label-free cardinality-guard rule of
 Section~\ref{sec:method} ($k_{\min}{=}2$ on CORD and WildReceipt,
 $k_{\min}{=}1$ on SROIE). The fixed-$k_{\min}$ sweep of
 Table~\ref{tab:guard} is the only departure, and is explicitly an
 ablation of that rule.
 
-\noindent\textbf{Statistics.} Per-cell precision is reported with
-Wilson 95\% confidence intervals~\cite{wilson1927ci}; agreement
+\noindent Per-cell precision carries Wilson 95\% confidence
+intervals~\cite{wilson1927ci}, and agreement
 between the two decision rules is tested with paired
 McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 
-\noindent\textbf{Softmax extraction across architectures.} For Donut
+\noindent\textbf{Softmax means a different object on each architecture.} For Donut
 the softmax score is the geometric mean of per-token probabilities
 over the predicted total_value span in the decoder's
 autoregressive output; for LayoutLMv3, the geometric mean of the
@@ -490,7 +484,7 @@ model's self-assessed probability of its emitted total-value tokens, so we
 treat them as the architecture-appropriate ``model self-confidence'' but not
 as numerically interchangeable.
 
-\noindent\textbf{Which extractor each experiment uses.} The multi-candidate
+\noindent\textbf{Two extractor settings appear in this paper.} The multi-candidate
 extractor $\tau$ of Section~\ref{sec:method} is the default and produces every
 headline result; a fixed single-candidate extractor is used only in the two
 ablations (Tables~\ref{tab:guard} and~\ref{tab:robust}), where holding $\tau$
@@ -587,13 +581,13 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 }
 \end{table}
 
-\noindent\textbf{The headline.} Table~\ref{tab:headline-pooled} reports pooled results across all
-$1{,}019$ receipts. The key finding is that the combination of $\sigma$ and
-softmax is the only configuration that clears the $0.95$ precision floor
-required for fully automated processing, achieving a Wilson 95\% lower bound
+\noindent Table~\ref{tab:headline-pooled} reports pooled results across all
+$1{,}019$ receipts. the combination of $\sigma$ and softmax is the only
+configuration that clears the $0.95$ precision floor required for fully
+automated processing, achieving a Wilson 95\% lower bound
 of $0.961$; neither rule alone reaches it ($0.918$ and $0.927$).
 
-\noindent\textbf{The cost of the gain.} The combination accepts only $18.1\%$ of
+\noindent\textbf{The gain costs coverage}: the combination accepts only $18.1\%$ of
 receipts against $37.9\%$ for either rule alone: roughly four receipts in five
 still go to a person, so this is triage rather than automation. Whether that
 trade is worthwhile is a deployment question. With human review costing $\rho$
@@ -603,7 +597,7 @@ to the combination pays whenever $\kappa\gtrsim13\rho$: a condition, not a
 universal claim. It holds in high-stakes financial pipelines and not in
 low-stakes bulk capture, where matched-coverage softmax is the better choice.
 
-\noindent\textbf{Does it survive splitting?} Table~\ref{tab:headline-percorpus}
+\noindent\textbf{The finding survives splitting.} Table~\ref{tab:headline-percorpus}
 breaks the combination down per dataset, to check that the pooled finding is
 not an artifact of merging three datasets into one number. At matched coverage
 the combination beats the softmax rule on all three; CORD is the exception only
@@ -636,12 +630,11 @@ WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
 \end{tabular}
 \end{table}
 
-\noindent\textbf{Same receipts, or different ones?} Table~\ref{tab:mcnemar}
-answers this directly. If the two failed together, combining them would offer
+\noindent Table~\ref{tab:mcnemar} answers this directly. If the two failed together, combining them would offer
 little benefit: you would simply be applying two filters that agree with each
 other most of the time.
 
-\noindent\textbf{How the test works.} It counts two kinds of disagreement.
+\noindent\textbf{The test counts two kinds of disagreement.}
 $b$ counts receipts where $\sigma$ is correct but softmax is not,
 mistakes that $\sigma$ catches but softmax misses. $c$ counts the
 reverse, receipts where softmax is correct but $\sigma$ is not. If
@@ -663,7 +656,7 @@ supplies the latter.
 \subsection{Is the Gain Genuine, or Generic Coverage Shrink?}
 \label{sec:results-control}
 
-\noindent\textbf{The obvious objection.} Combining any two
+\noindent\textbf{The obvious objection} is that combining any two
 better-than-random decision rules with imperfectly correlated errors raises
 precision and lowers coverage. Is the headline just that generic effect? We
 re-analyze the same per-receipt accept/correct vectors, with no new inference.
@@ -677,7 +670,7 @@ $\text{softmax}'$ matches $\sigma$'s standalone precision while being built
 from softmax itself. A paired bootstrap ($B{=}4000$) recomputes $L_\sigma$ and
 both control lifts on the \emph{same} resample and takes the difference.
 
-\noindent\textbf{Significant against both controls.} Pooled, $\sigma$'s lift
+\noindent Pooled, $\sigma$'s lift
 exceeds the random decision rule by $\orthDrand$ (95\,\% CI
 $[\orthDrandLo,\orthDrandHi]$, one-sided $p{=}\orthDrandP$) and the correlated
 one by $\orthDcorr$ ($[\orthDcorrLo,\orthDcorrHi]$, $p{=}\orthDcorrP$). We
@@ -688,7 +681,7 @@ $p{=}\orthPhiP$). That is positive evidence of
 orthogonality with no coverage-shrink confound, which the paired-McNemar result
 of Section~\ref{sec:results-mcnemar} only implies indirectly.
 
-\noindent\textbf{Two honest caveats.} The verdict is \orthEarned, but the
+\noindent\textbf{Two caveats bound the claim.} The verdict is \orthEarned, but the
 pooled effect is \emph{small} ($\orthDrand$/$\orthDcorr$ precision lift), and
 it does \emph{not} hold per corpus
 (Section~\ref{sec:results-percorpus-rigor}). We therefore claim a
@@ -697,7 +690,7 @@ not a per-corpus or a large one.
 
 \smallskip
 \label{sec:results-percorpus-rigor}
-\noindent\textbf{Per-corpus rigor.} Exact small-sample analysis of
+\noindent\textbf{Per-corpus, the picture is weaker.} Exact small-sample analysis of
 the leakage-free combination cells (CORD $54/55$, SROIE $15/15$,
 WildReceipt $113/114$). Lower bounds agree across estimators
 (Clopper--Pearson, Jeffreys, Wilson): CORD $\rgCordWil$, SROIE
@@ -716,8 +709,8 @@ only pooled.
 \subsection{Does It Beat Matched-Coverage Softmax?}
 \label{sec:results-riskcov}
 
-\noindent\textbf{From significance to value.} Statistical orthogonality is necessary but not
-sufficient for deployment value; does the $\sigma$ decision rule beat simply
+\noindent\textbf{Statistical orthogonality is necessary but not sufficient} for
+deployment value: does the $\sigma$ decision rule beat simply
 thresholding softmax? We compare risk--coverage at matched coverage, integrated
 to an AURC~\cite{geifman2019aurc} (lower better). Pooled, AURC is
 $\rcAURCsoft$ for softmax-alone against $\rcAURCsig$ for the $\sigma$ rule, a
@@ -798,7 +791,7 @@ measured in microseconds on a single-thread CPU across 819 receipts.}
 \label{fig:latency}
 \end{figure}
 
-\noindent\textbf{When one line equals the total.} Table~\ref{tab:guard} isolates
+\noindent Table~\ref{tab:guard} isolates
 the cardinality guard on SROIE, where OCR often surfaces the total as a clean
 labeled line. Turning it off is better on both axes: coverage rises from $2.9\%$
 to $16.1\%$ and precision from $0.900$ to $0.929$, because on OCR-derived data
@@ -807,7 +800,7 @@ items rejects valid receipts for nothing. Like Table~\ref{tab:robust}, this
 ablation holds $\tau$ at its single-candidate setting
 (Section~\ref{sec:setup}).
 
-\noindent\textbf{Degrading, not collapsing.} We corrupt the data deliberately,
+\noindent\textbf{The check degrades rather than collapses.} We corrupt the data deliberately,
 injecting from $0\%$ to $40\%$ false line-item amounts over $10$ seeds.
 Table~\ref{tab:robust} shows coverage falling steadily ($26.7\%$ to $9.1\%$)
 while precision stays between $0.949$ and $0.980$ at every level: under noise
@@ -817,7 +810,7 @@ on CORD returns identical coverage and precision at every value, reflecting
 sparsity of the reachable set: adjacent subset sums on CORD are spaced by more
 than $\$5.00$. Intervals here are bootstrap $95\%$ over the ten seeds.
 
-\noindent\textbf{Latency.} Fig.~\ref{fig:latency} reports the standalone
+\noindent Fig.~\ref{fig:latency} reports the standalone
 processing time of the arithmetic check: median $4.07$ microseconds per
 receipt, $99\%$ under $312$ microseconds, slowest $715$. For context, the
 inference pass that produces the predicted total takes hundreds of
@@ -828,12 +821,12 @@ on this CPU-only host.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-\noindent\textbf{Why combining helps.} Orthogonality needs only errors on
-different inputs, not dominance, and the gain survives swapping Donut for
+\noindent\textbf{Combining helps because orthogonality needs only errors on
+different inputs, not dominance.} The gain survives swapping Donut for
 LayoutLMv3, so $\sigma$ is signal-orthogonal to softmax across architectures.
 Six limits bound that claim.
 
-\noindent\textbf{What $\sigma$ cannot do.} (i)~$\sigma$ requires
+\noindent (i)~$\sigma$ requires
 arithmetic closure of the target field; totals, subtotals, and taxes,
 not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
 integer-cent inputs; fractional-cent rounding jurisdictions may need
