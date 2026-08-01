@@ -865,23 +865,37 @@ a different sweep. (iii)~$\sigma$ assumes $\pi$ is a parsed numeric
 scalar; format-hallucinated outputs require an upstream normaliser we
 do not benchmark. (iv)~In the OCR-derived regime $\sigma$ is valuable
 only in combination, not as a single decision rule
-(Section~\ref{sec:results-regime}). (v)~We compare against softmax only;
+(Section~\ref{sec:results-regime}). (v)~We compare against softmax only.
 Monte-Carlo dropout, deep ensembles and semantic entropy all read the model's
-own internals, so each inherits the failure mode $\sigma$ exists to catch, and
-the baseline we would want, a second \emph{document-external} verifier,
-we know of none published for this task. (vi)~The headline is a per-corpus claim: the pooled
-$n{=}\poolN{}$ figure is carried by WildReceipt and is secondary, the SROIE
-combined-rule cell ($n{=}15$) supports only a consistency statement, and the
-cardinality-guard inversion is measured directly only on SROIE. We evaluate one
-field across two backbones and three corpora; multi-field $\sigma$ is journal
-work.
+own internals, so each inherits the failure mode $\sigma$ exists to catch; the
+baseline we would want, a second \emph{document-external} verifier, we know of
+none published.
+(vi)~The headline is a per-corpus claim: the pooled
+figure is carried by WildReceipt, the SROIE combined-rule cell ($n{=}15$)
+supports only a consistency statement, and the cardinality-guard inversion is
+measured directly only on SROIE. We evaluate one field across two backbones and
+three corpora; multi-field $\sigma$ is journal work.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this work, we presented the sigma-verifier, a model-agnostic validation layer that checks whether any subset of extracted itemized lines sums to the predicted total, and evaluated it across two document AI architectures and three receipt databases.
+In this work, we presented the sigma-verifier, a model-agnostic
+validation layer that checks whether any subset of extracted itemized lines
+sums to the predicted total, and evaluated it across two document AI
+architectures and three receipt databases. Combining it with the model's
+softmax confidence reduces the silent-wrong-total rate among accepted receipts
+from 4.7\% to 1.1\% pooled, an $\approx$77\% relative reduction and roughly
+four-fold fewer audit-exposing failures, at the coverage cost set out above;
+the pooled lift is individually significant only on WildReceipt. Used as an
+independent validation layer under that trade, the sigma-verifier offers
+structural benefits for high-stakes financial reporting and downstream auditing
+systems.
 
-Our results show that combining the sigma-verifier with the model's softmax confidence reduces the silent-wrong-total rate among the receipts it accepts. Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the coverage cost set out above, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
+\section*{Acknowledgment}
+The authors used a large language model (Anthropic Claude) to assist with code
+scaffolding and editing. All experiments, results and claims were verified by
+the authors; the AI system is not an author. Generative-AI use is disclosed per
+IEEE policy.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

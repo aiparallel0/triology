@@ -83,9 +83,14 @@ while IFS=$'\t' read -r path why; do
 done <<< "$deps"
 
 # --------------------------------------------------- documentation, not build
-for f in audit/GROUND_TRUTH.md audit/CHANGES.md audit/UNVERIFIED.md audit/README.md; do
-  copy "$f" "audit record"
-done
+# Review copy only. CHANGES.md is a revision diary and UNVERIFIED.md lists what
+# we could not check; a submission package that carries either is telling the
+# programme committee things meant for us.
+if [ "$mode" = "review" ]; then
+  for f in audit/GROUND_TRUTH.md audit/CHANGES.md audit/UNVERIFIED.md audit/README.md; do
+    copy "$f" "audit record"
+  done
+fi
 
 [ "$fail" -ne 0 ] && { echo; echo "FAIL: a declared dependency is missing. Not zipping a package with a hole in it."; exit 1; }
 
