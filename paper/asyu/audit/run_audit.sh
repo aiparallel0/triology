@@ -42,6 +42,8 @@ run "2. placeholder leak (the silent content killer)" \
     bash "$T/placeholder_leak.sh" main.tex main.pdf
 run "4. caption format on the RENDERED pdf (committee item 2)" \
     bash "$T/caption_format.sh" main.pdf
+run "4b. overlapping text on the RENDERED pdf (columns and glyphs)" \
+    python3 "$T/glyph_overlap.py" main.pdf
 run "5. build gate: page count / overfull / undefined" \
     bash "$T/gate.sh" "$d" "$PAGE_LIMIT" main
 run "6. self-contained package (Phase 6 exit condition)" \

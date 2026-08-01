@@ -972,7 +972,7 @@ gives combined Stouffer $p=\rgAFiveStouffer$ and Fisher
 $p=\rgAFiveFisher$: decorrelation holds within every corpus, not
 only pooled.
 
-\subsection{\chgi{RQ4: Does It Beat Thresholding Softmax at Matched Coverage?}}
+\subsection{\chgi{RQ4: Does It Beat Matched-Coverage Softmax?}}
 \label{sec:results-riskcov}
 
 Statistical orthogonality is necessary but not sufficient for
@@ -1059,7 +1059,11 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \fill[ok!75] (1.96,0) circle (2.6pt);
 \node[above,text=ok] at (1.96,0.12) {med \latMedian};
 \fill[ok!55] (6.49,0) circle (2.6pt);
-\node[below] at (6.49,-0.13) {$p_{99}\,\latPNineNine$};
+% The p99 label sat in the same band as the axis tick labels and printed on
+% top of "100"/"1000". Dropped below the tick row with a leader; med and max
+% cannot move up to join it because they would then collide with each other.
+\draw[smx!45,line width=0.35pt] (6.49,-0.10) -- (6.49,-0.46);
+\node[below] at (6.49,-0.42) {$p_{99}\,\latPNineNine$};
 \fill[smx!75] (7.35,0) circle (2.6pt);
 \node[above] at (7.35,0.12) {max \latMax};
 \end{tikzpicture}
@@ -1132,9 +1136,9 @@ not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
 integer-cent inputs; fractional-cent rounding jurisdictions may need
 a different sweep. (iii)~$\sigma$ assumes $\pi$ is a parsed numeric
 scalar; format-hallucinated outputs require an upstream normaliser we
-do not benchmark. (iv)~In the OCR-derived regime $\sigma$ trails
-softmax as a single decision rule ($0.863$ vs.\ $0.945$), its value
-there purely in the combination.
+do not benchmark. (iv)~In the OCR-derived regime $\sigma$ is
+valuable only in combination, not as a single decision rule
+(Section~\ref{sec:results-regime}).
 
 \noindent\textbf{Statistical scope.} The headline is a per-corpus
 claim; the pooled $n{=}\poolN{}$ figure is carried by WildReceipt

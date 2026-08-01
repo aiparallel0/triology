@@ -70,7 +70,11 @@ def main():
                         ha="center", va="bottom", fontsize=7.5,
                         fontweight=fontweight)
         ax.set_xticks(x)
-        ax.set_xticklabels(labels, fontsize=8)
+        # 8pt was wide enough for "softmax\n(matched)" to print into its
+        # neighbours on a three-panel layout; the compiled PDF had the tick
+        # labels overlapping. 6.8pt clears it with the panel width unchanged.
+        ax.set_xticklabels(labels, fontsize=6.8)
+        ax.tick_params(axis="x", pad=1.5)
         ax.set_title(f"{row['corpus']}  (n={eval_total(row)})", fontsize=10.5)
         ax.set_ylim(0.70, 1.06)
         ax.axhline(1.0, color="gray", lw=0.5, ls="--")
