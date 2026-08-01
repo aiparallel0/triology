@@ -116,7 +116,9 @@
 % ----------------------------------------------------------------------
 %  Every edit made by the venue-conformance pass is wrapped in one of
 %
-%     \chgi{...}            short span: a word, a heading, an author field
+%     \chgi{...}            short span, ONE LINE: a word, a heading, a field
+%     \chgt{...}            a change folded mid-paragraph; breaks across
+%                           lines, so red text between markers, not a box
 %     \begin{chgblock}      a paragraph or a group of paragraphs
 %     \chgcap{...}          a caption (a caption cannot hold a breakable
 %                           box, so it gets a boxed CHANGED tag + red text)
@@ -149,6 +151,21 @@
      \fcolorbox{chgred}{white}{#1}}%
   \else #1\fi}
 
+% A frame cannot break across lines, so \chgi is only safe for a span that
+% fits on one line. For a change folded into the MIDDLE of an existing
+% paragraph -- several sentences, wrapping freely -- the box has to go: an
+% \fcolorbox around three sentences sets them as one unbreakable horizontal
+% box, which runs past the column edge and prints on top of the next column.
+% That is what happened here. \chgt marks such a span with red text between
+% thin red brackets instead; nothing is boxed, so it breaks wherever the
+% paragraph breaks.
+\DeclareRobustCommand{\chgt}[1]{%
+  \ifshowchanges
+    {\color{chgred}\raisebox{-0.1ex}{\scriptsize$\blacktriangleright$}}%
+     \textcolor{chgred}{#1}%
+     {\color{chgred}\raisebox{-0.1ex}{\scriptsize$\blacktriangleleft$}}%
+  \else #1\fi}
+
 \DeclareRobustCommand{\chgtag}[1][CHANGED]{%
   \ifshowchanges
     {\setlength{\fboxsep}{1pt}\setlength{\fboxrule}{0.5pt}%
@@ -177,6 +194,7 @@
 % Keep the boxes out of the PDF bookmarks, as \sigma already is.
 \pdfstringdefDisableCommands{%
   \renewcommand{\chgi}[1]{#1}%
+  \renewcommand{\chgt}[1]{#1}%
   \renewcommand{\chgcap}[1]{#1}%
   \renewcommand{\chgtag}[1][]{}%
 }
@@ -517,7 +535,7 @@ vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
 semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}.
 $\sigma$ is not a different
 softmax aggregator but a different \emph{signal} that does not read
-the model at all. \chgi{This is also why softmax is the only baseline here:
+the model at all. \chgt{This is also why softmax is the only baseline here:
 Monte-Carlo dropout, deep ensembles and semantic entropy are all computed from
 the model's internals, so each inherits the failure mode $\sigma$ exists to
 escape --- a model that hallucinates a probable total is confident under all of
@@ -649,7 +667,7 @@ ablation of that rule.
 % configurations or ablation settings are discussed." Change 7 re-sited the
 % Table V caveat into the body; this states the mapping once, for every
 % experiment, so no reader has to reconstruct it from scattered remarks.
-\chgi{\textbf{Which extractor each experiment uses.} The
+\chgt{\textbf{Which extractor each experiment uses.} The
 \emph{multi-candidate} extractor of Section~\ref{sec:method} is the default for
 every headline result (Tables~\ref{tab:headline-pooled}--\ref{tab:mcnemar},
 Figs.~\ref{fig:overview} and~\ref{fig:wildreceipt}); the \emph{fixed
@@ -812,7 +830,7 @@ Quantitatively, with a human review costing $\rho$ inference passes
 moving from softmax-matched ($c{=}0.379$, $p{=}0.953$) to the
 combination ($c{=}0.181$, $p{=}0.989$) is favourable whenever
 $\kappa\gtrsim 13\rho$: a condition, not a universal claim.
-\chgi{At $c{=}0.181$ that means \emph{four in five receipts still go to a
+\chgt{At $c{=}0.181$ that means \emph{four in five receipts still go to a
 human}: this is a triage result, not an automation one. Where the goal is to
 maximise the automated fraction, the matched-coverage softmax rule accepts the
 same $37.9\%$ at $0.953$ and the combination is the wrong tool.}
@@ -833,7 +851,7 @@ combination, making it too small a sample to draw strong conclusions
 beyond consistency with the overall finding.
 
 The key takeaway is that the combination benefit holds across
-different datasets and different AI architectures\chgi{: at matched coverage
+different datasets and different AI architectures\chgt{: at matched coverage
 it exceeds the softmax rule everywhere and exceeds $\sigma$-alone on
 WildReceipt and SROIE, with CORD the exception --- a comparison between
 different accept sets rather than a reversal, since $\sigma$-alone at full
@@ -982,7 +1000,7 @@ annotations) the two decision rules tie at $0.953$; on SROIE
 (OCR-derived $M$) $\sigma$ trails ($0.863$ vs.\ $0.945$). We
 hypothesise the SROIE loss is consistent with upstream OCR rather
 than the verifier: digit confusions and phantom amounts can inflate
-$T(M)$ with coincidental witnesses. \chgi{Testing this on the extracted
+$T(M)$ with coincidental witnesses. \chgt{Testing this on the extracted
 amounts: of the $73$ receipts $\sigma$ accepts on SROIE, the $10$ it accepts
 \emph{wrongly} carry more extracted amounts than the $63$ it accepts correctly
 ($6.7$ vs $4.3$; one-sided permutation test, $B{=}20{,}000$, $p{=}0.004$), with
@@ -1125,7 +1143,7 @@ as secondary. The SROIE combined-rule cell ($n{=}15$) supports only
 a consistency statement. The cardinality-guard inversion is measured
 directly only on SROIE; the CORD-side claim is structural. We
 evaluate one field across two backbones and three corpora;
-multi-field $\sigma$ is journal work\chgi{: verifying line items, taxes and
+multi-field $\sigma$ is journal work\chgt{: verifying line items, taxes and
 total as one constraint system should tighten the witness, and using $\sigma$
 as a training-time filter rather than only an inference-time gate would let the
 structural signal shape the model instead of only auditing it. Neither is
@@ -1301,7 +1319,15 @@ already stated the hypothesis; Reviewer~1's research questions into the six
 subsection titles that already named them. Fourteen marked blocks became four
 blocks and twenty-four inline marks. Nothing the reviewers asked for was
 dropped; it is stated once, where the paper already made the point.
-\item[31.] \textbf{Duplication removed across the whole paper.} Measured by
+\item[31.] \textbf{Marking macro corrected.} Six of those inline marks were
+written with \verb|\chgi|, which is an \verb|\fcolorbox|. A box cannot break
+across lines, so three sentences inside one set as a single unbreakable
+horizontal box that ran past the column edge and printed over the neighbouring
+column and the bibliography --- five full-width blocks in the compiled review
+PDF. They now use \verb|\chgt|, which marks the span with red text between
+markers and breaks wherever the paragraph breaks. The submitted copy was never
+affected: with \verb|\showchangesfalse| both macros expand to their argument.
+\item[32.] \textbf{Duplication removed across the whole paper.} Measured by
 sentence-level content overlap, not by reading. The $\sigma$ rule was stated
 four times, the softmax extraction twice, the industrial-prior-art gap three
 times, the matched-coverage comparison twice, the extractor caveat twice, and
