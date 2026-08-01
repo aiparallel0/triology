@@ -501,7 +501,7 @@ different extractor, not a conflicting result.
 \section{Results}
 \label{sec:results}
 
-\subsection{RQ1: Does Combining Beat Either Signal Alone?}
+\subsection{Does Combining Beat Either Signal Alone?}
 \label{sec:results-headline}
 
 \begin{table}[t]
@@ -617,7 +617,7 @@ weighted at $200/347/472$ and carried by WildReceipt, the per-corpus table
 rather than the pool is the headline; Fig.~\ref{fig:wildreceipt} singles out
 the WildReceipt case.
 
-\subsection{RQ2: Do the Two Signals Fail on the Same Receipts?}
+\subsection{Do the Two Signals Fail on the Same Receipts?}
 \label{sec:results-mcnemar}
 
 \begin{table}[t]
@@ -660,7 +660,7 @@ than positive evidence of error-decorrelation; the direct
 correlation-on-errors test (Section~\ref{sec:results-control})
 supplies the latter.
 
-\subsection{RQ3: Is the Gain Genuine, or Generic Coverage Shrink?}
+\subsection{Is the Gain Genuine, or Generic Coverage Shrink?}
 \label{sec:results-control}
 
 \noindent\textbf{The obvious objection.} Combining any two
@@ -713,7 +713,7 @@ gives combined Stouffer $p=\rgAFiveStouffer$ and Fisher
 $p=\rgAFiveFisher$: decorrelation holds within every corpus, not
 only pooled.
 
-\subsection{RQ4: Does It Beat Matched-Coverage Softmax?}
+\subsection{Does It Beat Matched-Coverage Softmax?}
 \label{sec:results-riskcov}
 
 \noindent\textbf{From significance to value.} Statistical orthogonality is necessary but not
@@ -726,7 +726,7 @@ $[\rcAURCdLo,\rcAURCdHi]$, one-sided $p{=}\rcAURCp$); the interval excludes
 zero, verdict \rcEarned. We do not over-read it: the absolute difference is
 small and the lift costs coverage, so the operational gain is modest.
 
-\subsection{RQ5: When Does Each Signal Win, and Why?}
+\subsection{When Does Each Signal Win, and Why?}
 \label{sec:results-regime}
 
 \noindent\textbf{Each signal owns a regime.} On CORD (clean per-field labels) $\sigma$
@@ -743,7 +743,7 @@ many amounts OCR puts on the page, not how many ways each line is read. With
 $10$ false accepts this supports the account rather than settling it; a
 hand-corrected subsample test is future work.
 
-\subsection{RQ6: Is It Robust and Fast Enough to Deploy?}
+\subsection{Is It Robust and Fast Enough to Deploy?}
 \label{sec:results-robust}
 
 \begin{table}[t]
