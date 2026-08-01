@@ -261,10 +261,7 @@ Total Extraction via Structural Arithmetic Verification}
 and predicts a total. In standard practice the only ``should I trust this
 number?'' signal is the model's own \emph{softmax confidence}, a number it
 produces about its own answer. We measure $\sigma$, an arithmetic check on
-the receipt itself that does not read the model at all. On $1019$ receipts
-across two architectures and three corpora, requiring both signals yields
-$0.989$ precision (Wilson 95\% lower bound $0.961$) against $0.953$ for
-either alone at matched coverage.}
+the receipt itself that does not read the model at all. Using both signals on $1019$ receipts gives a precision of $0.989$ (Wilson $95\%$ lower bound $0.961$). In comparison, either signal alone reaches a precision of $0.953$ with matched coverage.}
 \label{fig:scope}
 \end{figure*}
 
