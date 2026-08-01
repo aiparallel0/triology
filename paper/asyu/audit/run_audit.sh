@@ -36,6 +36,8 @@ run "0b. LaTeX structure: braces, environments, \\if...\\fi" \
     python3 "$T/tex_structure.py" main.tex
 run "0c. change marks: is any \\chgi span too long to break?" \
     python3 "$T/chg_span.py" main.tex
+run "0d. results macros: can a missing generated file publish a stale number?" \
+    python3 "$T/fallback_defaults.py" main.tex
 run "1. float references: cited, or actually discussed? (committee item 3)" \
     python3 "$T/float_refs.py" main.tex
 run "2. placeholder leak (the silent content killer)" \

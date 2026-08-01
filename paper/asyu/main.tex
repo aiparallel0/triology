@@ -7,12 +7,6 @@
 % by the figures/*.py scripts (make figures). If a figure PDF is not
 % yet built, render a labelled placeholder instead of failing the
 % whole document, so the paper is always reviewable.
-\makeatletter
-\let\orig@includegraphics\includegraphics
-\renewcommand{\includegraphics}[2][]{%
-  \IfFileExists{#2}{\orig@includegraphics[#1]{#2}}%
-  {\fbox{\rule{0pt}{6em}\quad\itshape figure pending (run: make figures)\quad}}}
-\makeatother
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
@@ -32,8 +26,6 @@
 
 % Quiet hyperref complaints about $\sigma$ in section titles
 \pdfstringdefDisableCommands{\renewcommand{\sigma}{sigma}}
-% Tame overfull hboxes from long \texttt{...} checkpoint paths
-\sloppy
 % Compact float/table spacing to keep the paper within 6 pages
 % without removing any content (padding-only reduction).
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
@@ -67,101 +59,105 @@
 \definecolor{grey}{HTML}{888888}
 
 % Intersection-control re-analysis (U_intersection_control.py); safe
-% defaults so the paper compiles before the script has been run.
-\newcommand{\ctrlLsigma}{0.060}
-\newcommand{\ctrlLsigmaLo}{0.029}
-\newcommand{\ctrlLsigmaHi}{0.085}
-\newcommand{\ctrlLrand}{0.001}
-\newcommand{\ctrlLrandHi}{0.038}
-\newcommand{\ctrlLcorr}{0.001}
-\newcommand{\ctrlLcorrHi}{0.022}
-\InputIfFileExists{numbers_control.tex}{}{}
+% defaults are deliberately "??" rather than plausible numbers. Each generated
+% file is now \input, so a missing one stops the build; the ?? is the second
+% line of defence, because a default that LOOKS like a result republishes a
+% different number in silence. Thirty of the eighty-five defaults here
+% disagreed with the value their generated file supplies.
+\newcommand{\ctrlLsigma}{??}
+\newcommand{\ctrlLsigmaLo}{??}
+\newcommand{\ctrlLsigmaHi}{??}
+\newcommand{\ctrlLrand}{??}
+\newcommand{\ctrlLrandHi}{??}
+\newcommand{\ctrlLcorr}{??}
+\newcommand{\ctrlLcorrHi}{??}
+\input{numbers_control.tex}
 % Orthogonality search (U2_orthogonality.py): paired-difference
 % bootstrap + direct decorrelation; safe defaults before the run.
-\newcommand{\orthEarned}{EARNED}
-\newcommand{\orthDrand}{0.056}
-\newcommand{\orthDrandLo}{0.012}
-\newcommand{\orthDrandHi}{0.107}
-\newcommand{\orthDrandP}{0.004}
-\newcommand{\orthDcorr}{0.055}
-\newcommand{\orthDcorrLo}{0.022}
-\newcommand{\orthDcorrHi}{0.092}
-\newcommand{\orthDcorrP}{0.001}
-\newcommand{\orthPhi}{0.200}
-\newcommand{\orthPhiP}{0.0002}
-\InputIfFileExists{numbers_orth.tex}{}{}
+\newcommand{\orthEarned}{??}
+\newcommand{\orthDrand}{??}
+\newcommand{\orthDrandLo}{??}
+\newcommand{\orthDrandHi}{??}
+\newcommand{\orthDrandP}{??}
+\newcommand{\orthDcorr}{??}
+\newcommand{\orthDcorrLo}{??}
+\newcommand{\orthDcorrHi}{??}
+\newcommand{\orthDcorrP}{??}
+\newcommand{\orthPhi}{??}
+\newcommand{\orthPhiP}{??}
+\input{numbers_orth.tex}
 % Risk-coverage (U3_risk_coverage.py): matched-coverage AURC of
 % sigma-gating vs softmax-alone; safe defaults before the run.
-\newcommand{\rcAURCsoft}{0.000}
-\newcommand{\rcAURCsig}{0.000}
-\newcommand{\rcAURCd}{0.000}
-\newcommand{\rcAURCdLo}{0.000}
-\newcommand{\rcAURCdHi}{0.000}
-\newcommand{\rcAURCp}{1.000}
+\newcommand{\rcAURCsoft}{??}
+\newcommand{\rcAURCsig}{??}
+\newcommand{\rcAURCd}{??}
+\newcommand{\rcAURCdLo}{??}
+\newcommand{\rcAURCdHi}{??}
+\newcommand{\rcAURCp}{??}
 \newcommand{\rcEarned}{PENDING}
 \newcommand{\rcCurveSoft}{(0,0)}
 \newcommand{\rcCurveSig}{(0,0)}
-\InputIfFileExists{numbers_riskcov.tex}{}{}
-\InputIfFileExists{riskcov_curve.tex}{}{}
+\input{numbers_riskcov.tex}
+\input{riskcov_curve.tex}
 
 % Per-corpus solidification (leakage-free CORD = test+validation, n=200)
-\newcommand{\pcPoolPrec}{0.9891}
-\newcommand{\pcPoolN}{184}
-\newcommand{\pcPoolWilson}{0.9612}
-\newcommand{\pcBootLo}{0.9728}
-\newcommand{\pcBootHi}{1.0000}
+\newcommand{\pcPoolPrec}{??}
+\newcommand{\pcPoolN}{??}
+\newcommand{\pcPoolWilson}{??}
+\newcommand{\pcBootLo}{??}
+\newcommand{\pcBootHi}{??}
 \newcommand{\pcWeakCorpus}{SROIE}
-\newcommand{\pcWeakWilson}{0.7961}
-\newcommand{\pcLooMinWilson}{0.9234}
-\newcommand{\pcCordWilson}{0.9039}
-\newcommand{\pcSroieWilson}{0.7961}
-\newcommand{\pcWrWilson}{0.9520}
+\newcommand{\pcWeakWilson}{??}
+\newcommand{\pcLooMinWilson}{??}
+\newcommand{\pcCordWilson}{??}
+\newcommand{\pcSroieWilson}{??}
+\newcommand{\pcWrWilson}{??}
 \newcommand{\pcSurvives}{no}
-\InputIfFileExists{numbers_percorpus.tex}{}{}
+\input{numbers_percorpus.tex}
 
 % Pooled cells (leakage-free)
-\newcommand{\poolN}{1019}
-\newcommand{\poolSigA}{386}
-\newcommand{\poolSigC}{365}
-\newcommand{\poolIntA}{184}
-\newcommand{\poolIntC}{182}
-\newcommand{\poolMcB}{185}
-\newcommand{\poolMcC}{188}
-\newcommand{\poolMcChi}{0.011}
-\newcommand{\poolMcP}{0.917}
-\newcommand{\wrN}{472}
-\newcommand{\wrIntA}{114}
-\newcommand{\wrIntC}{113}
-\InputIfFileExists{numbers_pooled.tex}{}{}
+\newcommand{\poolN}{??}
+\newcommand{\poolSigA}{??}
+\newcommand{\poolSigC}{??}
+\newcommand{\poolIntA}{??}
+\newcommand{\poolIntC}{??}
+\newcommand{\poolMcB}{??}
+\newcommand{\poolMcC}{??}
+\newcommand{\poolMcChi}{??}
+\newcommand{\poolMcP}{??}
+\newcommand{\wrN}{??}
+\newcommand{\wrIntA}{??}
+\newcommand{\wrIntC}{??}
+\input{numbers_pooled.tex}
 
 % Option 1 per-corpus rigor (Clopper-Pearson / Jeffreys / LOCO / TOST)
-\newcommand{\rgCordCPlo}{0.9166}
-\newcommand{\rgCordJeff}{0.9311}
-\newcommand{\rgCordWil}{0.9039}
-\newcommand{\rgSroieCPlo}{0.8190}
-\newcommand{\rgSroieJeff}{0.8817}
-\newcommand{\rgSroieWil}{0.7961}
-\newcommand{\rgWrCPlo}{0.9591}
-\newcommand{\rgWrJeff}{0.9662}
-\newcommand{\rgWrWil}{0.9520}
-\newcommand{\rgPoolPhat}{0.9891}
-\newcommand{\rgPoolWil}{0.9612}
-\newcommand{\rgPoolCPlo}{0.9662}
-\newcommand{\rgEqualMean}{0.9910}
-\newcommand{\rgLocoMinWil}{0.9234}
-\newcommand{\rgTostCordP}{0.2319}
-\newcommand{\rgTostSroieP}{0.4633}
-\newcommand{\rgTostWrP}{0.02021}
-\newcommand{\rgTostPoolP}{0.004565}
+\newcommand{\rgCordCPlo}{??}
+\newcommand{\rgCordJeff}{??}
+\newcommand{\rgCordWil}{??}
+\newcommand{\rgSroieCPlo}{??}
+\newcommand{\rgSroieJeff}{??}
+\newcommand{\rgSroieWil}{??}
+\newcommand{\rgWrCPlo}{??}
+\newcommand{\rgWrJeff}{??}
+\newcommand{\rgWrWil}{??}
+\newcommand{\rgPoolPhat}{??}
+\newcommand{\rgPoolWil}{??}
+\newcommand{\rgPoolCPlo}{??}
+\newcommand{\rgEqualMean}{??}
+\newcommand{\rgLocoMinWil}{??}
+\newcommand{\rgTostCordP}{??}
+\newcommand{\rgTostSroieP}{??}
+\newcommand{\rgTostWrP}{??}
+\newcommand{\rgTostPoolP}{??}
 \newcommand{\rgPassList}{WildReceipt}
 \newcommand{\rgUnderList}{CORD, SROIE}
-\newcommand{\rgReqnCord}{242}
-\newcommand{\rgReqnSroie}{71}
-\newcommand{\rgReqnWr}{161}
+\newcommand{\rgReqnCord}{??}
+\newcommand{\rgReqnSroie}{??}
+\newcommand{\rgReqnWr}{??}
 \newcommand{\rgAFiveStouffer}{6.822e-11}
 \newcommand{\rgAFiveFisher}{3.139e-10}
 \newcommand{\rgAFiveAvail}{yes}
-\InputIfFileExists{numbers_percorpus_rigor.tex}{}{}
+\input{numbers_percorpus_rigor.tex}
 
 \newcommand{\latMedian}{NA}
 \newcommand{\latMean}{NA}
@@ -171,7 +167,7 @@
 \newcommand{\latN}{NA}
 \newcommand{\latUnit}{\ensuremath{\mu}s}
 \newcommand{\latHardware}{CPU}
-\InputIfFileExists{numbers_latency.tex}{}{}
+\input{numbers_latency.tex}
 
 \title{Sigma-Verifier: Reducing Silent Errors in Receipt\\
 Total Extraction via Structural Arithmetic Verification}
@@ -198,7 +194,7 @@ Total Extraction via Structural Arithmetic Verification}
 % DeclareRobustCommand because \sigma reaches the .aux through three captions,
 % and a fragile command expands during that write.
 \let\IEEEsigma\sigma
-\DeclareRobustCommand{\sigma}{\boldsymbol{\IEEEsigma}}
+\DeclareRobustCommand{\sigma}{{\boldsymbol{\IEEEsigma}}}
 
 \makeatletter
 % Editor item 4: a period after the table label ("TABLE I."). The label is
@@ -509,16 +505,16 @@ CORD coverage from the headline: a different extractor, not a different result.
 \centering\small
 \caption{Pooled precision and coverage, all decision rules ($n{=}1{,}019$)}
 \label{tab:headline-pooled}
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lrrrrl}
 \toprule
 Decision rule & $n_\text{acc}$ & Coverage & $n_\text{corr}$ & Precision & 95\% CI \\
 \midrule
-$\sigma$               & 386 & 0.379 & 365 & 0.946 & [0.918, 0.964] \\
-softmax (matched)      & 386 & 0.379 & 368 & 0.953 & [0.927, 0.970] \\
-$\sigma\sqcap$ softmax & 184 & \textbf{0.181} & 182 & \textbf{0.989} & \textbf{[0.961, 0.997]} \\
-$\sigma$-only          & 202 & 0.198 & 183 & 0.906 & [0.858, 0.939] \\
-softmax-only           & 202 & 0.198 & 186 & 0.921 & [0.875, 0.951] \\
+$\sigma$               & 386 & 0.379 & 365 & 0.946 & [0.918,0.964] \\
+softmax (matched)      & 386 & 0.379 & 368 & 0.953 & [0.927,0.970] \\
+$\sigma\sqcap$ softmax & 184 & \textbf{0.181} & 182 & \textbf{0.989} & \textbf{[0.961,0.997]} \\
+$\sigma$-only          & 202 & 0.198 & 183 & 0.906 & [0.858,0.939] \\
+softmax-only           & 202 & 0.198 & 186 & 0.921 & [0.875,0.951] \\
 \bottomrule
 \end{tabular}
 \end{table}
