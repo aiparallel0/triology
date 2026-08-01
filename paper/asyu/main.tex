@@ -401,7 +401,7 @@ either alone, at a coverage cost quantified in Table~\ref{tab:headline-pooled}.}
 \begin{abstract}
 \boldmath
 \linespread{1}\selectfont
-Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study sigma-verifier, a model-external validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. Arithmetic cross-checking is established industrial practice; to our knowledge its formalisation as a softmax-orthogonal selective-prediction signal, and its systematic evaluation, are not. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\% (a 77\% relative reduction; 55--81\% per corpus), at the cost of accepting 18\% of receipts rather than 38\%.
+Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study sigma-verifier, a model-external validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. \chgt{Arithmetic cross-checking of this kind is long-standing industrial practice. What has been missing is a measurement of it, and that is what this paper provides: how much it actually buys, where it fails, and how it interacts with the model's own confidence.} We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\% (a 77\% relative reduction; 55--81\% per corpus), at the cost of accepting 18\% of receipts rather than 38\%.
 \end{abstract}
 
 % CHANGE 16 (editor item 2): 10 nk between the Abstract and the Keywords.
@@ -508,19 +508,23 @@ wherever a structural invariant is checkable --- balancing tables, schemas
 with referential constraints, code with type checks, logic with a solver.
 \end{chgblock}
 
-\noindent\textbf{Contributions.} (i)~$\sigma$, to our knowledge the
-first \emph{peer-reviewed formalisation of structural (arithmetic)
-verification as a softmax-orthogonal selective-prediction signal},
-instantiated on receipt KIE (Section~\ref{sec:method}). (ii)~Empirical validation on a pooled
-three-corpus benchmark of $n{=}1019$ receipts spanning two backbones
-(Donut generative, LayoutLMv3 encoder-only) and three regimes (CORD
-labelled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
-precision lower bounds for every cell (Section~\ref{sec:results-headline}).
-(iii)~Statistical orthogonality via paired McNemar tests
-(Section~\ref{sec:results-mcnemar}); a regime-mechanistic explanation of
-where each signal wins (Section~\ref{sec:results-regime}); and robustness to
-$40\%$ injected money-line noise plus a cardinality-guard ablation
-(Section~\ref{sec:results-robust}).
+\noindent\textbf{Contributions.} \chgt{This is an evaluation paper, and its
+contributions are measurements.} (i)~\textbf{How much the check buys.} A
+pooled three-corpus benchmark of $n{=}1019$ receipts across two backbones
+(Donut generative, LayoutLMv3 encoder-only), with Wilson $95\%$ precision lower
+bounds and the coverage cost for every cell
+(Section~\ref{sec:results-headline}). (ii)~\textbf{Why it composes with
+softmax.} Paired McNemar tests showing the two signals fail on different
+receipts, and a matched-coverage control separating the gain from the generic
+effect of accepting fewer receipts
+(Sections~\ref{sec:results-mcnemar}--\ref{sec:results-control}).
+(iii)~\textbf{Where it wins and where it does not.} $\sigma$ beats softmax on
+clean per-field labels ($0.990$ against $0.960$ on CORD) and \emph{loses} to it
+on OCR-derived text ($0.863$ against $0.945$ on SROIE); we identify the
+mechanism and test it (Section~\ref{sec:results-regime}), and report
+robustness to $40\%$ injected money-line noise plus a cardinality-guard
+ablation (Section~\ref{sec:results-robust}). \chgt{The verifier itself is not
+new, and we claim no methodological novelty for it.}
 
 \section{Related Work}
 \label{sec:related}
@@ -544,8 +548,9 @@ the \emph{document}; we know of none published for receipts.}
 Arithmetic cross-checks of receipt totals are common engineering practice ---
 expense-management software has used them for at least a decade --- because
 the check is closed-form, needs no model, and catches precisely the errors an
-operator pays for later. What is missing is their analysis as a
-selective-prediction signal (Section~\ref{sec:discussion}).
+operator pays for later. What has not been
+reported is how well the check actually performs as a selective-prediction
+signal, which is what this paper measures.
 
 \noindent\textbf{Program-level verification.} Verification of generative
 outputs has appeared in narrower settings (code-execution validation,
@@ -1159,14 +1164,6 @@ $\sigma$ as a training-time filter, rather than only an inference-time gate,
 would let the structural signal shape the model instead of only auditing it.
 Neither is evaluated here.}
 
-\noindent\textbf{Scope of novelty.} Arithmetic cross-checks are
-long-standing engineering practice; our contribution is their
-peer-reviewed formalisation as a softmax-orthogonal selective
-predictor with the paired and control statistics of
-Sections~\ref{sec:results-mcnemar}--\ref{sec:results-control}, not
-the idea of checking arithmetic. This is an applied contribution; we
-claim no methodological novelty in the verifier itself.
-
 \section{Conclusion}
 \label{sec:conclusion}
 
@@ -1340,7 +1337,21 @@ column and the bibliography --- five full-width blocks in the compiled review
 PDF. They now use \verb|\chgt|, which marks the span with red text between
 markers and breaks wherever the paragraph breaks. The submitted copy was never
 affected: with \verb|\showchangesfalse| both macros expand to their argument.
-\item[32.] \textbf{Duplication removed across the whole paper.} Measured by
+\item[32.] \textbf{Reframed as an evaluation paper} (Reviewer~1).
+Reviewer~1 wrote that arithmetic checking ``is already established in
+industrial practice and is not novel'' and that ``the main contribution of the
+paper lies in its systematic empirical evaluation.'' The paper was arguing with
+that: contribution~(i) claimed the ``first peer-reviewed formalisation''. It
+now says what Reviewer~1 says it is. The Abstract states that the check is
+long-standing practice and that this paper measures it; the contributions are
+re-cast as three measurements --- how much it buys, why it composes with
+softmax, and where it wins and loses --- with the regime finding promoted from
+a sub-clause to a contribution, because Reviewer~1 named ``data-specific
+behaviors and the trade-offs'' as the paper's value. The novelty disclaimer is
+now one clause where the contributions are stated, instead of four defensive
+restatements in the Abstract, the contributions, Related Work and the
+Discussion; deleting the other three is where the space for this came from.
+\item[33.] \textbf{Duplication removed across the whole paper.} Measured by
 sentence-level content overlap, not by reading. The $\sigma$ rule was stated
 four times, the softmax extraction twice, the industrial-prior-art gap three
 times, the matched-coverage comparison twice, the extractor caveat twice, and
