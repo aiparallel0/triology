@@ -443,11 +443,9 @@ statistical analysis against softmax.
 \noindent\textbf{Our contribution.} We propose
 $\sigma$\footnote{Throughout, $\sigma$ names the verifier
 defined below, not the standard-deviation symbol.} as that independent
-signal. Given the model's
-predicted total $\pi$ and the multiset $M$ of monetary amounts visible
-on the receipt (line items, taxes, tips, subtotals), $\sigma$ accepts
-$\pi$ if some subset $S\subseteq M$ with $|S|\geq k_{\min}$ sums to
-$\pi$ within tolerance $\varepsilon$. The witness exists by
+signal: it accepts the model's predicted total when some subset of the
+monetary amounts visible on the receipt sums to it within tolerance
+(Section~\ref{sec:method}). The witness exists by
 construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
 program (DP), with measured sub-millisecond $p_{99}$ latency
@@ -519,7 +517,12 @@ vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
 semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}.
 $\sigma$ is not a different
 softmax aggregator but a different \emph{signal} that does not read
-the model at all.
+the model at all. \chgi{This is also why softmax is the only baseline here:
+Monte-Carlo dropout, deep ensembles and semantic entropy are all computed from
+the model's internals, so each inherits the failure mode $\sigma$ exists to
+escape --- a model that hallucinates a probable total is confident under all of
+them. The comparison we owe, and do not have, is a second \emph{model-external}
+verifier; we know of none published for this task.}
 
 \noindent\textbf{Why arithmetic checking is already industrial practice.}
 Arithmetic cross-checks of receipt totals are common engineering practice ---
@@ -646,19 +649,15 @@ ablation of that rule.
 % configurations or ablation settings are discussed." Change 7 re-sited the
 % Table V caveat into the body; this states the mapping once, for every
 % experiment, so no reader has to reconstruct it from scattered remarks.
-\begin{chgblock}
-\noindent\textbf{Which extractor each experiment uses.} Two configurations of
-$\tau$ appear in this paper and they are not interchangeable. The
-\emph{multi-candidate} extractor of Section~\ref{sec:method} is the default
-and is used for every headline result: Tables~\ref{tab:headline-pooled}
-and~\ref{tab:headline-percorpus}, Table~\ref{tab:mcnemar}, and
-Figs.~\ref{fig:overview} and~\ref{fig:wildreceipt}. The \emph{fixed
-single-candidate} extractor is used only in the two ablations,
-Table~\ref{tab:guard} and Table~\ref{tab:robust}, where holding $\tau$ fixed
-is what isolates the variable under test. This is why the $r{=}0$ row of
+\chgi{\textbf{Which extractor each experiment uses.} The
+\emph{multi-candidate} extractor of Section~\ref{sec:method} is the default for
+every headline result (Tables~\ref{tab:headline-pooled}--\ref{tab:mcnemar},
+Figs.~\ref{fig:overview} and~\ref{fig:wildreceipt}); the \emph{fixed
+single-candidate} extractor is used only in the two ablations
+(Tables~\ref{tab:guard} and~\ref{tab:robust}), where holding $\tau$ fixed
+isolates the variable under test. This is why the $r{=}0$ row of
 Table~\ref{tab:robust} reports a different CORD coverage from the headline:
-different extractor, not a different result.
-\end{chgblock}
+different extractor, not a different result.}
 
 \noindent\textbf{Statistics.} Per-cell precision is reported with
 Wilson 95\% confidence intervals~\cite{wilson1927ci}; agreement
@@ -679,22 +678,6 @@ numerically interchangeable.
 
 \section{Results}
 \label{sec:results}
-
-% CHANGE 23 (Reviewer 1): "the empirical evaluation would benefit from being
-% organised around a clear set of research questions." The six subsections
-% below already answered six distinct questions; they are now named as those
-% questions and listed here, so the reader can see the plan before the
-% evidence. Costs six lines rather than a full restructure.
-\begin{chgblock}
-\noindent We answer six questions.
-\textbf{RQ1}: does requiring both signals beat either alone?
-\textbf{RQ2}: do the two fail on the same receipts, or different ones?
-\textbf{RQ3}: is any gain genuine, or the generic effect of shrinking
-coverage? \textbf{RQ4}: does $\sigma$ beat simply thresholding softmax at
-matched coverage? \textbf{RQ5}: when does each signal win, and why?
-\textbf{RQ6}: is the check robust and fast enough to deploy? Each subsection
-below answers one, in order.
-\end{chgblock}
 
 \subsection{\chgi{RQ1: Does Combining Beat Either Signal Alone?}}
 \label{sec:results-headline}
@@ -829,41 +812,15 @@ Quantitatively, with a human review costing $\rho$ inference passes
 moving from softmax-matched ($c{=}0.379$, $p{=}0.953$) to the
 combination ($c{=}0.181$, $p{=}0.989$) is favourable whenever
 $\kappa\gtrsim 13\rho$: a condition, not a universal claim.
-
-% CHANGE 24 (Reviewer 2): "the practical cost of the low coverage rate is not
-% discussed in enough operational depth. Most receipts still require human
-% review, which tempers the automation value proposition." Agreed, and stated
-% in the reviewer's own terms rather than ours.
-\begin{chgblock}
-\noindent\textbf{What the coverage costs in operation.} At $0.181$ coverage
-roughly \emph{four in five receipts still go to a human}: this is a
-\emph{triage} result, not an automation one. It is worth deploying where the
-automated lane must be near-clean and the human lane is already staffed --- the
-$18\%$ it accepts arrive at $0.989$ precision, and the residual $1.1\%$ is what
-a downstream reconciliation control must absorb. Where the goal is to maximise
-the automated fraction, softmax at matched coverage accepts the same $37.9\%$
-at $0.953$ and the combination is the wrong tool.
-\end{chgblock}
+\chgi{At $c{=}0.181$ that means \emph{four in five receipts still go to a
+human}: this is a triage result, not an automation one. Where the goal is to
+maximise the automated fraction, the matched-coverage softmax rule accepts the
+same $37.9\%$ at $0.953$ and the combination is the wrong tool.}
 
 Table~\ref{tab:headline-percorpus} breaks down the combined decision
 rule results per dataset to check whether the pooled finding in
 Table~\ref{tab:headline-pooled} is not an artefact of combining three
 datasets into one number.
-
-% CHANGE 14 (claim strength). This paragraph read "across all three datasets
-% and both architectures, the combination consistently outperforms either gate
-% alone" -- which the paper's own Fig. 2 caption contradicts: on CORD,
-% sigma-alone at full coverage is nominally higher on a larger accept set. The
-% claim was one rung above its evidence. Corrected to the comparison that is
-% actually true, at matched coverage, with the exception named. Found by
-% docs/research-pipeline/tools/claim_strength.py.
-\begin{chgblock}
-\noindent Across all three datasets and both architectures the combination
-exceeds the matched-coverage softmax rule, and exceeds $\sigma$-alone on
-WildReceipt and SROIE. CORD is the exception, and a comparison between
-different accept sets rather than a reversal: $\sigma$-alone at full coverage
-sits nominally higher on a larger accepted set (Fig.~\ref{fig:overview}).
-\end{chgblock}
 
 The results do vary by dataset however. WildReceipt, tested on
 LayoutLMv3, produces the most reliable combination with a Wilson
@@ -876,12 +833,11 @@ combination, making it too small a sample to draw strong conclusions
 beyond consistency with the overall finding.
 
 The key takeaway is that the combination benefit holds across
-different datasets and different AI architectures, suggesting it is a
-general property of combining the two signals rather than a result
-specific to one particular model or dataset. The pooled
-$n{=}\poolN{}$ is unevenly weighted at $200/347/472$ and carried by
-WildReceipt, so the per-corpus table, not the pool, is the headline.
-Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
+different datasets and different AI architectures\chgi{: at matched coverage
+it exceeds the softmax rule everywhere and exceeds $\sigma$-alone on
+WildReceipt and SROIE, with CORD the exception --- a comparison between
+different accept sets rather than a reversal, since $\sigma$-alone at full
+coverage sits nominally higher on a larger accepted set}. Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
 Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
 
 \subsection{\chgi{RQ2: Do the Two Signals Fail on the Same Receipts?}}
@@ -1026,29 +982,15 @@ annotations) the two decision rules tie at $0.953$; on SROIE
 (OCR-derived $M$) $\sigma$ trails ($0.863$ vs.\ $0.945$). We
 hypothesise the SROIE loss is consistent with upstream OCR rather
 than the verifier: digit confusions and phantom amounts can inflate
-$T(M)$ with coincidental witnesses.
-
-% CHANGE 26 (Reviewer 2): "the SROIE results are explained due to OCR noise,
-% but it is left as an untested hypothesis rather than empirically verified."
-% Tested on the committed per-receipt records, no re-inference:
-% scripts/smoke/R2d_sroie_ocr_hypothesis.py. One-sided permutation test,
-% B=20000, on sigma's 73 SROIE accepts (63 correct, 10 false).
-%   money_count       6.70 vs 4.35  p=0.0041  *
-%   T_size          708.30 vs 209.41 p=0.1425
-%   n_tau_candidates  3.30 vs 3.33  p=0.5703
-% Reported at the rung the evidence supports: n=10 false accepts, one measure
-% significant, so this is support for the account, not proof of it.
-\begin{chgblock}
-\noindent\textbf{Testing the OCR account.} Among the $73$ receipts $\sigma$
-accepts on SROIE, the $10$ it accepts \emph{wrongly} carry more extracted
-monetary amounts than the $63$ it accepts correctly ($6.7$ vs $4.3$; one-sided
-permutation test, $B{=}20{,}000$, $p{=}0.004$), with larger reachable sets in
-the same direction though not significantly so ($708$ vs $209$, $p{=}0.14$).
-Candidate interpretations per ambiguous line show no such difference ($3.30$ vs
-$3.33$, $p{=}0.57$): the mechanism is how many amounts OCR surfaces, not how
-many ways each line is read. With only $10$ false accepts this supports the
-account rather than settling it.
-\end{chgblock}
+$T(M)$ with coincidental witnesses. \chgi{Testing this on the extracted
+amounts: of the $73$ receipts $\sigma$ accepts on SROIE, the $10$ it accepts
+\emph{wrongly} carry more extracted amounts than the $63$ it accepts correctly
+($6.7$ vs $4.3$; one-sided permutation test, $B{=}20{,}000$, $p{=}0.004$), with
+larger reachable sets in the same direction though not significantly ($708$ vs
+$209$, $p{=}0.14$); candidate interpretations per line show no difference
+($3.30$ vs $3.33$, $p{=}0.57$). The mechanism is how many amounts OCR
+surfaces, not how many ways each line is read. With $10$ false accepts this
+supports the account rather than settling it.}
 
 \subsection{\chgi{RQ6: Is It Robust and Fast Enough to Deploy?}}
 \label{sec:results-robust}
@@ -1134,20 +1076,8 @@ but precision remains stable throughout, staying between $0.949$ and
 $0.980$ at every noise level. This means the arithmetic check becomes
 more selective under noisy conditions, it accepts fewer receipts, but
 the receipts it does accept remain reliably correct. It degrades
-gracefully rather than catastrophically.
-
-% CHANGE 7: the two facts displaced from the Table V caption by CHANGE 6.
-% Neither appears anywhere else in the paper, so shortening the caption
-% without re-siting them here would have silently dropped a method detail and
-% a caveat that reconciles two apparently conflicting CORD numbers.
-\begin{chgblock}
-\noindent Intervals in Table~\ref{tab:robust} are bootstrap $95\%$ over the
-ten seeds. The extractor is held at its single-candidate setting across every
-noise level, as in the Table~\ref{tab:guard} ablation, so the $r{=}0$
-baseline ($0.267$ coverage) is not the multi-candidate-$\tau$ CORD $\sigma$
-headline of Fig.~\ref{fig:overview}; the two differ by extractor
-configuration, not by result.
-\end{chgblock}
+gracefully rather than catastrophically. \chgi{Intervals in
+Table~\ref{tab:robust} are bootstrap $95\%$ over the ten seeds.}
 
 The tolerance sweep
 $\varepsilon \in \{0.01, 0.02, \dots, 5.0\}$ on CORD returns identical
@@ -1188,22 +1118,6 @@ do not benchmark. (iv)~In the OCR-derived regime $\sigma$ trails
 softmax as a single decision rule ($0.863$ vs.\ $0.945$), its value
 there purely in the combination.
 
-% CHANGE 25 (Reviewer 2): "comparison is limited to softmax; no evaluation
-% against other selective-prediction baselines (MC dropout, ensembles,
-% semantic entropy)." Scoped rather than run: all three are model-internal
-% signals, so they test a different question than the one this paper asks.
-% Stated as a limitation with the reason, not as an omission.
-\begin{chgblock}
-\noindent\textbf{Baselines not compared.} We compare against softmax only.
-Monte-Carlo dropout, deep ensembles and semantic entropy are the obvious
-additions, and their absence is a real limit on how completely $\sigma$ is
-placed. It is a limit with a reason: each is computed from the model's own
-internals, so each inherits the failure mode $\sigma$ exists to escape --- a
-model that hallucinates a probable total is confident under all of them. The
-comparison we do owe, and do not yet have, is against a second
-\emph{model-external} verifier; we know of none published for this task.
-\end{chgblock}
-
 \noindent\textbf{Statistical scope.} The headline is a per-corpus
 claim; the pooled $n{=}\poolN{}$ figure is carried by WildReceipt
 ($\wrIntA{}$ of $\poolIntA{}$ combined-rule accepts) and is presented
@@ -1211,30 +1125,11 @@ as secondary. The SROIE combined-rule cell ($n{=}15$) supports only
 a consistency statement. The cardinality-guard inversion is measured
 directly only on SROIE; the CORD-side claim is structural. We
 evaluate one field across two backbones and three corpora;
-multi-field $\sigma$ is journal work.
-
-% CHANGE 30: what the work opens up. The Introduction states the general
-% principle in one sentence; nothing in the paper said what follows from it.
-% Every extension named here is flagged as untested, so the paragraph stays at
-% the rung the evidence supports -- it is a statement of direction, not of
-% result.
-\begin{chgblock}
-\noindent\textbf{What this opens up.} The construction is not specific to
-receipts. Any task whose output admits a checkable structural constraint
-admits the same second opinion: a ledger that must balance, a record that must
-satisfy referential constraints, generated code that must compile and
-type-check, a proof step a solver can discharge. In each case the verifier
-reads the artefact rather than the model, which is the property that makes it
-worth \emph{combining} with softmax instead of replacing it.
-
-\noindent\textbf{Nearest extensions.} Within receipt KIE two follow directly.
-Verifying several fields jointly --- line items, taxes and total as one
-constraint system rather than the total alone --- should tighten the witness
-and reduce the coincidental accepts that Section~\ref{sec:results-mcnemar}
-attributes to OCR. Using $\sigma$ as a training-time filter rather than only
-an inference-time gate would let the structural signal shape the model instead
-of merely auditing it. Neither is evaluated here, and both are open.
-\end{chgblock}
+multi-field $\sigma$ is journal work\chgi{: verifying line items, taxes and
+total as one constraint system should tighten the witness, and using $\sigma$
+as a training-time filter rather than only an inference-time gate would let the
+structural signal shape the model instead of only auditing it. Neither is
+evaluated here}.
 
 \noindent\textbf{Scope of novelty.} Arithmetic cross-checks are
 long-standing engineering practice; our contribution is their
@@ -1393,24 +1288,26 @@ supports'', exactly); ``has not been evaluated'' became ``we are not aware of
 a published evaluation''; ``the high $p$-values \emph{confirm there is no}
 asymmetry'' became ``are consistent with no detectable asymmetry''; and two
 intensifiers went where the numbers already carried the sentence.
-\item[30.] \textbf{Restructured rather than cut, to recover the page.} The
-review responses pushed the paper to seven pages. Rather than drop what the
-reviewers asked for, passages stating the same thing twice were reduced to one
-statement each and the survivors given bold run-in headings: the $\sigma$ rule
-was stated four times (Introduction, ``In plain terms'', the Fig.~1 discussion
-and Section~\ref{sec:method}) and is now stated where it is defined; the
-softmax extraction was described in Related Work and again in
-Section~\ref{sec:setup}; the industrial-prior-art gap appeared in the
-Abstract, Related Work and Discussion; and the Conclusion recited every
-per-corpus number already given in the Abstract and
-Table~\ref{tab:headline-percorpus}. The author's own sentences are kept
-throughout --- what changed is how many times each is said. Related Work now
-carries two headings, the first stating \emph{why} arithmetic checking is
-already industrial practice.
-\item[31.] \textbf{``What this opens up''} added to Section~\ref{sec:discussion}:
-the Introduction states the general principle but nothing said what follows
-from it. Names the domains the construction transfers to and the two nearest
-extensions, both flagged as untested.
+\item[30.] \textbf{Answered in place rather than in new paragraphs.} The
+review responses were first written as new blocks, which took the paper to
+seven pages. Checking each against the existing text showed the paper already
+contained most of what the reviewers asked for --- it was stated without
+emphasis, in the wrong place, or buried. Each response was therefore folded
+into the sentence that already carried it and marked inline:
+Reviewer~2's operational-depth point into the existing $\kappa/\rho$ cost
+condition; their baselines point into Related Work's ``a different signal that
+does not read the model at all''; their OCR question into the sentence that
+already stated the hypothesis; Reviewer~1's research questions into the six
+subsection titles that already named them. Fourteen marked blocks became four
+blocks and twenty-four inline marks. Nothing the reviewers asked for was
+dropped; it is stated once, where the paper already made the point.
+\item[31.] \textbf{Duplication removed across the whole paper.} Measured by
+sentence-level content overlap, not by reading. The $\sigma$ rule was stated
+four times, the softmax extraction twice, the industrial-prior-art gap three
+times, the matched-coverage comparison twice, the extractor caveat twice, and
+the Conclusion recited every per-corpus number already in the Abstract and
+Table~\ref{tab:headline-percorpus}. The author's own sentences are kept; what
+changed is how many times each is said.
 \end{enumerate}
 
 \medskip
