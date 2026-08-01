@@ -261,14 +261,17 @@ Total Extraction via Structural Arithmetic Verification}
 and predicts a total. In standard practice the only ``should I trust this
 number?'' signal is the model's own \emph{softmax confidence}, a number it
 produces about its own answer. We measure $\sigma$, an arithmetic check on
-the receipt itself that does not read the model at all. Using both signals on $1019$ receipts gives a precision of $0.989$ (Wilson $95\%$ lower bound $0.961$). In comparison, either signal alone reaches a precision of $0.953$ with matched coverage.}
+the receipt itself that does not read the model at all. Using both signals on
+$1019$ receipts gives a precision of $0.989$ (Wilson $95\%$ lower bound
+$0.961$). At matched coverage, $\sigma$ alone reaches $0.946$ and softmax
+alone $0.953$.}
 \label{fig:scope}
 \end{figure*}
 
 \begin{abstract}
 \boldmath
 \linespread{1}\selectfont
-Document-AI systems often extract itemized fields from receipts, with the ``total'' field being the most critical target. Errors in this field can cause major problems in downstream processes like tax filings, expense reports, and financial audits. The softmax layers in Document-AI models often produce miscalibrated predictions\cite{guo2017calibration} and fail to identify these errors in isolation. To address this, we explore the \emph{sigma-verifier}: a validation layer operating outside the model that checks if any subset of itemized lines on a receipt sums to the predicted total. We frame this as a 0/1-knapsack problem using the amounts printed on the receipt. We assessed the sigma-verifier on receipt-parsing systems based on two leading architectures, Donut\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3}, across three public benchmarks. The arithmetic cross-checking we employed is a well-established industrial practice, and we claim no novelty in the check itself. However, we present a measurement of this check as a signal independent of the model's own confidence, which this paper offers. The key finding is a fourfold reduction in silent wrong totals. When combining the sigma-verifier with softmax across three corpora, we lower the silent-wrong-total rate among accepted receipts from 4.7% to 1.1%, achieving a 77% relative reduction (55--81% per corpus). The trade-off is coverage: acceptance drops from 38% to 18% of receipts.
+Document-AI systems often extract itemized fields from receipts, with the ``total'' field being the most critical target. Errors in this field can cause major problems in downstream processes like tax filings, expense reports, and financial audits. The softmax layers in Document-AI models often produce miscalibrated predictions~\cite{guo2017calibration} and fail to identify these errors in isolation. To address this, we explore the \emph{sigma-verifier}: a validation layer operating outside the model that checks whether any subset of itemized lines on a receipt sums to the predicted total. We frame this as a 0/1-knapsack problem using the amounts printed on the receipt. We assessed the sigma-verifier on receipt-parsing systems based on two leading architectures, Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3}, across three public benchmarks. The arithmetic cross-checking we employed is a well-established industrial practice, and we claim no novelty in the check itself. What we present is a measurement of this check as a signal independent of the model's own confidence. The key finding is a fourfold reduction in silent wrong totals. When combining the sigma-verifier with softmax across three corpora, we lower the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\%, achieving a 77\% relative reduction (55--81\% per corpus). The trade-off is coverage: acceptance drops from 38\% to 18\% of receipts.
 \end{abstract}
 
 \vspace{\dimexpr 10pt-\parskip\relax}
@@ -326,18 +329,23 @@ with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
 \noindent\textbf{The significance of this issue.} Silent failures are the
-expensive part of the problem: a possible wrong total is filed unchallenged and propagates downstream for weeks before audit. Deferring therefore has to be selective, because human
+expensive part of the problem: a plausible wrong total is filed unchallenged
+and propagates downstream for weeks before audit. Deferring therefore has to
+be selective, because human
 review is orders of magnitude costlier than an inference pass
 (Section~\ref{sec:results-headline}). Regulation (EU AI Act,
 financial-services model-risk rules) increasingly mandates documented
 per-prediction trust signals, and $\sigma$ is computed on the document rather
 than the model, so it produces a separate audit trail.
 
-\noindent\textbf{The Principle of Sigma Verifier.} \emph{When a task's output meets a verifiable structural rule, a deterministic verifier acts as a confidence signal. This signal is statistically orthogonal to the model's softmax, as its errors arise from the document's structure, not from decoder logits.} Receipts clearly illustrate this concept; the framework also applies to:
-
-\begin{itemize} \item Balancing tables \item Schemas with referential constraints \item Code with type checks \item Logic involving a solver\end{itemize}
-
-\textit{Throughout, $\sigma$ denotes the verifier defined below, not the standard-deviation symbol.}
+\noindent\textbf{The general principle.} \emph{When a task's output meets a
+verifiable structural rule, a deterministic verifier acts as a confidence
+signal. This signal is statistically orthogonal to the model's softmax, as its
+errors arise from the document's structure, not from decoder logits.} Receipts
+clearly illustrate this concept, and the framework applies wherever a
+structural invariant is checkable: \textbf{balancing tables},
+\textbf{schemas} with referential constraints, \textbf{code} with type checks,
+and \textbf{logic} with a solver.
 
 \noindent\textbf{Contributions.} (i)~A measurement of $\sigma$ as a
 selective-prediction signal on receipts (Section~\ref{sec:method}). The check
@@ -456,7 +464,7 @@ leakage-free); \textbf{SROIE Task-3}~\cite{huang2019sroie} canonical
 \cite{sun2021wildreceipt} test ($n{=}472$, per-token annotations).
 Pooled $n{=}\poolN{}$.
 
-\noindent\textbf{AI Models.} We use Donut~\cite{kim2022donut}
+\noindent\textbf{AI models.} We use Donut~\cite{kim2022donut}
 fine-tuned on CORD-v2 and on SROIE, and
 LayoutLMv3~\cite{huang2022layoutlmv3} fine-tuned on WildReceipt; all
 inference-only.
