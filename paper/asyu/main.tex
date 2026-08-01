@@ -453,16 +453,6 @@ visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
 program (DP), with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
-\noindent\textbf{In plain terms.} The sigma verifier reads the
-receipt the same way a careful clerk would: it lists the monetary
-numbers it can see (line prices, taxes, tips, subtotals) and asks
-whether any subset of those numbers adds up to the total the model
-reported. If yes, the receipt passes; if no, it is flagged. The check
-looks at the document, not at the model's internal scores, so it
-cannot be fooled by an overconfident prediction. We then accept a
-receipt only when this structural decision rule and the model's own
-softmax decision rule both fire.
-
 % CHANGE 5 (committee item 3: "tum tablo ve sekillerin metin icinde eksiksiz
 % bir sekilde atif almasi VE ILGILI PARAGRAFLARDA ACIKLANMASI"). Fig. 1 was
 % referenced -- a naive audit returns "all floats cited, nothing to do" -- but
@@ -526,31 +516,28 @@ elyaniv2010foundations,jaeger2024augrc}; for sequence-to-sequence
 generators (such as Donut) the standard signals are derived from the
 generator's own token-level probabilities~\cite{malinin2021uncertainty,
 vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
-semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}. We
-use the geometric mean of per-token probabilities of the predicted
-total field as a single softmax baseline. $\sigma$ is not a different
+semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}.
+$\sigma$ is not a different
 softmax aggregator but a different \emph{signal} that does not read
 the model at all.
 
-\noindent\textbf{Industrial prior art and program-level verification.}
-Arithmetic cross-checks of receipt totals are common engineering
-practice (expense-management software has used them for at least a
-decade). The gap $\sigma$ fills is the peer-reviewed analysis of such
-a check as a softmax-orthogonal selective-prediction signal with
-paired statistics and cross-architecture validation, not the act of
-checking arithmetic itself. Program- and logic-level verification of
-generative outputs has appeared in narrower settings (code-execution
-validation, faithful chain-of-thought); $\sigma$ instantiates that
-spirit for receipt KIE, where the target is closed-form arithmetic
-over visible quantities.
+\noindent\textbf{Why arithmetic checking is already industrial practice.}
+Arithmetic cross-checks of receipt totals are common engineering practice ---
+expense-management software has used them for at least a decade --- because
+the check is closed-form, needs no model, and catches precisely the errors an
+operator pays for later. What is missing is their analysis as a
+selective-prediction signal (Section~\ref{sec:discussion}).
+
+\noindent\textbf{Program-level verification.} Verification of generative
+outputs has appeared in narrower settings (code-execution validation,
+faithful chain-of-thought); $\sigma$ instantiates that spirit for receipt
+KIE, where the target is closed-form arithmetic over visible quantities.
 
 We evaluate two architectures. Donut~\cite{kim2022donut} is a
 \emph{generative} vision-encoder-decoder producing structured JSON;
 LayoutLMv3~\cite{huang2022layoutlmv3} is an \emph{encoder-only}
 token-classifier (tagging each token with a class such as
-Total_value). Their softmax confidences are
-architecture-specific but conceptually identical: average per-token
-probability on the predicted total-value tokens. Structure-aware
+Total_value). Structure-aware
 verification has appeared for table
 reconstruction~\cite{nassar2022tableformer}; what is new here is
 formalising an arithmetic check as a softmax-orthogonal selective
@@ -848,17 +835,14 @@ $\kappa\gtrsim 13\rho$: a condition, not a universal claim.
 % review, which tempers the automation value proposition." Agreed, and stated
 % in the reviewer's own terms rather than ours.
 \begin{chgblock}
-\noindent What this costs in operation, plainly: at $0.181$ coverage roughly
-\emph{four in five receipts still go to a human}. The combination is therefore
-not an automation story but a \emph{triage} one. It is worth deploying where
-the automated lane must be near-clean and the human lane is already staffed
---- the $18\%$ it accepts arrive at $0.989$ precision, so that lane needs no
-sampling audit, and the residual $1.1\%$ silent-wrong rate is what a
-downstream reconciliation control must absorb. Where the goal is to maximise
+\noindent\textbf{What the coverage costs in operation.} At $0.181$ coverage
+roughly \emph{four in five receipts still go to a human}: this is a
+\emph{triage} result, not an automation one. It is worth deploying where the
+automated lane must be near-clean and the human lane is already staffed --- the
+$18\%$ it accepts arrive at $0.989$ precision, and the residual $1.1\%$ is what
+a downstream reconciliation control must absorb. Where the goal is to maximise
 the automated fraction, softmax at matched coverage accepts the same $37.9\%$
-at $0.953$ and the combination is the wrong tool. The gain here is in the
-\emph{quality} of the accepted lane, not its size, and a deployment that
-cannot afford to defer four receipts in five should not adopt it.
+at $0.953$ and the combination is the wrong tool.
 \end{chgblock}
 
 Table~\ref{tab:headline-percorpus} breaks down the combined decision
@@ -1055,18 +1039,15 @@ $T(M)$ with coincidental witnesses.
 % Reported at the rung the evidence supports: n=10 false accepts, one measure
 % significant, so this is support for the account, not proof of it.
 \begin{chgblock}
-\noindent We can now test this on the extracted amounts themselves. Among the
-$73$ receipts $\sigma$ accepts on SROIE, the $10$ it accepts \emph{wrongly}
-carry markedly more extracted monetary amounts than the $63$ it accepts
-correctly ($6.7$ vs $4.3$ per receipt; one-sided permutation test,
-$B{=}20{,}000$, $p{=}0.004$), and their reachable sets are larger in the same
-direction though not significantly so ($708$ vs $209$ subset sums,
-$p{=}0.14$). The number of \emph{candidate interpretations} per ambiguous line
-shows no such difference ($3.30$ vs $3.33$, $p{=}0.57$). The mechanism is
-therefore how many amounts OCR surfaces, not how many ways each line is read:
-more visible amounts enlarge $T(M)$ and make a coincidental witness likelier.
-With only $10$ false accepts this supports the account rather than settling
-it, and the controlled hand-OCR-corrected subsample test remains future work.
+\noindent\textbf{Testing the OCR account.} Among the $73$ receipts $\sigma$
+accepts on SROIE, the $10$ it accepts \emph{wrongly} carry more extracted
+monetary amounts than the $63$ it accepts correctly ($6.7$ vs $4.3$; one-sided
+permutation test, $B{=}20{,}000$, $p{=}0.004$), with larger reachable sets in
+the same direction though not significantly so ($708$ vs $209$, $p{=}0.14$).
+Candidate interpretations per ambiguous line show no such difference ($3.30$ vs
+$3.33$, $p{=}0.57$): the mechanism is how many amounts OCR surfaces, not how
+many ways each line is read. With only $10$ false accepts this supports the
+account rather than settling it.
 \end{chgblock}
 
 \subsection{\chgi{RQ6: Is It Robust and Fast Enough to Deploy?}}
@@ -1197,12 +1178,6 @@ errors on different inputs, not dominance, and the gain survives
 swapping Donut for LayoutLMv3, so $\sigma$ is signal-orthogonal to
 softmax across architectures.
 
-\noindent\textbf{Operational guidance.} For any KIE model, obtain
-$\pi$ and softmax $s$, extract $M$, run $\sigma$ at
-$\varepsilon{=}0.02$ with $k_{\min}$ set by the label-free
-cardinality-guard rule of Section~\ref{sec:method}, and accept iff
-$\sigma{=}1$ \emph{and} $s$ clears a fixed-coverage threshold.
-
 \noindent\textbf{What $\sigma$ cannot do.} (i)~$\sigma$ requires
 arithmetic closure of the target field; totals, subtotals, and taxes,
 not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
@@ -1222,12 +1197,10 @@ there purely in the combination.
 \noindent\textbf{Baselines not compared.} We compare against softmax only.
 Monte-Carlo dropout, deep ensembles and semantic entropy are the obvious
 additions, and their absence is a real limit on how completely $\sigma$ is
-placed. It is a limit with a reason: each of those is computed from the
-model's own internals, so each inherits the failure mode $\sigma$ exists to
-escape --- a model that hallucinates a probable total is confident under all
-of them. Comparing $\sigma$ against more model-internal signals measures how
-model-internal signals differ from each other, which is a different question.
-The comparison we do owe, and do not yet have, is against a second
+placed. It is a limit with a reason: each is computed from the model's own
+internals, so each inherits the failure mode $\sigma$ exists to escape --- a
+model that hallucinates a probable total is confident under all of them. The
+comparison we do owe, and do not yet have, is against a second
 \emph{model-external} verifier; we know of none published for this task.
 \end{chgblock}
 
@@ -1240,6 +1213,29 @@ directly only on SROIE; the CORD-side claim is structural. We
 evaluate one field across two backbones and three corpora;
 multi-field $\sigma$ is journal work.
 
+% CHANGE 30: what the work opens up. The Introduction states the general
+% principle in one sentence; nothing in the paper said what follows from it.
+% Every extension named here is flagged as untested, so the paragraph stays at
+% the rung the evidence supports -- it is a statement of direction, not of
+% result.
+\begin{chgblock}
+\noindent\textbf{What this opens up.} The construction is not specific to
+receipts. Any task whose output admits a checkable structural constraint
+admits the same second opinion: a ledger that must balance, a record that must
+satisfy referential constraints, generated code that must compile and
+type-check, a proof step a solver can discharge. In each case the verifier
+reads the artefact rather than the model, which is the property that makes it
+worth \emph{combining} with softmax instead of replacing it.
+
+\noindent\textbf{Nearest extensions.} Within receipt KIE two follow directly.
+Verifying several fields jointly --- line items, taxes and total as one
+constraint system rather than the total alone --- should tighten the witness
+and reduce the coincidental accepts that Section~\ref{sec:results-mcnemar}
+attributes to OCR. Using $\sigma$ as a training-time filter rather than only
+an inference-time gate would let the structural signal shape the model instead
+of merely auditing it. Neither is evaluated here, and both are open.
+\end{chgblock}
+
 \noindent\textbf{Scope of novelty.} Arithmetic cross-checks are
 long-standing engineering practice; our contribution is their
 peer-reviewed formalisation as a softmax-orthogonal selective
@@ -1251,9 +1247,9 @@ claim no methodological novelty in the verifier itself.
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this work, we presented the sigma-verifier, a model-agnostic validation layer that directly evaluates a document by checking whether any subset of extracted itemized lines sums to the predicted total. We evaluated its performance across two document AI architectures, Donut and LayoutLMv3, on three receipt databases: CORD~\cite{park2019cord}, SROIE~\cite{huang2019sroie}, and WildReceipt~\cite{sun2021wildreceipt}.
+In this work, we presented the sigma-verifier, a model-agnostic validation layer that directly evaluates a document by checking whether any subset of extracted itemized lines sums to the predicted total. We evaluated its performance across two document AI architectures and three receipt databases.
 
-Our results show that combining the sigma-verifier with the model's softmax confidence reduces the silent-wrong-total rate among the receipts it accepts. On CORD the rate drops from 4.0\% to 1.8\% (a 55\% relative reduction); on WildReceipt from 4.7\% to 0.9\% ($\approx$81\%); on SROIE from 5.5\% to 0.0\% (n = 15, consistency only). Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the cost of lower coverage: the combination accepts about 18\% of receipts versus about 38\% for either decision rule alone, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
+Our results show that combining the sigma-verifier with the model's softmax confidence reduces the silent-wrong-total rate among the receipts it accepts. Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the coverage cost set out above, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
 
 % Tighten only the bibliography list spacing (purely typographic; no
 % reference is dropped or shortened).
@@ -1397,6 +1393,24 @@ supports'', exactly); ``has not been evaluated'' became ``we are not aware of
 a published evaluation''; ``the high $p$-values \emph{confirm there is no}
 asymmetry'' became ``are consistent with no detectable asymmetry''; and two
 intensifiers went where the numbers already carried the sentence.
+\item[30.] \textbf{Restructured rather than cut, to recover the page.} The
+review responses pushed the paper to seven pages. Rather than drop what the
+reviewers asked for, passages stating the same thing twice were reduced to one
+statement each and the survivors given bold run-in headings: the $\sigma$ rule
+was stated four times (Introduction, ``In plain terms'', the Fig.~1 discussion
+and Section~\ref{sec:method}) and is now stated where it is defined; the
+softmax extraction was described in Related Work and again in
+Section~\ref{sec:setup}; the industrial-prior-art gap appeared in the
+Abstract, Related Work and Discussion; and the Conclusion recited every
+per-corpus number already given in the Abstract and
+Table~\ref{tab:headline-percorpus}. The author's own sentences are kept
+throughout --- what changed is how many times each is said. Related Work now
+carries two headings, the first stating \emph{why} arithmetic checking is
+already industrial practice.
+\item[31.] \textbf{``What this opens up''} added to Section~\ref{sec:discussion}:
+the Introduction states the general principle but nothing said what follows
+from it. Names the domains the construction transfers to and the two nearest
+extensions, both flagged as untested.
 \end{enumerate}
 
 \medskip
