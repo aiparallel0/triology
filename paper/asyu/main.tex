@@ -1,8 +1,7 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
 \usepackage{cite}
-\usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
+\usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 % Compile-resilience: matplotlib figures are generated from runs/ JSON
 % by the figures/*.py scripts (make figures). If a figure PDF is not
@@ -17,10 +16,9 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{url}
 \usepackage{underscore}
 \usepackage{tikz}
+\usepackage{flafter} % a float never precedes the paragraph that introduces it
 \usepackage{hyperref}
 % IEEE style: no colored link borders/boxes around citation and ref
 % numbers (hyperref's default draws them); links stay functional.
@@ -44,6 +42,21 @@
 \setlength{\abovecaptionskip}{3pt}
 \setlength{\belowcaptionskip}{1pt}
 \renewcommand{\arraystretch}{0.95}
+% References: IEEEtran's own hook, rather than redefining thebibliography
+% and resetting five list lengths by hand.
+\def\IEEEbibitemsep{2.5pt}
+% Nine floats in six pages: let LaTeX pack them instead of stranding white
+% space ahead of the bibliography. This buys page space without touching a
+% word of the text or a single spacing parameter the venue fixes.
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.75}
+\setcounter{totalnumber}{6}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{3}
 
 \newcommand{\PH}[1]{\textcolor{red}{\texttt{\detokenize{[#1]}}}}
 
@@ -166,15 +179,17 @@ Total Extraction via Structural Arithmetic Verification}
 \author{
 \IEEEauthorblockN{[FIRST AUTHOR]}
 \IEEEauthorblockA{\textit{Primary author, corresponding} \\
-\textit{[Department], [Institution]} \\
-[City], [Country] \\
-[first.author@inst.edu]}
+\textit{[Department]} \\
+\textit{[Institution]} \\
+{[City, Country]} \\
+{[first.author@domain]}}
 \and
 \IEEEauthorblockN{[SECOND AUTHOR]}
 \IEEEauthorblockA{\textit{Co-author} \\
-\textit{[Department], [Institution]} \\
-[City], [Country] \\
-[second.author@inst.edu]}
+\textit{[Department]} \\
+\textit{[Institution]} \\
+{[City, Country]} \\
+{[second.author@domain]}}
 }
 
 % $\sigma$ names the object this paper is about, so it is set bold wherever it
@@ -193,6 +208,8 @@ Total Extraction via Structural Arithmetic Verification}
 
 \begin{document}
 \maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
 
 \begin{figure*}[!t]
 \centering
@@ -251,7 +268,7 @@ $0.953$ for either signal alone at matched coverage.}
 Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study sigma-verifier, a model-external validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Arithmetic cross-checking of this kind is long-standing industrial practice, and we claim no novelty for the check itself; what we did not find published is a measurement of it as a signal orthogonal to the model's own confidence, which is what this paper provides. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\% (a 77\% relative reduction; 55--81\% per corpus), at the cost of accepting 18\% of receipts rather than 38\%.
 \end{abstract}
 
-\vspace{10pt}
+\vspace{\dimexpr 10pt-\parskip\relax}
 
 \begin{IEEEkeywords}
 \itshape
@@ -866,16 +883,6 @@ In this work, we presented the sigma-verifier, a model-agnostic validation layer
 
 Our results show that combining the sigma-verifier with the model's softmax confidence reduces the silent-wrong-total rate among the receipts it accepts. Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the coverage cost set out above, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
 
-% Tighten only the bibliography list spacing (purely typographic; no
-% reference is dropped or shortened).
-\let\oldthebibliography\thebibliography
-\renewcommand{\thebibliography}[1]{%
-  \oldthebibliography{#1}%
-  \setlength{\itemsep}{0pt}%
-  \setlength{\parsep}{0pt}%
-  \setlength{\topsep}{0pt}%
-  \setlength{\partopsep}{0pt}%
-}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

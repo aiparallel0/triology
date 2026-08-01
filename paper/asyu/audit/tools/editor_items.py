@@ -21,6 +21,30 @@ import os
 import re
 import sys
 
+def check_ten_nk(src):
+    """The gap must MEASURE 10pt, which is not the same as writing 10pt.
+
+    \\parskip already contributes its own 6pt after the abstract, so a bare
+    \\vspace{10pt} there produces 16pt and silently overshoots what the editor
+    asked for. The correct form subtracts what \\parskip gives:
+
+        \\vspace{\\dimexpr 10pt-\\parskip\\relax}
+
+    This check pinned the literal \\vspace{10pt} for three revisions, so it was
+    asserting the bug rather than the requirement.
+    """
+    import re as _re
+    seg = src[src.find('\\end{abstract}'):]
+    seg = seg[:seg.find('\\begin{IEEEkeywords}') + 1] or seg[:400]
+    if _re.search(r'\\vspace\{\\dimexpr\s*10pt\s*-\s*\\parskip', seg):
+        return True
+    # A bare 10pt is only correct when \parskip contributes nothing.
+    if _re.search(r'\\vspace\{10pt\}', seg):
+        m = _re.search(r'\\setlength\{\\parskip\}\{([0-9.]+)pt', src)
+        return not m or float(m.group(1)) == 0
+    return False
+
+
 def check_no_body_linespread(src):
     """True when the body is NOT overridden away from the class default."""
     import re as _re
@@ -44,8 +68,8 @@ CHECKS = [
     # the body is left at IEEEtran's leading.
     ("1c", "body left at the IEEEtran default (no linespread hack)",
      check_no_body_linespread),
-    ("2 ", "10 nk between Abstract and Keywords",
-     r'\\end\{abstract\}(?:[^\n]*\n){0,8}[^\n]*\\vspace\{10pt\}'),
+    ("2 ", "10 nk between Abstract and Keywords (net of \\parskip)",
+     check_ten_nk),
     ("3 ", "6 nk after every paragraph",
      r'\\setlength\{\\parskip\}\{6pt'),
     ("4 ", "period after the table label (TABLE I.)",
