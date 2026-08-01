@@ -50,6 +50,18 @@
 \setcounter{topnumber}{4}
 \setcounter{bottomnumber}{3}
 
+% A tight numbered list for the decision-rule breakdown in Section III.
+% Defined here rather than by loading enumitem: the venue fixes the list
+% metrics and a package that resets them globally is a conformance risk.
+\newcounter{stepc}
+\newenvironment{steps}
+  {\begin{list}{\textbf{\arabic{stepc}.}}{\usecounter{stepc}%
+    \setlength{\leftmargin}{1.35em}\setlength{\labelwidth}{1.05em}%
+    \setlength{\labelsep}{0.3em}\setlength{\itemsep}{1pt}%
+    \setlength{\parsep}{0pt}\setlength{\topsep}{2pt}%
+    \setlength{\partopsep}{0pt}\setlength{\rightmargin}{0pt}}}
+  {\end{list}}
+
 \newcommand{\PH}[1]{\textcolor{red}{\texttt{\detokenize{[#1]}}}}
 
 \definecolor{ok}{HTML}{2ca02c}
@@ -245,23 +257,21 @@ Total Extraction via Structural Arithmetic Verification}
 \draw[->,line width=1.6pt,ok!85] (new.east) -- (pn.west);
 \node at (15.2,-2.40) [font=\footnotesize\bfseries,text=ok!70!black]{precision when both fire};
 \end{tikzpicture}
-\caption{\textbf{The question this paper answers.} An AI reads a
-receipt and predicts a total. In standard practice the only ``should I
-trust this number?'' signal has been the model's own
-\emph{softmax confidence} (a number it produces about its own answer).
-This paper measures $\sigma$, an arithmetic check on the receipt
-itself, long used in industry and not introduced here, that doesn't
-read the model at all; on $1019$ real receipts across two
-AI architectures and three corpora, combining the two signals
-yields $0.989$ precision (Wilson 95\% lower bound $0.961$), against
-$0.953$ for either signal alone at matched coverage.}
+\caption{\textbf{The question this paper answers.} An AI reads a receipt
+and predicts a total. In standard practice the only ``should I trust this
+number?'' signal is the model's own \emph{softmax confidence}, a number it
+produces about its own answer. We measure $\sigma$, an arithmetic check on
+the receipt itself that does not read the model at all. On $1019$ receipts
+across two architectures and three corpora, requiring both signals yields
+$0.989$ precision (Wilson 95\% lower bound $0.961$) against $0.953$ for
+either alone at matched coverage.}
 \label{fig:scope}
 \end{figure*}
 
 \begin{abstract}
 \boldmath
 \linespread{1}\selectfont
-Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study sigma-verifier, a model-external validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Arithmetic cross-checking of this kind is long-standing industrial practice, and we claim no novelty for the check itself; what we did not find published is a measurement of it as a signal orthogonal to the model's own confidence, which is what this paper provides. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\% (a 77\% relative reduction; 55--81\% per corpus), at the cost of accepting 18\% of receipts rather than 38\%.
+Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study the \emph{sigma-verifier}: a validation layer that runs outside the model and asks whether any subset of the itemized lines on a receipt adds up to the predicted total. We answer that question exactly, as a 0/1-knapsack problem over the amounts the receipt itself prints. We evaluated the sigma-verifier on receipt-parsing systems built from two prominent architectures, Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3}, across three public benchmarks. Arithmetic cross-checking of this kind is long-standing industrial practice and we claim no novelty for the check itself; what we did not find published is a measurement of it as a signal orthogonal to the model's own confidence, which is what this paper provides. The headline result is a fourfold cut in silent wrong totals. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\%, a 77\% relative reduction (55--81\% per corpus). The cost is coverage: 18\% of receipts accepted rather than 38\%.
 \end{abstract}
 
 \vspace{\dimexpr 10pt-\parskip\relax}
@@ -277,70 +287,72 @@ Document Understanding, Selective Prediction, Receipt Reading, Key-Information E
 \section{Introduction}
 \label{sec:intro}
 
-\emph{Receipt key-information extraction} (KIE) means: a model reads a
-receipt image and outputs named fields: vendor, date, taxes, and
-especially the \emph{total}. The outputs flow directly into
-tax filings, expense pipelines, audit logs, and
-bookkeeping. A silently wrong
-\emph{total} is not recoverable downstream; commercial vendors
-(Expensify, QuickBooks, SAP Concur) process millions of
-receipts per day and a wrong total at scale translates into major failure. The standard mitigation is \emph{selective
-prediction}~\cite{geifman2017selectivenet,elyaniv2010foundations}: let
-the model defer (say ``I'm not sure'') on inputs it cannot reliably
-handle. Every deployment needs a signal to drive the defer-versus-accept
-decision.
+\emph{Receipt key-information extraction} (KIE) is the task of reading a
+receipt image and returning named fields: vendor, date, taxes, and above all
+the \emph{total}. Those outputs flow straight into tax filings, expense
+pipelines, audit logs, and bookkeeping, and a silently wrong total is not
+recoverable downstream. Commercial vendors (Expensify, QuickBooks, SAP
+Concur) process millions of receipts per day, so an undetected wrong total at
+that scale is a systematic failure rather than an isolated one. No extractor
+is accurate enough to remove that risk, which is why the standard mitigation
+is not a better extractor but \emph{selective
+prediction}~\cite{geifman2017selectivenet,elyaniv2010foundations}: letting
+the model decline to answer, saying ``I'm not sure,'' on inputs it cannot
+reliably handle. That substitutes one problem for another. Every deployment
+now needs a \emph{signal} on which to base the accept-or-defer call, and
+which signal that should be is the question this paper takes up.
 
-\noindent\textbf{The longstanding default and its flaw.} In neural KIE the only such
-signal has been \emph{softmax confidence}: the geometric mean of the
-probabilities the model assigned to the tokens it actually
+\noindent\textbf{The longstanding default and its flaw.} In neural KIE that
+signal has almost always been \emph{softmax confidence}: the model's own
+estimate of how sure it is, computed as the geometric mean of the
+probabilities it assigned to the tokens it actually
 emitted~\cite{malinin2021uncertainty,vashurin2025benchmark,fadeeva2023polygraph}.
-The flaw is structural. Softmax is a property of the \emph{generator itself},
-so a model that hallucinates a probable total often does so confidently.
-Industrial OCR pipelines have long applied post-detection arithmetic
-cross-checks; what we did not find published is an evaluation of such a check
-as an independent, model-internal-free verification signal with paired
-statistics against softmax.
+The flaw is structural rather than a matter of calibration. Softmax is a
+property of the \emph{generator itself}, so a model that hallucinates a
+plausible total typically does so with high confidence, and the one signal
+available to catch the error is produced by the very process that made it.
+What a deployment wants instead is a second opinion computed from something
+other than the model.
 
 \noindent\textbf{Our contribution.} We propose
 $\sigma$\footnote{Throughout, $\sigma$ names the verifier
-defined below, not the standard-deviation symbol.} as that independent
-signal. Fig.~\ref{fig:scope} sets out the whole argument: an AI predicts a
-total, standard practice trusts only the model's own softmax confidence, and
-$\sigma$ supplies a second opinion computed from the receipt's arithmetic
-rather than from the model, so the two can be required to agree. It accepts the
-predicted total when some subset of the monetary amounts visible on the
-receipt sums to it within tolerance (Section~\ref{sec:method}). The witness
-exists by
-construction on well-formed receipts: the total \emph{is} a sum of
-visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
-program (DP), with measured sub-millisecond $p_{99}$ latency
+defined below, not the standard-deviation symbol.} as that second opinion.
+Fig.~\ref{fig:scope} sets out the whole argument: an AI predicts a total,
+standard practice trusts only the model's own softmax confidence, and
+$\sigma$ checks the same number against the receipt's arithmetic, so the two
+can be required to agree. $\sigma$ accepts the predicted total when some
+subset of the monetary amounts visible on the receipt sums to it within
+tolerance (Section~\ref{sec:method}). Such a witness exists by construction
+on a well-formed receipt, because the total \emph{is} a sum of visible
+amounts. The verifier is a textbook $0/1$-knapsack dynamic program (DP),
+with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
-\noindent\textbf{Why this matters operationally.}
-Silent failures are the expensive mode: a plausible wrong total is filed
-unchallenged and propagates for weeks before audit. Human verification costs
-$10^2$--$10^3\times$ an inference pass, so deferring has to be selective. And
-regulation (EU AI Act, financial-services model-risk rules) increasingly
-mandates documented per-prediction trust signals; $\sigma$ is computed on the
-document, not the model, so it produces a separate audit trail.
+\noindent\textbf{Why this matters operationally.} Silent failures are the
+expensive mode: a plausible wrong total is filed unchallenged and propagates
+for weeks before audit. Deferring therefore has to be selective, because human
+review is orders of magnitude costlier than an inference pass
+(Section~\ref{sec:results-headline}). Regulation (EU AI Act,
+financial-services model-risk rules) increasingly mandates documented
+per-prediction trust signals, and $\sigma$ is computed on the document rather
+than the model, so it produces a separate audit trail.
 
 \noindent\textbf{The general principle.} \emph{When a task's output admits a
 checkable structural constraint, a deterministic verifier of that constraint is
 a confidence signal statistically orthogonal to the model's own softmax,
 because its errors are governed by document structure rather than decoder
-logits.} Receipts are a clean instantiation; the construction applies wherever
-a structural invariant is checkable: balancing tables, schemas with
-referential constraints, code with type checks, logic with a solver.
+logits.} Receipts are a clean instantiation; the construction applies to
+balancing tables, schemas with referential constraints, code with type checks,
+and logic with a solver.
 
 \noindent\textbf{Contributions.} (i)~A measurement of $\sigma$ as a
-selective-prediction signal on receipt KIE (Section~\ref{sec:method}). The
-arithmetic check itself is established industrial practice and we claim no
-methodological novelty for it; what we were unable to find in the published
-literature is an evaluation of such a check \emph{as a signal orthogonal to the
-model's own softmax}, with the paired statistics that claim requires. (ii)~Empirical validation on a pooled
+selective-prediction signal on receipts (Section~\ref{sec:method}). The check
+itself is established industrial practice and we claim no methodological
+novelty for it; the contribution is the measurement, with the paired
+statistics such a claim requires (Section~\ref{sec:related}). (ii)~Empirical validation on a pooled
 three-corpus benchmark of $n{=}1019$ receipts spanning two backbones
 (Donut generative, LayoutLMv3 encoder-only) and three regimes (CORD
-labelled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
+labeled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
 precision lower bounds for every cell (Section~\ref{sec:results-headline}).
 (iii)~Statistical orthogonality via paired McNemar tests
 (Section~\ref{sec:results-mcnemar}); a regime-mechanistic explanation of
@@ -351,99 +363,118 @@ $40\%$ injected money-line noise plus a cardinality-guard ablation
 \section{Related Work}
 \label{sec:related}
 
-Selective prediction has a long history~\cite{geifman2017selectivenet,
-elyaniv2010foundations,jaeger2024augrc}; for sequence-to-sequence
-generators (such as Donut) the standard signals are derived from the
-generator's own token-level probabilities~\cite{malinin2021uncertainty,
-vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
-semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}. $\sigma$ is not a different
-softmax aggregator but a different \emph{signal} that does not read
-the model at all.
+\noindent\textbf{Signals that read the model.} Selective prediction has a long
+history~\cite{geifman2017selectivenet,elyaniv2010foundations,jaeger2024augrc}.
+For sequence-to-sequence generators the standard signals come from the
+generator's own token-level
+probabilities~\cite{malinin2021uncertainty,vashurin2025benchmark,fadeeva2023polygraph}
+or from sample-based semantic
+divergence~\cite{kuhn2023semantic,farquhar2024semantic}; Monte-Carlo dropout
+and deep ensembles belong here as well. These differ in how they aggregate,
+but every one of them interrogates the model. $\sigma$ is not a further
+softmax aggregator; it is a signal that does not read the model at all.
 
-\noindent\textbf{Industrial prior art and program-level verification.}
-Arithmetic cross-checks of receipt totals are common engineering
-practice (expense-management software has used them for at least a
-decade). What has not been reported is how well it performs as a
-selective-prediction signal, which is what this paper measures. Program- and logic-level verification of
-generative outputs has appeared in narrower settings (code-execution
-validation, faithful chain-of-thought); $\sigma$ instantiates that
-spirit for receipt KIE, where the target is closed-form arithmetic
-over visible quantities.
+\noindent\textbf{Signals that read the output.} Arithmetic cross-checks of
+receipt totals are common engineering practice, and expense-management
+software has used them for at least a decade. Program- and logic-level
+verification of generative outputs appears in narrower settings such as
+code-execution validation and faithful chain-of-thought, and structure-aware
+verification appears for table reconstruction~\cite{nassar2022tableformer}.
+$\sigma$ instantiates that spirit for receipt KIE, where the target admits
+closed-form arithmetic over visible quantities. \emph{This is the gap we
+address}: across this literature we could not locate such a check evaluated as
+a softmax-orthogonal selective predictor on fixed off-the-shelf models, with
+paired statistics across architectures. The check is old; the measurement is
+what is missing.
 
-\noindent\textbf{Two architectures.} Donut~\cite{kim2022donut} is a \emph{generative}
-vision-encoder-decoder producing structured JSON; LayoutLMv3~\cite{huang2022layoutlmv3}
-is an \emph{encoder-only} token-classifier. Structure-aware verification has
-appeared for table reconstruction~\cite{nassar2022tableformer}; what has not
-been reported is an arithmetic check evaluated as a softmax-orthogonal
-selective predictor on fixed off-the-shelf KIE models, with paired statistics
-across two architectures. Conformal prediction~\cite{angelopoulos2021gentle}
-gives calibrated coverage but no verifier-style precision rule; the two are
-complementary and stackable, since conformal calibrates from past
-prediction-truth pairs while $\sigma$ verifies one prediction against the
-document's own arithmetic.
+\noindent\textbf{The two backbones we verify.} Because $\sigma$ is
+model-agnostic we test it on two structurally opposite designs.
+Donut~\cite{kim2022donut} is \emph{generative} and OCR-free: a
+vision-encoder-decoder that reads pixels and emits structured JSON one token
+at a time. LayoutLMv3~\cite{huang2022layoutlmv3} is \emph{encoder-only}: it
+consumes OCR text together with its layout coordinates and the page image, and
+labels each token with a field. Their confidence scores are therefore
+different objects (Section~\ref{sec:setup}), which is exactly why a verifier
+that ignores both is worth measuring. Conformal
+prediction~\cite{angelopoulos2021gentle} is complementary rather than
+competing: it calibrates coverage from past prediction-truth pairs, whereas
+$\sigma$ verifies one prediction against the document's own arithmetic.
 
 \section{Method}
 \label{sec:method}
 
-\noindent\textbf{Problem.} Given a receipt image $x$, a KIE model emits a
-predicted total $\pi(x)\in\mathbb{Q}_{\geq 0}$. Let $y(x)$ be the
-gold total. A selective predictor is a binary decision rule
-$g:x\mapsto\{\text{accept},\text{reject}\}$ with
-\emph{coverage} $C(g)=\Pr[g{=}\text{accept}]$ (how often it doesn't
-defer) and \emph{precision}
-$P(g)=\Pr(\pi{=}y\mid g{=}\text{accept})$ (how often it's right when
-it doesn't defer).
+\noindent\textbf{Problem.} Given a receipt image $x$, the KIE model emits a
+predicted total, written $\pi(x)$, a non-negative rational number of currency
+units; write $y(x)$ for the gold total. A \emph{selective predictor} is a rule
+$g$ that makes one of two calls on every receipt: \emph{accept} the predicted
+total, or \emph{reject} it and defer to a person. Two numbers describe such a
+rule. Its \emph{coverage} $C(g)=\Pr[g{=}\text{accept}]$ is how often it
+answers rather than defers, and its \emph{precision}
+$P(g)=\Pr(\pi{=}y\mid g{=}\text{accept})$ is how often it is right when it
+does answer. Raising one normally lowers the other, and this paper is about
+buying precision at an acceptable price in coverage.
 
-\noindent\textbf{The $\sigma$ decision rule.} Let $M(x)=\{m_1,\dots,m_n\}$ be the
-multiset of monetary amounts extracted from $x$. Fix
-$k_{\min}\in\{1,2\}$ (the smallest subset size we'll accept as a
-witness; without this, a single line item that happens to equal the
-total would always pass) and tolerance $\varepsilon\geq 0$ (in
-currency units). Define the reachable set
+\noindent\textbf{The $\sigma$ decision rule.} Let $M(x)=\{m_1,\dots,m_n\}$ be
+the multiset of monetary amounts recovered from $x$ by an extractor $\tau$
+(defined per corpus below). Fix a tolerance $\varepsilon\geq0$ in currency
+units and a minimum witness size $k_{\min}\in\{1,2\}$, the smallest subset we
+accept as evidence; without it a single line item that happens to equal the
+total would always pass. Write the \emph{reachable set}, every total those
+amounts can produce, as
 \begin{equation}
 \label{eq:reach}
 T(M)=\Big\{\textstyle\sum_{i\in S}m_i\,\Big|\,
    S\subseteq\{1,\dots,n\},\,|S|\geq k_{\min}\Big\}.
 \end{equation}
-$\sigma$ accepts $\pi$ iff $\inf_{t\in T(M)}|t-\pi|\leq\varepsilon$:
-some subset of receipt amounts sums to the predicted total within
-$\varepsilon$. $T(M)$ is computed by a textbook $0/1$-knapsack
-DP. Amounts are stored as integer cents to avoid floating-point
-surprises. Measured on CPU the per-receipt DP has median
-\latMedian~\latUnit{} and $p_{99}$ of \latPNineNine~\latUnit{}
-(Fig.~\ref{fig:latency}).
+The rule then runs in three steps, shown here on a receipt printing
+$\{12.50,\,8.00,\,4.20,\,3.20\}$ for which the model predicts $\pi{=}24.70$.
+
+\begin{steps}
+\item \textbf{Collect.} Extract every monetary amount printed on the receipt
+into $M(x)$; here $n{=}4$.
+\item \textbf{Reach.} Compute $T(M)$ by~(\ref{eq:reach}) with a textbook $0/1$-knapsack dynamic
+program (DP) over amounts held as integer cents, which avoids floating-point
+surprises. Measured on CPU this step has median \latMedian~\latUnit{} and
+$p_{99}$ of \latPNineNine~\latUnit{} per receipt (Fig.~\ref{fig:latency}).
+\item \textbf{Compare.} Accept $\pi$ iff
+$\inf_{t\in T(M)}|t-\pi|\leq\varepsilon$, that is, iff some subset sums to the
+prediction within $\varepsilon$; otherwise defer. Here
+$12.50{+}8.00{+}4.20=24.70$ is a witness, so $\sigma$ accepts. Had the model
+predicted $24.90$, the nearest reachable total would be $24.70$ and $\sigma$
+would defer.
+\end{steps}
 
 \noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on whether the total
-appears on the receipt as a labelled line. Where amounts are labelled, that
+appears on the receipt as a labeled line. Where amounts are labeled, that
 line is already in $M$ and a singleton witness $\pi{=}m_j$ is a coincidence
 rather than the intended structural match, so $k_{\min}{=}2$ excludes it; on
-OCR-derived corpora the labelled total is often surfaced by OCR, the singleton
+OCR-derived corpora the labeled total is often surfaced by OCR, the singleton
 is legitimate, and $k_{\min}{=}1$ helps on both axes
 (Table~\ref{tab:guard}). We use $k_{\min}{=}2$ on CORD and WildReceipt,
 $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ iff
 the extractor surfaces a single amount equal to $\pi$ on more than a fraction
 $\theta$ of receipts, a computable property of the $(\pi,M)$ stream alone. The
 corpora separate cleanly ($0.07/0.05/0.41$), so the rule is insensitive to
-$\theta$ over $[0.1,0.4]$. It is a deployment-time decision rule, not a
-label-tuned hyperparameter.
+$\theta$ over $[0.1,0.4]$. It is a deployment-time rule, not a hyperparameter
+tuned on labels.
 
-\noindent\textbf{Amount extraction $\tau$.} On labelled-amount corpora
-(CORD), $M$ comes directly from the per-field JSON. On OCR-derived
-corpora (SROIE), we use a multi-candidate extractor over the OCR text:
-when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), we keep
-both interpretations as candidates $M_k$ and accept $\pi$ if any
-candidate yields a witness ($3.12$ candidates per receipt on average).
-On WildReceipt (encoder-only), $M$ comes from the per-token
-Prod_price_value annotations.
+\noindent\textbf{The extractor $\tau$.} $\tau$ is the procedure that produces
+$M$ from $x$, and it is the only part of $\sigma$ that is corpus-specific. On
+labeled-amount corpora (CORD), $M$ comes directly from the per-field JSON. On
+OCR-derived corpora (SROIE), $\tau$ is a multi-candidate extractor over the
+OCR text: when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), it keeps
+both readings as candidates $M_k$ and accepts $\pi$ if any candidate yields a
+witness ($3.12$ candidates per receipt on average). On WildReceipt
+(encoder-only), $M$ comes from the per-token Prod_price_value
+annotations.
 
 \noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
-confidence. For a coverage budget $c$, the softmax decision rule
-accepts the top-$c$ fraction of receipts by $s$. We compose at
-per-corpus matched coverage: $c$ equal to $\sigma$'s coverage on that
-corpus. The combination of the two decision rules,
-$\sigma\sqcap\text{softmax}$, accepts iff both fire. We refer to any
-such accept/defer decision rule, $\sigma$, softmax, or their
-combination, as a \emph{gate}.
+confidence. For a coverage budget $c$, the softmax decision rule accepts the
+top-$c$ fraction of receipts by $s$. We compose at per-corpus matched
+coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, so the two
+rules are compared at the same operating point rather than at the same
+threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts iff both
+accept.
 
 \section{Experimental Setup}
 \label{sec:setup}
@@ -451,7 +482,7 @@ combination, as a \emph{gate}.
 \noindent\textbf{Datasets.} We use three public receipt benchmarks,
 chosen to span the labelling regimes that matter in practice.
 \textbf{CORD-v2}~\cite{park2019cord} test+validation ($n{=}200$,
-labelled per-field amounts; CORD-v2 \emph{train} is the Donut
+labeled per-field amounts; CORD-v2 \emph{train} is the Donut
 fine-tuning split and is excluded to keep the evaluation
 leakage-free); \textbf{SROIE Task-3}~\cite{huang2019sroie} canonical
 ($n{=}347$, OCR-derived amounts); \textbf{WildReceipt}
@@ -479,21 +510,18 @@ McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 the softmax score is the geometric mean of per-token probabilities
 over the predicted total_value span in the decoder's
 autoregressive output; for LayoutLMv3, the geometric mean of the
-predicted-class probability on input tokens tagged Total_value. The
-two objects are architecture-specific
-(decoder vs.\ token-classifier probabilities) but conceptually
-analogous, each being the model's self-assessed probability of its
-emitted total-value tokens, and we treat them as the
-architecture-appropriate ``model self-confidence,'' not as
-numerically interchangeable.
+predicted-class probability on input tokens tagged Total_value. Both are the
+model's self-assessed probability of its emitted total-value tokens, so we
+treat them as the architecture-appropriate ``model self-confidence'' but not
+as numerically interchangeable.
 
-\noindent\textbf{Which extractor each experiment uses.} Two settings appear
-in this paper. The multi-candidate extractor of Section~\ref{sec:method} is the
-default and is used for every headline result; the fixed single-candidate
-extractor is used only in the two ablations (Tables~\ref{tab:guard}
-and~\ref{tab:robust}), where holding $\tau$ fixed isolates the variable being
-tested. This is why the $r{=}0$ row of Table~\ref{tab:robust} shows a different
-CORD coverage from the headline: a different extractor, not a different result.
+\noindent\textbf{Which extractor each experiment uses.} The multi-candidate
+extractor $\tau$ of Section~\ref{sec:method} is the default and produces every
+headline result; a fixed single-candidate extractor is used only in the two
+ablations (Tables~\ref{tab:guard} and~\ref{tab:robust}), where holding $\tau$
+fixed isolates the variable being tested. This is why the $r{=}0$ row of
+Table~\ref{tab:robust} shows a different CORD coverage from the headline: a
+different extractor, not a conflicting result.
 
 \section{Results}
 \label{sec:results}
@@ -522,15 +550,12 @@ softmax-only           & 202 & 0.198 & 186 & 0.921 & [0.875,0.951] \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/fig_overview.pdf}
-\caption{Per-corpus orthogonality. Bars: $\sigma$ (blue),
-matched-coverage softmax (orange), the combination of decision rules
-$\sigma\sqcap\text{softmax}$ (hatched), and the $\sigma$-only slice.
-At matched coverage the combination exceeds either single rule on
-WildReceipt and SROIE; on CORD it exceeds the matched-coverage softmax
-rule while $\sigma$-alone at full coverage is nominally higher on a
-different (larger) accept set, consistent with the
-strongest-per-corpus (not pooled) framing. WildReceipt is the cleanest
-case: equal at $0.953$ alone, $0.991$ when combined.}
+\caption{Per-corpus orthogonality. Bars: $\sigma$ (blue), matched-coverage
+softmax (orange), their combination $\sigma\sqcap\text{softmax}$ (hatched),
+and the $\sigma$-only slice. On CORD the combination exceeds the
+matched-coverage softmax rule, while $\sigma$-alone at full coverage is
+nominally higher on a different and larger accept set, consistent with the
+strongest-per-corpus rather than pooled framing.}
 \label{fig:overview}
 \end{figure*}
 
@@ -561,12 +586,10 @@ case: equal at $0.953$ alone, $0.991$ when combined.}
 
 \node at (3.3,-1.05) [text=ok!70!black,font=\bfseries,align=center]{\textbf{113 / 114} correct in the joint slice};
 \end{tikzpicture}
-\caption{\textbf{The striking case: WildReceipt.} $\sigma$ and softmax
-achieve identical $0.953$ single-rule precision yet fail on
-\emph{disjoint} receipts (McNemar $b{=}c{=}91$ exactly,
-Table~\ref{tab:mcnemar}). Their combination rises to $0.991$
-($113/114$). The orthogonality argument doesn't require dominance,
-only disjoint errors.}
+\caption{\textbf{The striking case: WildReceipt.} $\sigma$ and softmax achieve
+identical $0.953$ single-rule precision yet fail on \emph{disjoint} receipts
+(McNemar $b{=}c{=}91$ exactly, Table~\ref{tab:mcnemar}). Their combination
+rises to $0.991$ ($113/114$).}
 \label{fig:wildreceipt}
 \end{figure}
 
@@ -590,41 +613,34 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \end{table}
 
 \noindent\textbf{The headline.} Table~\ref{tab:headline-pooled} reports pooled results across all
-$1{,}019$ receipts. The key finding is that the combination of
-$\sigma$ and softmax is the only configuration that clears the
-$0.95$ precision floor required for fully automated processing,
-achieving a Wilson 95\% lower bound of $0.961$. Neither gate alone
-reaches this threshold: $\sigma$ alone has a lower bound of $0.918$
-and softmax alone $0.927$.
+$1{,}019$ receipts. The key finding is that the combination of $\sigma$ and
+softmax is the only configuration that clears the $0.95$ precision floor
+required for fully automated processing, achieving a Wilson 95\% lower bound
+of $0.961$; neither rule alone reaches it ($0.918$ and $0.927$).
 
 \noindent\textbf{The cost of the gain.} The combination accepts only $18.1\%$ of
-receipts against $37.9\%$ for either gate alone: roughly four receipts in five
+receipts against $37.9\%$ for either rule alone: roughly four receipts in five
 still go to a person, so this is triage rather than automation. Whether that
 trade is worthwhile is a deployment question. With human review costing $\rho$
 inference passes ($\rho\in[10^2,10^3]$) and a silent wrong total costing
-$\kappa$, moving from softmax-matched ($c{=}0.379$, $p{=}0.953$) to the
-combination ($c{=}0.181$, $p{=}0.989$) pays whenever $\kappa\gtrsim13\rho$: a
-condition, not a universal claim. It holds in high-stakes financial pipelines
-and not in low-stakes bulk capture, where the matched-coverage softmax rule is
-the better choice.
+$\kappa$, moving from the softmax-matched row of Table~\ref{tab:headline-pooled}
+to the combination pays whenever $\kappa\gtrsim13\rho$: a condition, not a
+universal claim. It holds in high-stakes financial pipelines and not in
+low-stakes bulk capture, where matched-coverage softmax is the better choice.
 
-\noindent\textbf{Does it survive splitting?} Table~\ref{tab:headline-percorpus} breaks down the combined decision
-rule results per dataset to check whether the pooled finding in
-Table~\ref{tab:headline-pooled} is an artefact of combining three
-datasets into one number. At matched coverage the combination beats the
-softmax rule on all three datasets; CORD is the exception to the comparison
-against $\sigma$-alone, and Fig.~\ref{fig:overview} sets out why.
-
-\noindent\textbf{Per corpus.} WildReceipt on LayoutLMv3 is the strongest
-cell and SROIE on Donut the weakest, and the SROIE lower bound of $0.796$
-should be read cautiously: only $15$ receipts were accepted by the
-combination, too small a sample for anything beyond consistency with the
-overall finding. The benefit itself holds across both datasets and
-architectures. The pooled
-$n{=}\poolN{}$ is unevenly weighted at $200/347/472$ and carried by
-WildReceipt, so the per-corpus table, not the pool, is the headline.
-Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
-Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
+\noindent\textbf{Does it survive splitting?} Table~\ref{tab:headline-percorpus}
+breaks the combination down per dataset, to check that the pooled finding is
+not an artifact of merging three datasets into one number. At matched coverage
+the combination beats the softmax rule on all three; CORD is the exception only
+against $\sigma$-alone, and Fig.~\ref{fig:overview} sets out why. WildReceipt
+on LayoutLMv3 is the strongest cell and SROIE on Donut the weakest, and the
+SROIE lower bound of $0.796$ should be read cautiously: the combination
+accepted only $15$ receipts there, too small a sample for anything beyond
+consistency with the overall finding. The benefit itself holds across both
+datasets and architectures. Because the pooled $n{=}\poolN{}$ is unevenly
+weighted at $200/347/472$ and carried by WildReceipt, the per-corpus table
+rather than the pool is the headline; Fig.~\ref{fig:wildreceipt} singles out
+the WildReceipt case.
 
 \subsection{RQ2: Do the Two Signals Fail on the Same Receipts?}
 \label{sec:results-mcnemar}
@@ -645,11 +661,10 @@ WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
 \end{tabular}
 \end{table}
 
-\noindent\textbf{Same receipts, or different ones?} Table~\ref{tab:mcnemar} addresses this directly: do $\sigma$
-and softmax tend to fail on the same receipts, or on different ones?
-If they failed together, combining them would offer little benefit:
-you would simply be applying two filters that agree with each other
-most of the time.
+\noindent\textbf{Same receipts, or different ones?} Table~\ref{tab:mcnemar}
+answers this directly. If the two failed together, combining them would offer
+little benefit: you would simply be applying two filters that agree with each
+other most of the time.
 
 \noindent\textbf{How the test works.} It counts two kinds of disagreement.
 $b$ counts receipts where $\sigma$ is correct but softmax is not,
@@ -659,14 +674,12 @@ $b$ and $c$ are roughly equal, neither signal is consistently better
 than the other; they are simply catching different mistakes, which
 is precisely what makes combining them powerful.
 
-\noindent\textbf{The counts are balanced.} On
-WildReceipt, $b$ and $c$ are exactly equal at $91$, meaning $\sigma$
-and softmax each rescue an identical number of receipts that the
-other misses. The high $p$-values across all datasets, all above
-$0.6$, confirm there is no statistically significant asymmetry in
-either direction. This is the key evidence that the two signals are
-independent: they fail on different receipts, so requiring both to
-agree filters out errors that neither could catch alone. Strictly,
+\noindent\textbf{The counts are balanced.} On WildReceipt, $b$ and $c$ are
+exactly equal at $91$: $\sigma$ and softmax each rescue an identical number of
+receipts the other misses, and every $p$-value exceeds $0.6$, so there is no
+significant asymmetry in either direction. This is the key evidence that the
+two signals are independent: they fail on different receipts, so requiring
+both to agree filters out errors neither could catch alone. Strictly,
 McNemar non-rejection is absence of evidence for asymmetry rather
 than positive evidence of error-decorrelation; the direct
 correlation-on-errors test (Section~\ref{sec:results-control})
@@ -678,7 +691,7 @@ supplies the latter.
 \noindent\textbf{The obvious objection.} Combining any two
 better-than-random decision rules with imperfectly correlated errors raises
 precision and lowers coverage. Is the headline just that generic effect? We
-re-analyse the same per-receipt accept/correct vectors, with no new inference.
+re-analyze the same per-receipt accept/correct vectors, with no new inference.
 Define the lift $L=P(\sigma\sqcap\text{softmax})-P(\text{softmax at matched
 coverage})$ and compare it at identical coverage against two controls: (A)~a
 \emph{random} decision rule accepting a uniform random subset of size
@@ -694,17 +707,16 @@ exceeds the random decision rule by $\orthDrand$ (95\,\% CI
 $[\orthDrandLo,\orthDrandHi]$, one-sided $p{=}\orthDrandP$) and the correlated
 one by $\orthDcorr$ ($[\orthDcorrLo,\orthDcorrHi]$, $p{=}\orthDcorrP$). We
 also measure error decorrelation directly inside the softmax-accepted set,
-asking whether $\sigma$ rejects precisely the softmax-wrong receipts:
-$\phi{=}\orthPhi$ (permutation $p{=}\orthPhiP$). That is positive evidence of
+asking whether $\sigma$ rejects precisely the softmax-wrong receipts: the phi
+coefficient between the two rules' errors is $\phi{=}\orthPhi$ (permutation
+$p{=}\orthPhiP$). That is positive evidence of
 orthogonality with no coverage-shrink confound, which the paired-McNemar result
 of Section~\ref{sec:results-mcnemar} only implies indirectly.
 
 \noindent\textbf{Two honest caveats.} The verdict is \orthEarned, but the
 pooled effect is \emph{small} ($\orthDrand$/$\orthDcorr$ precision lift), and
 it does \emph{not} hold per corpus
-(Section~\ref{sec:results-percorpus-rigor}). The CORD evaluation uses only its
-test+validation split ($n{=}200$, the Donut fine-tuning \emph{train} split
-excluded), so no result is inflated by leakage. We therefore claim a
+(Section~\ref{sec:results-percorpus-rigor}). We therefore claim a
 \emph{small, pooled, statistically-significant} orthogonality, and explicitly
 not a per-corpus or a large one.
 
@@ -737,8 +749,7 @@ $\rcAURCsoft$ for softmax-alone against $\rcAURCsig$ for the $\sigma$ rule, a
 paired-bootstrap difference of $\rcAURCd$ (95\,\% CI
 $[\rcAURCdLo,\rcAURCdHi]$, one-sided $p{=}\rcAURCp$); the interval excludes
 zero, verdict \rcEarned. We do not over-read it: the absolute difference is
-small and the lift costs coverage, so this is a modest operational gain,
-concentrated where base error is non-trivial (WildReceipt).
+small and the lift costs coverage, so the operational gain is modest.
 
 \subsection{RQ5: When Does Each Signal Win, and Why?}
 \label{sec:results-regime}
@@ -809,83 +820,72 @@ measured in microseconds on a single-thread CPU across 819 receipts.}
 \label{fig:latency}
 \end{figure}
 
-\noindent\textbf{When one line equals the total.} Table~\ref{tab:guard} isolates the
-cardinality guard on SROIE, where OCR often surfaces the total as a clean
-labelled line. With the guard off ($k_{\min}{=}1$) a single line matching the
-predicted total suffices; with it on ($k_{\min}{=}2$) at least two lines must
-sum to it. Turning it off is better on both axes: coverage rises from $2.9\%$
+\noindent\textbf{When one line equals the total.} Table~\ref{tab:guard} isolates
+the cardinality guard on SROIE, where OCR often surfaces the total as a clean
+labeled line. Turning it off is better on both axes: coverage rises from $2.9\%$
 to $16.1\%$ and precision from $0.900$ to $0.929$, because on OCR-derived data
 the singleton match is legitimate rather than coincidental, and forcing two
-items rejects valid receipts for nothing. This ablation fixes $k_{\min}$ with
-the single-scalar extractor, so its accept set differs from the multi-candidate
-headline of Table~\ref{tab:headline-pooled}: a different extractor
-configuration, not a conflicting result.
+items rejects valid receipts for nothing. Like Table~\ref{tab:robust}, this
+ablation holds $\tau$ at its single-candidate setting
+(Section~\ref{sec:setup}).
 
 \noindent\textbf{Degrading, not collapsing.} We corrupt the data deliberately,
 injecting from $0\%$ to $40\%$ false line-item amounts over $10$ seeds.
 Table~\ref{tab:robust} shows coverage falling steadily ($26.7\%$ to $9.1\%$)
-while precision stays between $0.949$ and $0.980$ at every level. The check becomes more selective
-under noise rather than less reliable, accepting fewer receipts but keeping
-those it accepts correct. The tolerance sweep $\varepsilon\in\{0.01,0.02,\dots,5.0\}$
+while precision stays between $0.949$ and $0.980$ at every level: under noise
+the check becomes more selective rather than less reliable. The tolerance
+sweep $\varepsilon\in\{0.01,0.02,\dots,5.0\}$
 on CORD returns identical coverage and precision at every value, reflecting
 sparsity of the reachable set: adjacent subset sums on CORD are spaced by more
-than $\$5.00$. Intervals here are bootstrap $95\%$ over the ten seeds, and the
-extractor is held at its single-candidate setting throughout, which is why the
-$r{=}0$ baseline ($0.267$ coverage) is not the CORD $\sigma$ headline of
-Fig.~\ref{fig:overview}.
+than $\$5.00$. Intervals here are bootstrap $95\%$ over the ten seeds.
 
-\noindent\textbf{Latency.} Fig.~\ref{fig:latency} reports the
-standalone processing time of the arithmetic check. The median time
-per receipt is $4.07$ microseconds, with $99\%$ of receipts processed
-in under $312$ microseconds and the slowest taking $715$
-microseconds. These are extremely fast: for context, the AI model
-inference that produces the predicted total takes hundreds of
-milliseconds on a GPU, meaning the arithmetic check adds negligible
-overhead to the overall pipeline. It is fast enough to run on every
-receipt in any production setting without any concern about speed; we
-do not, however, measure the end-to-end ratio on this CPU-only host.
+\noindent\textbf{Latency.} Fig.~\ref{fig:latency} reports the standalone
+processing time of the arithmetic check: median $4.07$ microseconds per
+receipt, $99\%$ under $312$ microseconds, slowest $715$. For context, the
+inference pass that produces the predicted total takes hundreds of
+milliseconds on a GPU, so the check adds negligible overhead and can run on
+every receipt in production. We do not, however, measure the end-to-end ratio
+on this CPU-only host.
 
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-\noindent\textbf{Why combining helps.} Orthogonality needs only
-errors on different inputs, not dominance, and the gain survives
-swapping Donut for LayoutLMv3, so $\sigma$ is signal-orthogonal to
-softmax across architectures.
+\noindent\textbf{Why combining helps.} Orthogonality needs only errors on
+different inputs, not dominance, and the gain survives swapping Donut for
+LayoutLMv3, so $\sigma$ is signal-orthogonal to softmax across architectures.
+Six limits bound that claim.
 
 \noindent\textbf{What $\sigma$ cannot do.} (i)~$\sigma$ requires
 arithmetic closure of the target field; totals, subtotals, and taxes,
 not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
 integer-cent inputs; fractional-cent rounding jurisdictions may need
 a different sweep. (iii)~$\sigma$ assumes $\pi$ is a parsed numeric
-scalar; format-hallucinated outputs require an upstream normaliser we
+scalar; format-hallucinated outputs require an upstream normalizer we
 do not benchmark. (iv)~In the OCR-derived regime $\sigma$ is valuable
 only in combination, not as a single decision rule
-(Section~\ref{sec:results-regime}). (v)~We compare against softmax only.
-Monte-Carlo dropout, deep ensembles and semantic entropy all read the model's
-own internals, so each inherits the failure mode $\sigma$ exists to catch; the
-baseline we would want, a second \emph{document-external} verifier, we know of
-none published.
-(vi)~The headline is a per-corpus claim: the pooled
-figure is carried by WildReceipt, the SROIE combined-rule cell ($n{=}15$)
-supports only a consistency statement, and the cardinality-guard inversion is
-measured directly only on SROIE. We evaluate one field across two backbones and
-three corpora; multi-field $\sigma$ is journal work.
+(Section~\ref{sec:results-regime}). (v)~We compare against softmax only; the
+model-internal alternatives of Section~\ref{sec:related} all inherit the
+failure mode $\sigma$ exists to catch, and we know of no published
+document-external verifier to compare against. (vi)~The headline is a
+per-corpus claim: the SROIE combined-rule cell ($n{=}15$) supports only a
+consistency statement, and the cardinality-guard inversion is measured
+directly only on SROIE. We evaluate one field across two backbones and three
+corpora; multi-field $\sigma$ is journal work.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this work, we presented the sigma-verifier, a model-agnostic
-validation layer that checks whether any subset of extracted itemized lines
-sums to the predicted total, and evaluated it across two document AI
-architectures and three receipt databases. Combining it with the model's
-softmax confidence reduces the silent-wrong-total rate among accepted receipts
-from 4.7\% to 1.1\% pooled, an $\approx$77\% relative reduction and roughly
-four-fold fewer audit-exposing failures, at the coverage cost set out above;
-the pooled lift is individually significant only on WildReceipt. Used as an
-independent validation layer under that trade, the sigma-verifier offers
-structural benefits for high-stakes financial reporting and downstream auditing
-systems.
+In this work, we presented the sigma-verifier, a model-agnostic validation
+layer that checks whether any subset of extracted itemized lines sums to the
+predicted total, and evaluated it across two document AI architectures and
+three receipt datasets. Combining it with the model's softmax confidence
+reduces the silent-wrong-total rate among accepted receipts from 4.7\% to
+1.1\% pooled, an $\approx$77\% relative reduction and roughly four-fold fewer
+audit-exposing failures, at the coverage cost set out above; the pooled lift
+is individually significant only on WildReceipt. The broader point is that the
+signal cost nothing to compute and came from the document rather than the
+model, so wherever a model's output must satisfy a checkable structural
+invariant, the same construction is available.
 
 \section*{Acknowledgment}
 The authors used a large language model (Anthropic Claude) to assist with code
