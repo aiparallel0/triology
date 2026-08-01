@@ -164,20 +164,26 @@
 Total Extraction via Structural Arithmetic Verification}
 
 \author{
-\IEEEauthorblockN{[FIRST AUTHOR]\textsuperscript{*}\thanks{\textsuperscript{*}Corresponding
-author and primary contributor; the second author is a contributing
-co-author.}}
-\IEEEauthorblockA{\textit{[Department]} \\
-\textit{[Institution]} \\
+\IEEEauthorblockN{[FIRST AUTHOR]}
+\IEEEauthorblockA{\textit{Primary author, corresponding} \\
+\textit{[Department], [Institution]} \\
 [City], [Country] \\
-[first.author@institution.edu]}
+[first.author@inst.edu]}
 \and
 \IEEEauthorblockN{[SECOND AUTHOR]}
-\IEEEauthorblockA{\textit{[Department]} \\
-\textit{[Institution]} \\
+\IEEEauthorblockA{\textit{Co-author} \\
+\textit{[Department], [Institution]} \\
 [City], [Country] \\
-[second.author@institution.edu]}
+[second.author@inst.edu]}
 }
+
+% $\sigma$ names the object this paper is about, so it is set bold wherever it
+% appears. Done once here rather than by hand at 54 call sites, which is how
+% one of them would end up upright. \boldsymbol is from amsmath (loaded above);
+% DeclareRobustCommand because \sigma reaches the .aux through three captions,
+% and a fragile command expands during that write.
+\let\IEEEsigma\sigma
+\DeclareRobustCommand{\sigma}{\boldsymbol{\IEEEsigma}}
 
 \makeatletter
 % Editor item 4: a period after the table label ("TABLE I."). The label is
@@ -570,7 +576,7 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 }
 \end{table}
 
-Table~\ref{tab:headline-pooled} reports pooled results across all
+\noindent\textbf{The headline.} Table~\ref{tab:headline-pooled} reports pooled results across all
 $1{,}019$ receipts. The key finding is that the combination of
 $\sigma$ and softmax is the only configuration that clears the
 $0.95$ precision floor required for fully automated processing,
@@ -589,7 +595,7 @@ condition, not a universal claim. It holds in high-stakes financial pipelines
 and not in low-stakes bulk capture, where the matched-coverage softmax rule is
 the better choice.
 
-Table~\ref{tab:headline-percorpus} breaks down the combined decision
+\noindent\textbf{Does it survive splitting?} Table~\ref{tab:headline-percorpus} breaks down the combined decision
 rule results per dataset to check whether the pooled finding in
 Table~\ref{tab:headline-pooled} is an artefact of combining three
 datasets into one number. At matched coverage the combination beats the
@@ -626,7 +632,7 @@ WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:mcnemar} addresses a critical question: do $\sigma$
+\noindent\textbf{Same receipts, or different ones?} Table~\ref{tab:mcnemar} addresses this directly: do $\sigma$
 and softmax tend to fail on the same receipts, or on different ones?
 If they failed together, combining them would offer little benefit:
 you would simply be applying two filters that agree with each other
@@ -771,8 +777,6 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \end{tabular}
 \end{table}
 
-Intervals in Table~\ref{tab:robust} are bootstrap $95\%$ over the ten seeds, and the extractor is held at its single-candidate setting across every noise level, which is why the $r{=}0$ baseline ($0.267$ coverage) is not the CORD $\sigma$ headline of Fig.~\ref{fig:overview}.
-
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.58,every node/.style={font=\scriptsize}]
@@ -812,7 +816,10 @@ under noise rather than less reliable, accepting fewer receipts but keeping
 those it accepts correct. The tolerance sweep $\varepsilon\in\{0.01,0.02,\dots,5.0\}$
 on CORD returns identical coverage and precision at every value, reflecting
 sparsity of the reachable set: adjacent subset sums on CORD are spaced by more
-than $\$5.00$.
+than $\$5.00$. Intervals here are bootstrap $95\%$ over the ten seeds, and the
+extractor is held at its single-candidate setting throughout, which is why the
+$r{=}0$ baseline ($0.267$ coverage) is not the CORD $\sigma$ headline of
+Fig.~\ref{fig:overview}.
 
 \noindent\textbf{Latency.} Fig.~\ref{fig:latency} reports the
 standalone processing time of the arithmetic check. The median time
@@ -845,9 +852,7 @@ only in combination, not as a single decision rule
 Monte-Carlo dropout, deep ensembles and semantic entropy all read the model's
 own internals, so each inherits the failure mode $\sigma$ exists to catch, and
 the baseline we would want, a second \emph{document-external} verifier,
-we know of none published for this task.
-
-(vi)~The headline is a per-corpus claim: the pooled
+we know of none published for this task. (vi)~The headline is a per-corpus claim: the pooled
 $n{=}\poolN{}$ figure is carried by WildReceipt and is secondary, the SROIE
 combined-rule cell ($n{=}15$) supports only a consistency statement, and the
 cardinality-guard inversion is measured directly only on SROIE. We evaluate one
