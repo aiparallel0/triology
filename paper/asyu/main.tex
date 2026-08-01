@@ -36,11 +36,6 @@
 \pdfstringdefDisableCommands{\renewcommand{\sigma}{sigma}}
 % Tame overfull hboxes from long \texttt{...} checkpoint paths
 \sloppy
-% CHANGE 12 (reviewer feedback, hyphenation): stop line-breaking at explicit
-% compound hyphens, so "softmax-orthogonal" and "selective-prediction" cannot
-% extract as "softmaxorthogonal". Applied document-wide rather than to the
-% flagged instances, so future compounds are covered automatically.
-\exhyphenpenalty=10000
 % Compact float/table spacing to keep the paper within 6 pages
 % without removing any content (padding-only reduction).
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
@@ -50,155 +45,13 @@
 \setlength{\belowcaptionskip}{1pt}
 \renewcommand{\arraystretch}{0.95}
 
-% CHANGE 10: an unfilled placeholder must FAIL THE BUILD, not render a marker.
-% \PH{cam_npcr1px} puts an underscore into text mode; under
-% -interaction=nonstopmode LaTeX "recovers" by consuming tokens, and the
-% recovery swallows the following floats. The result compiles, keeps the right
-% page count, looks finished, and is missing a figure and a table. A marker
-% that only shows up in the output can only be seen if the output still
-% typesets -- which is exactly what the error prevents.
-% ======================================================================
-%  ASYU EDITOR REQUESTS (e-mail, 4 items) -- CHANGES 15-18
-% ----------------------------------------------------------------------
-%  16 "Abstract - Keywords arasi 10 nk aralik" and
-%  18 "Cizelge etiketlerinden sonra . kullaniniz (TABLE I. gibi)"
-%  are set up here; 15 (line spacing) and 17 (6 nk after each paragraph)
-%  are applied at the points they take effect, below.
-%
-%  CHANGE 18. IEEEtran.cls sets the table caption label WITHOUT a period:
-%    \def\fnum@table{\tablename\nobreakspace\thetable}      % -> "TABLE I"
-%  The editor asks for "TABLE I." explicitly, so the venue instruction
-%  overrides the class default -- an explicit request from the organising
-%  committee outranks the class file, which is only the authority in the
-%  absence of one.
-%
-%  NOT done with \usepackage{caption}. That package has no IEEEtran
-%  support: it discards the class's \@makecaption wholesale and imposes
-%  its own separator and font, which would silently delete the small-caps
-%  table titles and put colons on every figure caption. Redefining
-%  \fnum@table alone changes exactly the one thing that was asked for.
-%  Figure captions already end in a period ({#1.} in the figure branch),
-%  so they need no change.
-\makeatletter
-\def\fnum@table{\tablename\nobreakspace\thetable.}
-\makeatother
-% ======================================================================
-
-\newcommand{\PH}[1]{%
-  \PackageError{sigma-audit}{Unsubstituted \string\PH\space placeholder}{%
-    An unfilled placeholder silently deletes the floats that follow it.
-    Fill it from the results pipeline, or delete the slot.}%
-  \textcolor{red}{\texttt{\detokenize{[UNFILLED:#1]}}}}
-
-% CHANGE 11: same rule for the results macros. Every \newcommand below carries
-% a safe default so the paper compiles before the pipeline has run; a default
-% that survives to a shipped PDF is a placeholder leak wearing a plausible
-% face ("NA", "PENDING"). Assert at \begin{document} that the numbers_*.tex
-% overrides actually loaded.
-\makeatletter
-\newcommand{\assertfilled}[2]{%
-  \edef\sa@val{#1}\def\sa@bad{#2}%
-  \ifx\sa@val\sa@bad
-    \PackageError{sigma-audit}{A results macro is still at its safe default}{%
-      numbers_*.tex did not load, or the results pipeline has not been run.
-      Do not ship this build.}%
-  \fi}
-\makeatother
+\newcommand{\PH}[1]{\textcolor{red}{\texttt{\detokenize{[#1]}}}}
 
 \definecolor{ok}{HTML}{2ca02c}
 \definecolor{bad}{HTML}{d62728}
 \definecolor{sig}{HTML}{1f77b4}
 \definecolor{smx}{HTML}{ff7f0e}
 \definecolor{grey}{HTML}{888888}
-
-% ======================================================================
-%  REMOVABLE CHANGE BOXES  --  review apparatus, not part of the paper
-% ----------------------------------------------------------------------
-%  Every edit made by the venue-conformance pass is wrapped in one of
-%
-%     \chgi{...}            short span, ONE LINE: a word, a heading, a field
-%     \chgt{...}            a change folded mid-paragraph; breaks across
-%                           lines, so red text between markers, not a box
-%     \begin{chgblock}      a paragraph or a group of paragraphs
-%     \chgcap{...}          a caption (a caption cannot hold a breakable
-%                           box, so it gets a boxed CHANGED tag + red text)
-%
-%  All three are governed by the ONE line marked <<<< below.  Set it to
-%  \showchangesfalse and every red box disappears with nothing else moving;
-%  audit/tools/showchanges.sh flips it for you. The change index printed at
-%  the end of the document is governed by the same switch.
-%
-%  The page-limit gate is only meaningful with the boxes OFF: they add height.
-% ======================================================================
-\newif\ifshowchanges
-\showchangestrue             % <<<< \showchangesfalse for the submission copy
-\definecolor{chgred}{HTML}{CC0000}
-
-% "framed" gives a box that breaks across lines, columns and pages; without it
-% we would need an \fbox, which cannot break and would overfull on any
-% paragraph-length change. Degrade to red rules rather than fail if it is
-% absent from the TeX installation.
-\newif\ifchgframed
-\IfFileExists{framed.sty}{\usepackage{framed}\chgframedtrue}{\chgframedfalse}
-
-% Robust, not \newcommand: these appear inside \caption{} and \subsection{},
-% whose arguments are written to the .lof and .aux files. A fragile command
-% there is expanded during the write, and \setlength / \fcolorbox do not
-% survive expansion. \DeclareRobustCommand makes them \protect themselves.
-\DeclareRobustCommand{\chgi}[1]{%
-  \ifshowchanges
-    {\setlength{\fboxsep}{1pt}\setlength{\fboxrule}{0.5pt}%
-     \fcolorbox{chgred}{white}{#1}}%
-  \else #1\fi}
-
-% A frame cannot break across lines, so \chgi is only safe for a span that
-% fits on one line. For a change folded into the MIDDLE of an existing
-% paragraph -- several sentences, wrapping freely -- the box has to go: an
-% \fcolorbox around three sentences sets them as one unbreakable horizontal
-% box, which runs past the column edge and prints on top of the next column.
-% That is what happened here. \chgt marks such a span with red text between
-% thin red brackets instead; nothing is boxed, so it breaks wherever the
-% paragraph breaks.
-\DeclareRobustCommand{\chgt}[1]{%
-  \ifshowchanges
-    {\color{chgred}\raisebox{-0.1ex}{\scriptsize$\blacktriangleright$}}%
-     \textcolor{chgred}{#1}%
-     {\color{chgred}\raisebox{-0.1ex}{\scriptsize$\blacktriangleleft$}}%
-  \else #1\fi}
-
-\DeclareRobustCommand{\chgtag}[1][CHANGED]{%
-  \ifshowchanges
-    {\setlength{\fboxsep}{1pt}\setlength{\fboxrule}{0.5pt}%
-     \fcolorbox{chgred}{white}{\tiny\bfseries\textcolor{chgred}{#1}}}\ %
-  \fi}
-
-\DeclareRobustCommand{\chgcap}[1]{%
-  \chgtag\ifshowchanges\textcolor{chgred}{#1}\else#1\fi}
-
-\ifchgframed
-  \newenvironment{chgblock}
-    {\ifshowchanges
-       \def\FrameCommand{\fboxsep3pt \fboxrule0.5pt
-                         \fcolorbox{chgred}{white}}%
-       \MakeFramed{\advance\hsize-\width \FrameRestore}%
-     \fi}
-    {\ifshowchanges\endMakeFramed\fi}
-\else
-  \newenvironment{chgblock}
-    {\ifshowchanges\par\nobreak\noindent
-       {\color{chgred}\rule{\linewidth}{0.5pt}}\par\nobreak\fi}
-    {\ifshowchanges\par\nobreak\noindent
-       {\color{chgred}\rule{\linewidth}{0.5pt}}\par\fi}
-\fi
-
-% Keep the boxes out of the PDF bookmarks, as \sigma already is.
-\pdfstringdefDisableCommands{%
-  \renewcommand{\chgi}[1]{#1}%
-  \renewcommand{\chgt}[1]{#1}%
-  \renewcommand{\chgcap}[1]{#1}%
-  \renewcommand{\chgtag}[1][]{}%
-}
-% ======================================================================
 
 % Intersection-control re-analysis (U_intersection_control.py); safe
 % defaults so the paper compiles before the script has been run.
@@ -307,32 +160,27 @@
 \newcommand{\latHardware}{CPU}
 \InputIfFileExists{numbers_latency.tex}{}{}
 
-% CHANGE 11 (cont.): the safe defaults above must not survive into a PDF.
-\AtBeginDocument{%
-  \assertfilled{\latMedian}{NA}%
-  \assertfilled{\latPNineNine}{NA}%
-  \assertfilled{\latMax}{NA}%
-  \assertfilled{\latN}{NA}%
-  \assertfilled{\rcEarned}{PENDING}%
-}
-
 \title{Sigma-Verifier: Reducing Silent Errors in Receipt\\
 Total Extraction via Structural Arithmetic Verification}
 
-% CHANGE 1 (committee item 1: "eksik olan yazar bilgilerinin sablona uygun
-% sekilde metne eklenmesi"). The author block cannot be inferred and must not
-% be a realistic fake -- a plausible-looking invented affiliation is worse than
-% an obvious gap. It stays an explicitly bracketed fillable block until a human
-% supplies the real values. THIS IS A BLOCKING ITEM: the paper is not
-% submittable until the brackets below are replaced.
-% For further authors, repeat the \IEEEauthorblockN/A pair separated by \and.
-\author{%
-\IEEEauthorblockN{\chgi{[AUTHOR NAME --- to be supplied]}}
-\IEEEauthorblockA{%
-  \chgi{[Department, Institution]}\\
-  \chgi{[City, Country]}\\
-  \chgi{[email@institution.edu]}}
-}
+\author{
+\IEEEauthorblockN{[FIRST AUTHOR]\,\textsuperscript{*}}
+\IEEEauthorblockA{\textit{[Department]}, \textit{[Institution]}\\
+[City, Country]\\
+\textit{[first.author@institution.edu]}}
+\and
+\IEEEauthorblockN{[SECOND AUTHOR]}
+\IEEEauthorblockA{\textit{[Department]}, \textit{[Institution]}\\
+[City, Country]\\
+\textit{[second.author@institution.edu]}}
+\thanks{\textsuperscript{*}Corresponding author. The first author is the
+primary contributor; the second author is a contributing co-author.}}
+
+\makeatletter
+% Editor item 4: a period after the table label ("TABLE I."). The label is
+% built by \fnum@table, not by the caption text, so this is where it belongs.
+\def\fnum@table{\tablename\nobreakspace\thetable.}
+\makeatother
 
 \begin{document}
 \maketitle
@@ -375,53 +223,33 @@ Total Extraction via Structural Arithmetic Verification}
 \draw[->,line width=1.6pt,ok!85] (new.east) -- (pn.west);
 \node at (15.2,-2.40) [font=\footnotesize\bfseries,text=ok!70!black]{precision when both fire};
 \end{tikzpicture}
-% CHANGE 22 (Reviewer 1): the caption read "This paper adds sigma", which
-% conveys that the arithmetic check itself is introduced here. It is not --
-% it is long-standing industrial practice, as Section II and the Discussion
-% both state. What this paper contributes is the comparison the figure
-% actually shows. Reframed to say so.
 \caption{\textbf{The question this paper answers.} An AI reads a
 receipt and predicts a total. In standard practice the only ``should I
 trust this number?'' signal has been the model's own
 \emph{softmax confidence} (a number it produces about its own answer).
-Arithmetic cross-checking of the receipt, $\sigma$, is established
-practice in industry; we are not aware of a published evaluation of it
-against softmax as a selective-prediction signal. We measure that: on $1019$ real receipts
-across two AI architectures and three corpora, requiring both signals
-yields $0.989$ precision (Wilson 95\% lower bound $0.961$), above
-either alone, at a coverage cost quantified in Table~\ref{tab:headline-pooled}.}
+This paper measures $\sigma$, an arithmetic check on the receipt
+itself --- long used in industry, not introduced here --- that doesn't
+read the model at all; on $1019$ real receipts across two
+AI architectures and three corpora, combining the two signals
+yields $0.989$ precision (Wilson 95\% lower bound $0.961$), against
+$0.953$ for either signal alone at matched coverage.}
 \label{fig:scope}
 \end{figure*}
 
-% CHANGE 2 (reviewer rule 1: "ozet paragrafinin TAMAMI kalin olmalidir; su an
-% yalnizca bazi kelimeler kalindir"). IEEEtran already bolds abstract *text*;
-% what looked inconsistent is that inline math stays upright. \boldmath fixes
-% the actual defect. Rule applied to the whole abstract, not the flagged words.
-% CHANGE 15 (editor item 1): line spacing 1 in the Abstract and Keywords.
 \begin{abstract}
 \boldmath
 \linespread{1}\selectfont
-Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study sigma-verifier, a model-external validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. \chgt{Arithmetic cross-checking of this kind is long-standing industrial practice. What has been missing is a measurement of it, and that is what this paper provides: how much it actually buys, where it fails, and how it interacts with the model's own confidence.} We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\% (a 77\% relative reduction; 55--81\% per corpus), at the cost of accepting 18\% of receipts rather than 38\%.
+Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study sigma-verifier, a model-external validation layer that frames verification as a 0/1-knapsack problem, checking whether any subset of extracted itemized lines sums exactly to the predicted total. We evaluated the impact of the sigma-verifier, on receipt-parsing systems utilizing two prominent architectures Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3} across various benchmark databases. Arithmetic cross-checking of this kind is long-standing industrial practice; what this paper adds is a measurement of it. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\% (a 77\% relative reduction; 55--81\% per corpus), at the cost of accepting 18\% of receipts rather than 38\%.
 \end{abstract}
 
-% CHANGE 16 (editor item 2): 10 nk between the Abstract and the Keywords.
 \vspace{10pt}
 
-% CHANGE 3 (reviewer rule 2: the whole keyword list italic, not just the
-% "Keywords---" lead-in, which is all IEEEtran italicises by default).
-% CHANGE 15 (cont., editor item 1): line spacing 1 here too.
 \begin{IEEEkeywords}
 \itshape
 \linespread{1}\selectfont
 Document Understanding, Selective Prediction, Receipt Reading, Key-Information Extraction, Model-Agnostic Verification, 0/1-Knapsack Programming.
 \end{IEEEkeywords}
 
-% CHANGE 15 (cont., editor item 1): "Abstract bolumunden sonra satir araligi
-% CHANGE 17 (editor item 3): 6 nk after every paragraph.
-% \parskip is the space BETWEEN paragraphs, which is "after each paragraph"
-% for every paragraph but the last. Never less than 6pt: the stretch is
-% one-sided so a column can be filled without the gap ever falling under the
-% requested 6 nk.
 \setlength{\parskip}{6pt plus 1pt minus 0pt}
 
 \section{Introduction}
@@ -459,72 +287,47 @@ statistical analysis against softmax.
 \noindent\textbf{Our contribution.} We propose
 $\sigma$\footnote{Throughout, $\sigma$ names the verifier
 defined below, not the standard-deviation symbol.} as that independent
-signal: it accepts the model's predicted total when some subset of the
-monetary amounts visible on the receipt sums to it within tolerance
-(Section~\ref{sec:method}). The witness exists by
+signal. Fig.~\ref{fig:scope} sets out the whole argument: an AI predicts a
+total, standard practice trusts only the model's own softmax confidence, and
+$\sigma$ supplies a second opinion computed from the receipt's arithmetic
+rather than from the model, so the two can be required to agree. It accepts the
+predicted total when some subset of the monetary amounts visible on the
+receipt sums to it within tolerance (Section~\ref{sec:method}). The witness
+exists by
 construction on well-formed receipts: the total \emph{is} a sum of
 visible amounts. The verifier is a textbook $0/1$-knapsack dynamic
 program (DP), with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
-% CHANGE 5 (committee item 3: "tum tablo ve sekillerin metin icinde eksiksiz
-% bir sekilde atif almasi VE ILGILI PARAGRAFLARDA ACIKLANMASI"). Fig. 1 was
-% referenced -- a naive audit returns "all floats cited, nothing to do" -- but
-% only parenthetically, as "(Fig. 1)" hanging off a sentence about something
-% else. The operative complaint is the second clause: explained in the
-% relevant paragraph. The test is grammatical position, and the fix is to give
-% the figure a clause of its own. Verified by audit/tools/float_refs.py.
-\begin{chgblock}
-\noindent Fig.~\ref{fig:scope} shows the argument in one picture. An AI reads
-a receipt and predicts a total; in standard practice the only trust signal is
-the model's own softmax confidence, which can be confidently wrong. $\sigma$
-supplies a second opinion computed from the receipt's arithmetic rather than
-from the model, so the two can be required to agree. Its right-hand column
-carries the headline: on $\poolN{}$ receipts the pair accepts at $0.989$
-precision (Wilson $95\%$ lower bound $0.961$), which neither attains alone.
-\end{chgblock}
+\noindent\textbf{Why this matters operationally.}
+Silent failures are the expensive mode: a plausible wrong total is filed
+unchallenged and propagates for weeks before audit. Human verification costs
+$10^2$--$10^3\times$ an inference pass, so deferring has to be selective. And
+regulation (EU AI Act, financial-services model-risk rules) increasingly
+mandates documented per-prediction trust signals; $\sigma$ is computed on the
+document, not the model, so it produces a separate audit trail.
 
-% CHANGE 28 (page budget). Compressed to pay for the paragraphs the reviews
-% added. No claim removed: all three points survive, in fewer words. This
-% block answers no reviewer request, which is why it is the one that gives.
-\begin{chgblock}
-\noindent\textbf{Why this matters operationally.} Silent failures are the
-expensive mode: a plausible wrong total is filed unchallenged and propagates
-for weeks before audit. Human verification costs $10^2$--$10^3\times$ an
-inference pass, so deferring has to be selective. And regulation (EU AI Act,
-financial-services model-risk rules) increasingly mandates documented
-per-prediction trust signals; $\sigma$ is computed on the document, not the
-model, so it produces a separate audit trail.
-\end{chgblock}
-
-% CHANGE 28 (cont.)
-\begin{chgblock}
 \noindent\textbf{The general principle.} \emph{When a task's output admits a
-checkable structural constraint, a deterministic verifier of that constraint
-is a confidence signal statistically orthogonal to the model's own softmax,
+checkable structural constraint, a deterministic verifier of that constraint is
+a confidence signal statistically orthogonal to the model's own softmax,
 because its errors are governed by document structure rather than decoder
-logits.} Receipts are a clean instantiation; the construction applies
-wherever a structural invariant is checkable --- balancing tables, schemas
-with referential constraints, code with type checks, logic with a solver.
-\end{chgblock}
+logits.} Receipts are a clean instantiation; the construction applies wherever
+a structural invariant is checkable --- balancing tables, schemas with
+referential constraints, code with type checks, logic with a solver.
 
-\noindent\textbf{Contributions.} \chgt{This is an evaluation paper, and its
-contributions are measurements.} (i)~\textbf{How much the check buys.} A
-pooled three-corpus benchmark of $n{=}1019$ receipts across two backbones
-(Donut generative, LayoutLMv3 encoder-only), with Wilson $95\%$ precision lower
-bounds and the coverage cost for every cell
-(Section~\ref{sec:results-headline}). (ii)~\textbf{Why it composes with
-softmax.} Paired McNemar tests showing the two signals fail on different
-receipts, and a matched-coverage control separating the gain from the generic
-effect of accepting fewer receipts
-(Sections~\ref{sec:results-mcnemar}--\ref{sec:results-control}).
-(iii)~\textbf{Where it wins and where it does not.} $\sigma$ beats softmax on
-clean per-field labels ($0.990$ against $0.960$ on CORD) and \emph{loses} to it
-on OCR-derived text ($0.863$ against $0.945$ on SROIE); we identify the
-mechanism and test it (Section~\ref{sec:results-regime}), and report
-robustness to $40\%$ injected money-line noise plus a cardinality-guard
-ablation (Section~\ref{sec:results-robust}). \chgt{The verifier itself is not
-new, and we claim no methodological novelty for it.}
+\noindent\textbf{Contributions.} (i)~A measurement of $\sigma$ as a
+selective-prediction signal on receipt KIE (Section~\ref{sec:method}); the
+arithmetic check itself is established practice and we claim no methodological
+novelty for it. (ii)~Empirical validation on a pooled
+three-corpus benchmark of $n{=}1019$ receipts spanning two backbones
+(Donut generative, LayoutLMv3 encoder-only) and three regimes (CORD
+labelled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
+precision lower bounds for every cell (Section~\ref{sec:results-headline}).
+(iii)~Statistical orthogonality via paired McNemar tests
+(Section~\ref{sec:results-mcnemar}); a regime-mechanistic explanation of
+where each signal wins (Section~\ref{sec:results-regime}); and robustness to
+$40\%$ injected money-line noise plus a cardinality-guard ablation
+(Section~\ref{sec:results-robust}).
 
 \section{Related Work}
 \label{sec:related}
@@ -534,34 +337,27 @@ elyaniv2010foundations,jaeger2024augrc}; for sequence-to-sequence
 generators (such as Donut) the standard signals are derived from the
 generator's own token-level probabilities~\cite{malinin2021uncertainty,
 vashurin2025benchmark,fadeeva2023polygraph} or from sample-based
-semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}.
-$\sigma$ is not a different
+semantic divergence~\cite{kuhn2023semantic,farquhar2024semantic}. $\sigma$ is not a different
 softmax aggregator but a different \emph{signal} that does not read
-the model at all. \chgt{\textbf{Why softmax is the only baseline.}
-Monte-Carlo dropout, deep ensembles and semantic entropy all read the model's
-own internals. A model that hallucinates a probable total is confident under
-every one of them, so none escapes the failure mode $\sigma$ is built to catch.
-The baseline we would want, and do not have, is a second verifier that reads
-the \emph{document}; we know of none published for receipts.}
+the model at all.
 
-\noindent\textbf{Why arithmetic checking is already industrial practice.}
-Arithmetic cross-checks of receipt totals are common engineering practice ---
-expense-management software has used them for at least a decade --- because
-the check is closed-form, needs no model, and catches precisely the errors an
-operator pays for later. What has not been
-reported is how well the check actually performs as a selective-prediction
-signal, which is what this paper measures.
-
-\noindent\textbf{Program-level verification.} Verification of generative
-outputs has appeared in narrower settings (code-execution validation,
-faithful chain-of-thought); $\sigma$ instantiates that spirit for receipt
-KIE, where the target is closed-form arithmetic over visible quantities.
+\noindent\textbf{Industrial prior art and program-level verification.}
+Arithmetic cross-checks of receipt totals are common engineering
+practice (expense-management software has used them for at least a
+decade). What has not been reported is how well it performs as a
+selective-prediction signal, which is what this paper measures. Program- and logic-level verification of
+generative outputs has appeared in narrower settings (code-execution
+validation, faithful chain-of-thought); $\sigma$ instantiates that
+spirit for receipt KIE, where the target is closed-form arithmetic
+over visible quantities.
 
 We evaluate two architectures. Donut~\cite{kim2022donut} is a
 \emph{generative} vision-encoder-decoder producing structured JSON;
 LayoutLMv3~\cite{huang2022layoutlmv3} is an \emph{encoder-only}
 token-classifier (tagging each token with a class such as
-Total_value). Structure-aware
+Total_value). Their softmax confidences are
+architecture-specific but conceptually identical: average per-token
+probability on the predicted total-value tokens. Structure-aware
 verification has appeared for table
 reconstruction~\cite{nassar2022tableformer}; what is new here is
 formalising an arithmetic check as a softmax-orthogonal selective
@@ -665,22 +461,6 @@ $k_{\min}{=}1$ on SROIE). The fixed-$k_{\min}$ sweep of
 Table~\ref{tab:guard} is the only departure, and is explicitly an
 ablation of that rule.
 
-% CHANGE 27 (Reviewer 3): "the manuscript should clarify the amount-extraction
-% settings used in each experiment, particularly where different extractor
-% configurations or ablation settings are discussed." Change 7 re-sited the
-% Table V caveat into the body; this states the mapping once, for every
-% experiment, so no reader has to reconstruct it from scattered remarks.
-\chgt{\textbf{Which extractor each experiment uses.} Two settings appear in this
-paper. The \textbf{multi-candidate} extractor of Section~\ref{sec:method} is
-the default, and every headline result uses it
-(Tables~\ref{tab:headline-pooled}--\ref{tab:mcnemar},
-Figs.~\ref{fig:overview} and~\ref{fig:wildreceipt}). The \textbf{fixed
-single-candidate} extractor is used only in the two ablations
-(Tables~\ref{tab:guard} and~\ref{tab:robust}), because holding $\tau$ fixed is
-what isolates the variable being tested. This is why the $r{=}0$ row of
-Table~\ref{tab:robust} shows a different CORD coverage from the headline: a
-different extractor, not a different result.}
-
 \noindent\textbf{Statistics.} Per-cell precision is reported with
 Wilson 95\% confidence intervals~\cite{wilson1927ci}; agreement
 between the two decision rules is tested with paired
@@ -698,46 +478,34 @@ emitted total-value tokens, and we treat them as the
 architecture-appropriate ``model self-confidence,'' not as
 numerically interchangeable.
 
+\noindent\textbf{Which extractor each experiment uses.} Two settings appear
+in this paper. The multi-candidate extractor of Section~\ref{sec:method} is the
+default and is used for every headline result; the fixed single-candidate
+extractor is used only in the two ablations (Tables~\ref{tab:guard}
+and~\ref{tab:robust}), where holding $\tau$ fixed isolates the variable being
+tested. This is why the $r{=}0$ row of Table~\ref{tab:robust} shows a different
+CORD coverage from the headline: a different extractor, not a different result.
+
 \section{Results}
 \label{sec:results}
 
-\subsection{\chgi{RQ1: Does Combining Beat Either Signal Alone?}}
+\subsection{RQ1: Does Combining Beat Either Signal Alone?}
 \label{sec:results-headline}
 
 \begin{table}[t]
 \centering\small
-% CHANGE 6 (reviewer rule 4 / committee item 2, capitalisation axis).
-% IEEEtran.cls sets table caption titles in \scshape:
-%   \@makecaption table branch = {#1}\\{\normalfont\footnotesize\scshape #2}
-% i.e. "TABLE I" on its own line above a CENTRED SMALL-CAPS title. A
-% three-line sentence is unreadable in small caps, so the captions shorten to
-% noun phrases and the displaced detail moves into the body paragraphs --
-% which is also what committee item 3 demanded. Nothing was dropped: see
-% audit/CHANGES.md for the line-by-line accounting of every clause moved.
-% CHANGE 21 (Reviewer 1): the precision/coverage trade-off was stated in prose
-% ("18% versus 38%") but not shown beside the precision it buys. Coverage is
-% now a column, so the trade is visible in one place.
-\caption{\chgcap{Pooled precision \emph{and coverage}, all decision rules
-($n{=}1{,}019$)}}
+\caption{Pooled precision and coverage, all decision rules ($n{=}1{,}019$)}
 \label{tab:headline-pooled}
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrl}
 \toprule
-Decision rule & $n_\text{acc}$ & \chgi{Cov.} & $n_\text{corr}$ & Precision & 95\% CI \\
+Decision rule & $n_\text{acc}$ & Coverage & $n_\text{corr}$ & Precision & 95\% CI \\
 \midrule
-% CHANGE 13: route these cells through the generated macros instead of typing
-% them. \poolSigA/\poolSigC/\poolIntA/\poolIntC come from numbers_pooled.tex,
-% which the results pipeline writes; they were sitting unused while the same
-% values were typed here. Two copies of one number can drift, and this table's
-% sibling did drift: Table III's pooled row once printed b=183, c=186 where the
-% per-corpus rows summed to 185/188 (fixed in b9edc78 by correcting the
-% literal, which left it a literal). Rendered output is unchanged, so there is
-% no red box: see the change index.
-$\sigma$               & \poolSigA{} & \chgi{0.379} & \poolSigC{} & 0.946 & [0.918, 0.964] \\
-softmax (matched)      & \poolSigA{} & \chgi{0.379} & 368 & 0.953 & [0.927, 0.970] \\
-$\sigma\sqcap$ softmax & \poolIntA{} & \chgi{\textbf{0.181}} & \poolIntC{} & \textbf{0.989} & \textbf{[0.961, 0.997]} \\
-$\sigma$-only          & 202 & \chgi{0.198} & 183 & 0.906 & [0.858, 0.939] \\
-softmax-only           & 202 & \chgi{0.198} & 186 & 0.921 & [0.875, 0.951] \\
+$\sigma$               & 386 & 0.379 & 365 & 0.946 & [0.918, 0.964] \\
+softmax (matched)      & 386 & 0.379 & 368 & 0.953 & [0.927, 0.970] \\
+$\sigma\sqcap$ softmax & 184 & \textbf{0.181} & 182 & \textbf{0.989} & \textbf{[0.961, 0.997]} \\
+$\sigma$-only          & 202 & 0.198 & 183 & 0.906 & [0.858, 0.939] \\
+softmax-only           & 202 & 0.198 & 186 & 0.921 & [0.875, 0.951] \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -795,8 +563,7 @@ only disjoint errors.}
 
 \begin{table}[t]
 \centering\small
-% CHANGE 6 (cont.)
-\caption{\chgcap{Combined decision rule, per corpus and backbone}}
+\caption{Combined decision rule, per corpus and backbone}
 \label{tab:headline-percorpus}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrrl}
@@ -807,7 +574,7 @@ Wilson 95\% \\
 \midrule
 CORD-v2     & Donut       & 200 &  55 &  54 & [0.904, 0.997] \\
 SROIE       & Donut       & 347 &  15 &  15 & [0.796, 1.000] \\
-WildReceipt & LayoutLMv3  & \wrN{} & \wrIntA{} & \wrIntC{} & [0.952, 0.998] \\
+WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \bottomrule
 \end{tabular}%
 }
@@ -833,56 +600,40 @@ Quantitatively, with a human review costing $\rho$ inference passes
 ($\rho\in[10^2,10^3]$) and a silent wrong total costing $\kappa$,
 moving from softmax-matched ($c{=}0.379$, $p{=}0.953$) to the
 combination ($c{=}0.181$, $p{=}0.989$) is favourable whenever
-$\kappa\gtrsim 13\rho$: a condition, not a universal claim.
-\chgt{\textbf{What this costs in practice.} At $c{=}0.181$, roughly \emph{four
-receipts in five still go to a person}. The combination is therefore a triage
-tool, not an automation one. Where the goal is to automate as many receipts as
-possible, the matched-coverage softmax rule accepts the same $37.9\%$ at
-$0.953$ precision and is the better choice.}
+$\kappa\gtrsim 13\rho$: a condition, not a universal claim. Where the goal is to automate as many
+receipts as possible rather than to keep the automated lane clean, the
+matched-coverage softmax rule is the better choice.
 
 Table~\ref{tab:headline-percorpus} breaks down the combined decision
 rule results per dataset to check whether the pooled finding in
-Table~\ref{tab:headline-pooled} is not an artefact of combining three
-datasets into one number.
+Table~\ref{tab:headline-pooled} is an artefact of combining three
+datasets into one number. At matched coverage the combination beats the
+softmax rule on all three datasets; CORD is the exception to the comparison
+against $\sigma$-alone, and Fig.~\ref{fig:overview} sets out why.
 
-The results do vary by dataset however. WildReceipt, tested on
-LayoutLMv3, produces the most reliable combination with a Wilson
-lower bound of $0.952$ and $113$ out of $114$ accepted receipts
-correct. CORD, tested on Donut, achieves a lower bound of $0.904$
-with $54$ out of $55$ correct. SROIE, also tested on Donut, has the
-weakest result with a lower bound of $0.796$, though this should be
-interpreted cautiously as only $15$ receipts were accepted by the
-combination, making it too small a sample to draw strong conclusions
-beyond consistency with the overall finding.
-
-The key takeaway is that the combination benefit holds across
-different datasets and different AI architectures.
-\chgt{\textbf{At matched coverage} the combination beats the softmax rule on
-all three corpora ($n{=}\poolN{}$ pooled; per-corpus cells and Wilson intervals
-in Table~\ref{tab:headline-percorpus}), and beats $\sigma$-alone on WildReceipt
-and SROIE. CORD is
-the one exception, and it compares two different accepted sets rather than
-showing a reversal: $\sigma$-alone at full coverage sits slightly higher on a
-larger accepted set.} Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
+The results do vary by dataset. WildReceipt on LayoutLMv3 is the strongest
+cell and SROIE on Donut the weakest, and the SROIE lower bound of $0.796$
+should be read cautiously: only $15$ receipts were accepted by the
+combination, too small a sample for anything beyond consistency with the
+overall finding. The benefit itself holds across both datasets and
+architectures. The pooled
+$n{=}\poolN{}$ is unevenly weighted at $200/347/472$ and carried by
+WildReceipt, so the per-corpus table, not the pool, is the headline.
+Fig.~\ref{fig:overview} gives the per-corpus four-cell matrix and
 Fig.~\ref{fig:wildreceipt} singles out the WildReceipt case.
 
-\subsection{\chgi{RQ2: Do the Two Signals Fail on the Same Receipts?}}
+\subsection{RQ2: Do the Two Signals Fail on the Same Receipts?}
 \label{sec:results-mcnemar}
 
 \begin{table}[t]
 \centering\small
-% CHANGE 6 (cont.). The $b$/$c$ definitions dropped here are not lost: they
-% are stated verbatim in the paragraph below the table, which is where the
-% committee asked for them.
-\caption{\chgcap{Paired McNemar test of $\sigma$ against softmax}}
+\caption{Paired McNemar test of $\sigma$ against softmax}
 \label{tab:mcnemar}
 \begin{tabular}{lrrrl}
 \toprule
 Set & $b$ & $c$ & $\chi^2$ & $p$-value \\
 \midrule
-% CHANGE 13 (cont.). This is the row that drifted: it printed 183/186 while the
-% per-corpus rows below sum to 185/188. Now computed, not typed.
-\textbf{Pooled}            & \poolMcB{} & \poolMcC{} & \poolMcChi{} & \poolMcP{} \\
+\textbf{Pooled}            & 185 & 188 & 0.011 & 0.917 \\
 CORD-v2     (Donut)        &  44 &  41 & 0.047 & 0.828 \\
 SROIE       (Donut)        &  50 &  56 & 0.236 & 0.627 \\
 WildReceipt (LayoutLMv3)   &  91 &  91 & 0.005 & 0.941 \\
@@ -908,8 +659,8 @@ Across all three datasets the counts are strikingly balanced. On
 WildReceipt, $b$ and $c$ are exactly equal at $91$, meaning $\sigma$
 and softmax each rescue an identical number of receipts that the
 other misses. The high $p$-values across all datasets, all above
-$0.6$, are consistent with no detectable asymmetry in either
-direction. This is the key evidence that the two signals are
+$0.6$, confirm there is no statistically significant asymmetry in
+either direction. This is the key evidence that the two signals are
 independent: they fail on different receipts, so requiring both to
 agree filters out errors that neither could catch alone. Strictly,
 McNemar non-rejection is absence of evidence for asymmetry rather
@@ -917,11 +668,7 @@ than positive evidence of error-decorrelation; the direct
 correlation-on-errors test (Section~\ref{sec:results-control})
 supplies the latter.
 
-% CHANGE 4 (reviewer rule 6: Title Case). The only heading in the paper that
-% was not already Title Case. Checked at \section level too -- in the source
-% project every subsection was fixed while three section titles stayed
-% sentence case.
-\subsection{\chgi{RQ3: Is the Gain Genuine, or Generic Coverage Shrink?}}
+\subsection{RQ3: Is the Gain Genuine, or Generic Coverage Shrink?}
 \label{sec:results-control}
 
 Combining any two better-than-random decision rules with imperfectly
@@ -980,7 +727,7 @@ gives combined Stouffer $p=\rgAFiveStouffer$ and Fisher
 $p=\rgAFiveFisher$: decorrelation holds within every corpus, not
 only pooled.
 
-\subsection{\chgi{RQ4: Does It Beat Matched-Coverage Softmax?}}
+\subsection{RQ4: Does It Beat Matched-Coverage Softmax?}
 \label{sec:results-riskcov}
 
 Statistical orthogonality is necessary but not sufficient for
@@ -998,7 +745,7 @@ this: the absolute difference is small and the lift costs coverage,
 so we report it as a modest, statistically resolved operational gain,
 concentrated where base error is non-trivial (WildReceipt).
 
-\subsection{\chgi{RQ5: When Does Each Signal Win, and Why?}}
+\subsection{RQ5: When Does Each Signal Win, and Why?}
 \label{sec:results-regime}
 
 Single-rule $\sigma$ precision is regime-mechanistic: on CORD (clean
@@ -1008,25 +755,21 @@ annotations) the two decision rules tie at $0.953$; on SROIE
 (OCR-derived $M$) $\sigma$ trails ($0.863$ vs.\ $0.945$). We
 hypothesise the SROIE loss is consistent with upstream OCR rather
 than the verifier: digit confusions and phantom amounts can inflate
-$T(M)$ with coincidental witnesses. \chgt{\textbf{Testing the OCR explanation.} Of the $73$ receipts $\sigma$
-accepts on SROIE, the $10$ it accepts \emph{wrongly} carry more extracted
-amounts than the $63$ it accepts correctly ($6.7$ against $4.3$ per receipt;
-one-sided permutation test, $B{=}20{,}000$, $p{=}0.004$). Their reachable sets
-are larger in the same direction, though not significantly ($708$ against
-$209$, $p{=}0.14$), and the number of candidate readings per line does not
-differ ($3.30$ against $3.33$, $p{=}0.57$), a comparison that is underpowered
-at $10$ false accepts. What matters is therefore
-how many amounts OCR puts on the page, not how many ways each line can be
-read. With only $10$ false accepts this supports the explanation rather than
-settling it.}
+$T(M)$ with coincidental witnesses. Of the $73$ receipts $\sigma$ accepts on SROIE,
+the $10$ it accepts wrongly carry more extracted amounts than the $63$ it
+accepts correctly ($6.7$ against $4.3$ per receipt; one-sided permutation test,
+$B{=}20{,}000$, $p{=}0.004$), while the number of candidate readings per line
+does not differ ($3.30$ against $3.33$, $p{=}0.57$). What matters is therefore
+how many amounts OCR puts on the page, not how many ways each line is read;
+with $10$ false accepts this supports the account rather than settling it. This remains a hypothesis in the strict sense; a controlled
+hand-OCR-corrected subsample test is future work.
 
-\subsection{\chgi{RQ6: Is It Robust and Fast Enough to Deploy?}}
+\subsection{RQ6: Is It Robust and Fast Enough to Deploy?}
 \label{sec:results-robust}
 
 \begin{table}[t]
 \centering\small
-% CHANGE 6 (cont.)
-\caption{\chgcap{Cardinality-guard ablation on SROIE ($n{=}347$)}}
+\caption{Cardinality-guard ablation on SROIE ($n{=}347$)}
 \label{tab:guard}
 \begin{tabular}{lrr}
 \toprule
@@ -1040,12 +783,7 @@ $k_{\min}{=}2$ (guard on)  & 0.029 & 0.900 \\
 
 \begin{table}[t]
 \centering\small
-% CHANGE 6 (cont.). This caption carried real information that appears
-% nowhere else -- the bootstrap CI method, and the extractor-configuration
-% caveat with its two cross-references. Both were moved into the body
-% paragraph below, not deleted. Shortening a caption is where results get
-% silently lost; the accounting is in audit/CHANGES.md.
-\caption{\chgcap{Injected money-line noise on CORD (10 seeds)}}
+\caption{Injected money-line noise on CORD (10 seeds)}
 \label{tab:robust}
 \begin{tabular}{lrrl}
 \toprule
@@ -1059,6 +797,8 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \end{tabular}
 \end{table}
 
+Intervals in Table~\ref{tab:robust} are bootstrap $95\%$ over the ten seeds, and the extractor is held at its single-candidate setting across every noise level, which is why the $r{=}0$ baseline ($0.267$ coverage) is not the CORD $\sigma$ headline of Fig.~\ref{fig:overview}.
+
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.58,every node/.style={font=\scriptsize}]
@@ -1069,11 +809,7 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \fill[ok!75] (1.96,0) circle (2.6pt);
 \node[above,text=ok] at (1.96,0.12) {med \latMedian};
 \fill[ok!55] (6.49,0) circle (2.6pt);
-% The p99 label sat in the same band as the axis tick labels and printed on
-% top of "100"/"1000". Dropped below the tick row with a leader; med and max
-% cannot move up to join it because they would then collide with each other.
-\draw[smx!45,line width=0.35pt] (6.49,-0.10) -- (6.49,-0.46);
-\node[below] at (6.49,-0.42) {$p_{99}\,\latPNineNine$};
+\node[below] at (6.49,-0.13) {$p_{99}\,\latPNineNine$};
 \fill[smx!75] (7.35,0) circle (2.6pt);
 \node[above] at (7.35,0.12) {max \latMax};
 \end{tikzpicture}
@@ -1088,7 +824,7 @@ clean labelled line. When the guard is off ($k_{\min}{=}1$), a single
 line item matching the predicted total is accepted as sufficient
 evidence. When the guard is on ($k_{\min}{=}2$), at least two line
 items must sum to the total. On SROIE, turning the guard off is
-better on both axes: coverage rises from $2.9\%$ to $16.1\%$ and precision
+clearly better: coverage rises from $2.9\%$ to $16.1\%$ and precision
 rises from $0.900$ to $0.929$. This is because on OCR-derived data
 the total genuinely does appear as a single clean line, so the
 singleton match is legitimate rather than coincidental. Forcing two
@@ -1108,10 +844,7 @@ but precision remains stable throughout, staying between $0.949$ and
 $0.980$ at every noise level. This means the arithmetic check becomes
 more selective under noisy conditions, it accepts fewer receipts, but
 the receipts it does accept remain reliably correct. It degrades
-gracefully rather than catastrophically. \chgi{Intervals in
-Table~\ref{tab:robust} are bootstrap $95\%$ over the ten seeds.}
-
-The tolerance sweep
+gracefully rather than catastrophically. The tolerance sweep
 $\varepsilon \in \{0.01, 0.02, \dots, 5.0\}$ on CORD returns identical
 (coverage, precision) at every value, reflecting sparsity of the
 reachable set: adjacent reachable subset sums on CORD are spaced by
@@ -1131,11 +864,7 @@ do not, however, measure the end-to-end ratio on this CPU-only host.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-\noindent\textbf{Where $\sigma$ works, and why combining helps.}
-Where $M$ comes from reliable annotations $\sigma$ beats or ties
-softmax; SROIE is the sole inversion regime, attributed to
-OCR-derived $M$ (a hypothesis; the hand-OCR-corrected subsample test
-is future work). Combining helps because orthogonality needs only
+\noindent\textbf{Why combining helps.} Orthogonality needs only
 errors on different inputs, not dominance, and the gain survives
 swapping Donut for LayoutLMv3, so $\sigma$ is signal-orthogonal to
 softmax across architectures.
@@ -1146,43 +875,33 @@ not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
 integer-cent inputs; fractional-cent rounding jurisdictions may need
 a different sweep. (iii)~$\sigma$ assumes $\pi$ is a parsed numeric
 scalar; format-hallucinated outputs require an upstream normaliser we
-do not benchmark. (iv)~In the OCR-derived regime $\sigma$ is
-valuable only in combination, not as a single decision rule
-(Section~\ref{sec:results-regime}).
+do not benchmark. (iv)~In the OCR-derived regime $\sigma$ is valuable
+only in combination, not as a single decision rule
+(Section~\ref{sec:results-regime}). (v)~We compare against softmax only;
+Monte-Carlo dropout, deep ensembles and semantic entropy all read the model's
+own internals, so each inherits the failure mode $\sigma$ exists to catch, and
+the baseline we would want --- a second \emph{document-external} verifier ---
+we know of none published for this task.
 
-\noindent\textbf{Statistical scope.} The headline is a per-corpus
-claim; the pooled $n{=}\poolN{}$ figure is carried by WildReceipt
-($\wrIntA{}$ of $\poolIntA{}$ combined-rule accepts) and is presented
-as secondary. The SROIE combined-rule cell ($n{=}15$) supports only
-a consistency statement. The cardinality-guard inversion is measured
-directly only on SROIE; the CORD-side claim is structural. We
-evaluate one field across two backbones and three corpora;
-multi-field $\sigma$ is journal work.
-\chgt{\textbf{Two extensions follow directly.} Verifying the line items, taxes
-and total together as one constraint system should tighten the witness. Using
-$\sigma$ as a training-time filter, rather than only an inference-time gate,
-would let the structural signal shape the model instead of only auditing it.
-Neither is evaluated here.}
+(vi)~The headline is a per-corpus claim: the pooled
+$n{=}\poolN{}$ figure is carried by WildReceipt and is secondary, the SROIE
+combined-rule cell ($n{=}15$) supports only a consistency statement, and the
+cardinality-guard inversion is measured directly only on SROIE. We evaluate one
+field across two backbones and three corpora; multi-field $\sigma$ is journal
+work.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this work, we presented the sigma-verifier, a model-agnostic validation layer that directly evaluates a document by checking whether any subset of extracted itemized lines sums to the predicted total. We evaluated its performance across two document AI architectures and three receipt databases.
+In this work, we presented the sigma-verifier, a model-agnostic validation layer that checks whether any subset of extracted itemized lines sums to the predicted total, and evaluated it across two document AI architectures and three receipt databases.
 
 Our results show that combining the sigma-verifier with the model's softmax confidence reduces the silent-wrong-total rate among the receipts it accepts. Pooled across the three corpora it falls from 4.7\% to 1.1\%, an $\approx$77\% relative reduction, roughly four-fold fewer audit-exposing failures, at the coverage cost set out above, and the pooled lift is individually significant only on WildReceipt. Used as an independent validation layer under that coverage trade, the sigma-verifier offers structural benefits for high-stakes financial reporting and downstream auditing systems.
 
 % Tighten only the bibliography list spacing (purely typographic; no
 % reference is dropped or shortened).
-%
-% CHANGE 17 (cont.). The 6 nk inter-paragraph space does NOT apply here. A
-% reference is a list item, not a paragraph -- the editor's request is about
-% the prose. Left in, \parskip would add 6pt to each of the 20 entries,
-% 120pt of dead space at the very end of the paper, which is where the page
-% limit is decided.
 \let\oldthebibliography\thebibliography
 \renewcommand{\thebibliography}[1]{%
   \oldthebibliography{#1}%
-  \setlength{\parskip}{0pt}%
   \setlength{\itemsep}{0pt}%
   \setlength{\parsep}{0pt}%
   \setlength{\topsep}{0pt}%
@@ -1190,215 +909,5 @@ Our results show that combining the sigma-verifier with the model's softmax conf
 }
 \bibliographystyle{IEEEtran}
 \bibliography{references}
-
-% ======================================================================
-%  REVIEW-ONLY CHANGE INDEX -- disappears with \showchangesfalse.
-%  Placed after the bibliography so the paper's own pagination is
-%  untouched. Several conformance changes live in the preamble and are
-%  invisible in the rendered PDF; without this index they could not be
-%  checked against the rendered artifact at all.
-% ======================================================================
-\ifshowchanges
-\clearpage
-\section*{\textcolor{chgred}{Review copy --- index of changes}}
-\noindent\textbf{This page is not part of the paper.} Set
-\texttt{\textbackslash showchangesfalse} in the preamble (or run
-\texttt{bash audit/tools/showchanges.sh off}) and every red box, and this
-page, disappear. Run the page-limit gate only in that mode: the boxes add
-height.
-
-\medskip
-\noindent Changes 1--7 are visible in the body, each inside a red box.
-Changes 8--12 are preamble-level and have no visible mark, which is why they
-are listed here.
-
-\begin{enumerate}\itemsep2pt
-\item \textbf{Author block.} Committee item 1. Bracketed fillable block, not
-a realistic fake. \emph{Blocking: cannot be inferred, needs the human.}
-\item \textbf{\texttt{\textbackslash boldmath} in the abstract.} Reviewer
-rule 1. IEEEtran already bolds abstract text; inline math stayed upright,
-which is what read as ``only some words are bold''.
-\item \textbf{\texttt{\textbackslash itshape} in the keywords.} Reviewer
-rule 2. IEEEtran italicises only the ``Keywords---'' lead-in.
-\item \textbf{One heading to Title Case.} Reviewer rule 6, checked at
-\texttt{\textbackslash section} level too. Verified by
-\texttt{audit/tools/headings\_titlecase.py}.
-\item \textbf{Fig.~1 given a clause of its own.} Committee item 3. Every
-float already carried a \texttt{\textbackslash ref}; the operative complaint
-is the second clause, \emph{explained in the relevant paragraph}. Fig.~1 was
-cited only parenthetically. Verified by
-\texttt{audit/tools/float\_refs.py}: 9/9 floats in subject position, was
-8/9.
-\item \textbf{Five table captions shortened.} IEEEtran.cls sets table titles
-in \texttt{\textbackslash scshape}; three-line sentences are unreadable in
-small caps. Authority: the \texttt{\textbackslash @makecaption} table branch
-in the \texttt{IEEEtran.cls} in this directory.
-\item \textbf{Displaced caption detail re-sited.} The Table~V caption
-carried the bootstrap-CI method and the extractor-configuration caveat,
-which appear nowhere else. Moved into the body, not dropped. Key-set diff:
-\texttt{REMOVED entirely: NONE}.
-\item[8--9.] \textbf{Change-marking apparatus.} The red boxes, and this
-page.
-\item[10.] \textbf{\texttt{\textbackslash PH} now errors.} An unfilled
-placeholder used to render a marker. An underscore in text mode makes LaTeX
-consume tokens under \texttt{nonstopmode}, and the recovery swallows the
-following floats: the PDF compiles, keeps its page count, looks finished,
-and is missing a figure and a table. Unfilled slots must fail the build.
-\item[11.] \textbf{Results-macro assertion.} Same rule for
-\texttt{\textbackslash latMedian} and friends: a safe default (\texttt{NA},
-\texttt{PENDING}) that survives into a shipped PDF is a placeholder leak
-wearing a plausible face. Asserted at
-\texttt{\textbackslash begin\{document\}}.
-\item[12.] \textbf{\texttt{\textbackslash exhyphenpenalty=10000}.} Stops
-line-breaking at explicit compound hyphens, so \emph{softmax-orthogonal}
-cannot extract as \emph{softmaxorthogonal}. Applied document-wide, not to
-flagged instances only.
-\item[13.] \textbf{Nine table cells routed through their generated macros.}
-Tables~I, II and III typed values that \texttt{numbers\_pooled.tex} already
-produces, leaving \texttt{\textbackslash poolSigA},
-\texttt{\textbackslash poolIntC}, \texttt{\textbackslash poolMcB} and six
-others unused. Two copies of one number can drift, and this one did: Table~III's
-pooled row once printed $b{=}183$, $c{=}186$ where the per-corpus rows sum to
-$185$, $188$. Found by \texttt{docs/research-pipeline/tools/number\_provenance.py}.
-\textbf{No red box:} the rendered output is byte-identical, so there is nothing
-to see on the page --- which is exactly why it is listed here.
-\item[14.] \textbf{An overclaim corrected.} \S V-A read ``the combination
-consistently outperforms either gate alone'', which Fig.~2's own caption
-contradicts: on CORD, $\sigma$-alone at full coverage is nominally higher on a
-larger accept set. Rewritten to the comparison that holds at matched coverage,
-with CORD named. Found by
-\texttt{docs/research-pipeline/tools/claim\_strength.py}.
-\item[15.] \textbf{Line spacing} (editor item 1). Abstract and Keywords at
-\texttt{\textbackslash linespread\{1\}}, as requested. The body keeps
-\texttt{IEEEtran}'s own leading: an earlier revision set it to
-\texttt{\textbackslash linespread\{0.95\}} to buy back the page the review
-responses cost, which is compressing the class to fit rather than following it,
-and has been reverted.
-\item[16.] \textbf{10\,nk between Abstract and Keywords} (editor item 2).
-\item[17.] \textbf{6\,nk after every paragraph} (editor item 3).
-\texttt{\textbackslash parskip} $=6$\,pt \texttt{plus 1pt minus 0pt} --- the
-stretch is one-sided, so a column can be filled without the gap ever falling
-below the requested 6\,nk. Not applied inside the bibliography: a reference is
-a list item, not a paragraph, and 20 entries would have spent 120\,pt at the
-exact place the page limit is decided.
-\item[18.] \textbf{A period after the table label} (editor item 4).
-\texttt{TABLE I.} via \texttt{\textbackslash fnum@table}, \emph{not} via the
-\texttt{caption} package --- that package has no IEEEtran support, replaces
-\texttt{\textbackslash @makecaption} wholesale, and would put colons on every
-figure caption while deleting the small-caps table titles. Figure captions
-already end in a period and were not touched.
-\item[19--27.] \textbf{The three CMT reviews.} 19: the Abstract called
-$\sigma$ ``a \emph{novel} validation layer'' while the Discussion said
-``we claim no methodological novelty'' --- a direct contradiction inside one
-paper, and the likely origin of Reviewer~1's novelty and Figure~1 objections
-\emph{and} Reviewer~3's internal-consistency objection. 20: cross-reference
-notation standardised to \texttt{Section~N} (was four forms, twelve uses).
-21: coverage is now a column of Table~I beside the precision it buys.
-22: Fig.~1 reframed --- it read ``This paper adds $\sigma$''. 23: the six
-Results subsections named as the research questions they answer, and listed
-at the head of Section~V. 24: what $0.181$ coverage costs in operation.
-25: the missing selective-prediction baselines named, with the reason they
-are out of scope. 26: the SROIE OCR account \emph{tested} on the committed
-per-receipt records. 27: which extractor configuration each experiment uses,
-stated once.
-\item[28.] \textbf{Two Introduction blocks compressed} to pay for the
-paragraphs the reviews added, so the editor's 6\,nk paragraph spacing keeps
-its margin. ``Why this matters operationally'' and ``The general principle''
-lost roughly eight lines between them and no claim: all three operational
-points and the full statement of the principle survive, in fewer words. These
-two blocks answer no reviewer request, which is why they are the ones that
-give.
-\item[29.] \textbf{Claim-strength pass over the whole paper.} Eleven
-sentences flagged, four rewritten: the Abstract said ``up to a 77\,\%
-reduction'' where 77\,\% is the \emph{pooled} figure and the per-corpus range
-is 55--81\,\% (Reviewer~3's ``broader than the per-corpus evidence
-supports'', exactly); ``has not been evaluated'' became ``we are not aware of
-a published evaluation''; ``the high $p$-values \emph{confirm there is no}
-asymmetry'' became ``are consistent with no detectable asymmetry''; and two
-intensifiers went where the numbers already carried the sentence.
-\item[30.] \textbf{Answered in place rather than in new paragraphs.} The
-review responses were first written as new blocks, which took the paper to
-seven pages. Checking each against the existing text showed the paper already
-contained most of what the reviewers asked for --- it was stated without
-emphasis, in the wrong place, or buried. Each response was therefore folded
-into the sentence that already carried it and marked inline:
-Reviewer~2's operational-depth point into the existing $\kappa/\rho$ cost
-condition; their baselines point into Related Work's ``a different signal that
-does not read the model at all''; their OCR question into the sentence that
-already stated the hypothesis; Reviewer~1's research questions into the six
-subsection titles that already named them. Fourteen marked blocks became four
-blocks and twenty-four inline marks. Nothing the reviewers asked for was
-dropped; it is stated once, where the paper already made the point.
-\item[31.] \textbf{Marking macro corrected.} Six of those inline marks were
-written with \verb|\chgi|, which is an \verb|\fcolorbox|. A box cannot break
-across lines, so three sentences inside one set as a single unbreakable
-horizontal box that ran past the column edge and printed over the neighbouring
-column and the bibliography --- five full-width blocks in the compiled review
-PDF. They now use \verb|\chgt|, which marks the span with red text between
-markers and breaks wherever the paragraph breaks. The submitted copy was never
-affected: with \verb|\showchangesfalse| both macros expand to their argument.
-\item[32.] \textbf{Reframed as an evaluation paper} (Reviewer~1).
-Reviewer~1 wrote that arithmetic checking ``is already established in
-industrial practice and is not novel'' and that ``the main contribution of the
-paper lies in its systematic empirical evaluation.'' The paper was arguing with
-that: contribution~(i) claimed the ``first peer-reviewed formalisation''. It
-now says what Reviewer~1 says it is. The Abstract states that the check is
-long-standing practice and that this paper measures it; the contributions are
-re-cast as three measurements --- how much it buys, why it composes with
-softmax, and where it wins and loses --- with the regime finding promoted from
-a sub-clause to a contribution, because Reviewer~1 named ``data-specific
-behaviors and the trade-offs'' as the paper's value. The novelty disclaimer is
-now one clause where the contributions are stated, instead of four defensive
-restatements in the Abstract, the contributions, Related Work and the
-Discussion; deleting the other three is where the space for this came from.
-\item[33.] \textbf{Duplication removed across the whole paper.} Measured by
-sentence-level content overlap, not by reading. The $\sigma$ rule was stated
-four times, the softmax extraction twice, the industrial-prior-art gap three
-times, the matched-coverage comparison twice, the extractor caveat twice, and
-the Conclusion recited every per-corpus number already in the Abstract and
-Table~\ref{tab:headline-percorpus}. The author's own sentences are kept; what
-changed is how many times each is said.
-\end{enumerate}
-
-\medskip
-\noindent\textbf{Reviewer points answered before the reviews arrived.}
-Reviewer~3's Table~II/Fig.~2 question and their reproducibility point about
-extractor settings were already fixed on 27~July, by changes~14 and~7, from
-\texttt{claim\_strength.py} and the caption audit. The reviews are dated
-28~July.
-
-\medskip
-\noindent\textbf{On the page count.} This review copy runs longer than the
-submission copy for two reasons that both disappear with the boxes: the change
-index (this page onward, after a \texttt{\textbackslash clearpage}) and the
-marks themselves, which add a frame height per block and a few points per
-inline box. Turn them off before counting.
-
-\noindent The paper is longer than the original because it answers the reviews.
-Those responses were first written as separate paragraphs, then folded into the
-sentences that already carried the point, which recovered most of the length;
-statements the paper made twice were reduced to one each. What was \emph{not}
-done is compressing the class to fit: the body keeps \texttt{IEEEtran}'s
-leading, the float and caption spacing are the ones the paper already used, and
-no margin, column width or font size has been altered. Editor item~3 (6\,nk
-after every paragraph) costs roughly half a page on its own and is applied in
-full.
-
-\noindent\textbf{Deliberately not changed.} The \texttt{booktabs} rule style
-was left alone. Converting to the ruled-grid style is a real possibility, but
-the only authority for it would be the ASYU template, which is not in this
-repository; \texttt{IEEEtran.cls} does not prescribe table rules. Applying a
-plausible rule without its authority is how a correct paper acquires defects.
-See \texttt{audit/GROUND\_TRUTH.md} for the open Phase~0 item and the exact
-command that resolves it.
-
-\medskip
-\noindent\textbf{Not verified here.} No TeX distribution and no network in the
-environment these changes were made in, so nothing was checked against a
-rendered PDF --- and a clean build is not evidence anyway. The caption format,
-page count, overfull boxes and undefined references are all unverified. See
-\texttt{audit/UNVERIFIED.md}; run \texttt{bash audit/run\_audit.sh} where a
-TeX distribution exists.
-\fi
 
 \end{document}

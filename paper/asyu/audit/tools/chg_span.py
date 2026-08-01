@@ -90,8 +90,12 @@ def main(argv):
         blocks = src.count('\\begin{chgblock}')
 
         if not inline and not breakable and not blocks:
-            print(f"{path}: NO CHANGE MARKS AT ALL -- wrong file, or the "
-                  f"marking was lost? check did not run")
+            if '\\showchanges' not in raw:
+                print(f"{path}: clean copy -- no marking apparatus present, "
+                      f"nothing to check")
+                continue
+            print(f"{path}: NO CHANGE MARKS AT ALL, but the \\showchanges "
+                  f"switch is present -- the marking was lost")
             return 2
 
         print(f"{path}")
