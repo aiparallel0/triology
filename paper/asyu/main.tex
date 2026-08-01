@@ -329,21 +329,18 @@ with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
 \noindent\textbf{Why this matters operationally.} Silent failures are the
-expensive mode: a plausible wrong total is filed unchallenged and propagates
-for weeks before audit. Deferring therefore has to be selective, because human
+expensive part of the problem: a possible wrong total is filed unchallenged and propagates downstream for weeks before audit. Deferring therefore has to be selective, because human
 review is orders of magnitude costlier than an inference pass
 (Section~\ref{sec:results-headline}). Regulation (EU AI Act,
 financial-services model-risk rules) increasingly mandates documented
 per-prediction trust signals, and $\sigma$ is computed on the document rather
 than the model, so it produces a separate audit trail.
 
-\noindent\textbf{The general principle.} \emph{When a task's output admits a
-checkable structural constraint, a deterministic verifier of that constraint is
-a confidence signal statistically orthogonal to the model's own softmax,
-because its errors are governed by document structure rather than decoder
-logits.} Receipts are a clean instantiation; the construction applies to
-balancing tables, schemas with referential constraints, code with type checks,
-and logic with a solver.
+\noindent\textbf{The Principle of Sigma Verifier} \emph{When a task's output meets a verifiable structural rule, a deterministic verifier acts as a confidence signal. This signal is statistically orthogonal to the model's softmax, as its errors arise from the document's structure, not from decoder logits.} Receipts clearly illustrate this concept; the framework also applies to:
+
+\begin{itemize} \item Balancing tables \item Schemas with referential constraints \item Code with type checks \item Logic involving a solver\end{itemize}
+
+\textit{Throughout, $\sigma$ denotes the verifier defined below, not the standard-deviation symbol.}
 
 \noindent\textbf{Contributions.} (i)~A measurement of $\sigma$ as a
 selective-prediction signal on receipts (Section~\ref{sec:method}). The check
@@ -444,38 +441,11 @@ predicted $24.90$, the nearest reachable total would be $24.70$ and $\sigma$
 would defer.
 \end{steps}
 
-\noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on whether the total
-appears on the receipt as a labeled line. Where amounts are labeled, that
-line is already in $M$ and a singleton witness $\pi{=}m_j$ is a coincidence
-rather than the intended structural match, so $k_{\min}{=}2$ excludes it; on
-OCR-derived corpora the labeled total is often surfaced by OCR, the singleton
-is legitimate, and $k_{\min}{=}1$ helps on both axes
-(Table~\ref{tab:guard}). We use $k_{\min}{=}2$ on CORD and WildReceipt,
-$k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ iff
-the extractor surfaces a single amount equal to $\pi$ on more than a fraction
-$\theta$ of receipts, a computable property of the $(\pi,M)$ stream alone. The
-corpora separate cleanly ($0.07/0.05/0.41$), so the rule is insensitive to
-$\theta$ over $[0.1,0.4]$. It is a deployment-time rule, not a hyperparameter
-tuned on labels.
+\noindent\textbf{Cardinality guard.} The correct $k_{\min}$ hinges on whether the total appears on the receipt as a labeled line. When amounts are labeled, that line is included in $M$, making a singleton witness $\pi{=}m_j$ a coincidence rather than the intended structural match. Thus, $k_{\min}{=}2$ excludes it. In OCR-derived corpora, the labeled total is often surfaced by OCR, rendering the singleton legitimate. Here, $k_{\min}{=}1$ is beneficial on both axes (Table~\ref{tab:guard}). We apply $k_{\min}{=}2$ on CORD and WildReceipt, while $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ if the extractor identifies a single amount equal to $\pi$ on more than a fraction $\theta$ of receipts, which is a computable property of the $(\pi,M)$ stream alone. The corpora separate cleanly ($0.07/0.05/0.41$), indicating the rule is insensitive to $\theta$ over $[0.1,0.4]$. This is a deployment-time rule, not a hyperparameter adjusted on labels.
 
-\noindent\textbf{The extractor $\tau$.} $\tau$ is the procedure that produces
-$M$ from $x$, and it is the only part of $\sigma$ that is corpus-specific. On
-labeled-amount corpora (CORD), $M$ comes directly from the per-field JSON. On
-OCR-derived corpora (SROIE), $\tau$ is a multi-candidate extractor over the
-OCR text: when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), it keeps
-both readings as candidates $M_k$ and accepts $\pi$ if any candidate yields a
-witness ($3.12$ candidates per receipt on average). On WildReceipt
-(encoder-only), $M$ comes from the per-token Prod_price_value
-annotations.
+\noindent\textbf{The extractor $\tau$.} $\tau$ is the method that generates $M$ from $x$, and it is the sole part of $\sigma$ that is corpus-specific. In labeled-amount corpora (CORD), $M$ is derived directly from the per-field JSON. In OCR-derived corpora (SROIE), $\tau$ functions as a multi-candidate extractor over the OCR text: when a line is ambiguous (e.g., tax rate vs. tax amount), it retains both interpretations as candidates $M_k$ and accepts $\pi$ if any candidate produces a witness (averaging $3.12$ candidates per receipt). On WildReceipt (encoder-only), $M$ is obtained from the per-token Prod_price_value annotations.
 
-\noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
-confidence. For a coverage budget $c$, the softmax decision rule accepts the
-top-$c$ fraction of receipts by $s$. We compose at per-corpus matched
-coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, so the two
-rules are compared at the same operating point rather than at the same
-threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts iff both
-accept.
-
+\noindent\textbf{Composition with softmax.} Let $s(x)$ denote the softmax confidence. For a coverage budget $c$, the softmax decision rule accepts the top-$c$ fraction of receipts based on $s$. We compose at per-corpus matched coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, ensuring the two rules are compared at the same operating point rather than at the same threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts if and only if both accept.
 \section{Experimental Setup}
 \label{sec:setup}
 
