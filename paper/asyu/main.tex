@@ -325,7 +325,7 @@ amounts. The verifier is a textbook $0/1$-knapsack dynamic program (DP),
 with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
-\noindent\textbf{Why this matters operationally.} Silent failures are the
+\noindent\textbf{The significance of this issue.} Silent failures are the
 expensive part of the problem: a possible wrong total is filed unchallenged and propagates downstream for weeks before audit. Deferring therefore has to be selective, because human
 review is orders of magnitude costlier than an inference pass
 (Section~\ref{sec:results-headline}). Regulation (EU AI Act,
@@ -333,7 +333,7 @@ financial-services model-risk rules) increasingly mandates documented
 per-prediction trust signals, and $\sigma$ is computed on the document rather
 than the model, so it produces a separate audit trail.
 
-\noindent\textbf{The Principle of Sigma Verifier} \emph{When a task's output meets a verifiable structural rule, a deterministic verifier acts as a confidence signal. This signal is statistically orthogonal to the model's softmax, as its errors arise from the document's structure, not from decoder logits.} Receipts clearly illustrate this concept; the framework also applies to:
+\noindent\textbf{The Principle of Sigma Verifier.} \emph{When a task's output meets a verifiable structural rule, a deterministic verifier acts as a confidence signal. This signal is statistically orthogonal to the model's softmax, as its errors arise from the document's structure, not from decoder logits.} Receipts clearly illustrate this concept; the framework also applies to:
 
 \begin{itemize} \item Balancing tables \item Schemas with referential constraints \item Code with type checks \item Logic involving a solver\end{itemize}
 
