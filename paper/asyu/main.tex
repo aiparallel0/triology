@@ -480,7 +480,7 @@ accept.
 \label{sec:setup}
 
 \noindent\textbf{Datasets.} We use three public receipt benchmarks,
-chosen to span the labelling regimes that matter in practice.
+chosen to span the labeling regimes that matter in practice.
 \textbf{CORD-v2}~\cite{park2019cord} test+validation ($n{=}200$,
 labeled per-field amounts; CORD-v2 \emph{train} is the Donut
 fine-tuning split and is excluded to keep the evaluation
@@ -810,8 +810,11 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
   \draw (\x,0.08) -- (\x,-0.08) node[below]{\l};}
 \fill[ok!75] (1.96,0) circle (2.6pt);
 \node[above,text=ok] at (1.96,0.12) {med \latMedian};
+% The p99 annotation sits on its own row below the tick labels: at the
+% shared depth it printed through "100" and "1000" ("p99 3121000").
 \fill[ok!55] (6.49,0) circle (2.6pt);
-\node[below] at (6.49,-0.13) {$p_{99}\,\latPNineNine$};
+\draw[grey!55,line width=0.5pt] (6.49,-0.12) -- (6.49,-0.62);
+\node[below] at (6.49,-0.60) {$p_{99}\,\latPNineNine$};
 \fill[smx!75] (7.35,0) circle (2.6pt);
 \node[above] at (7.35,0.12) {max \latMax};
 \end{tikzpicture}
