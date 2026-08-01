@@ -261,17 +261,14 @@ Total Extraction via Structural Arithmetic Verification}
 and predicts a total. In standard practice the only ``should I trust this
 number?'' signal is the model's own \emph{softmax confidence}, a number it
 produces about its own answer. We measure $\sigma$, an arithmetic check on
-the receipt itself that does not read the model at all. On $1019$ receipts
-across two architectures and three corpora, requiring both signals yields
-$0.989$ precision (Wilson 95\% lower bound $0.961$) against $0.953$ for
-either alone at matched coverage.}
+the receipt itself that does not read the model at all. Using both signals on $1019$ receipts gives a precision of $0.989$ (Wilson $95\%$ lower bound $0.961$). In comparison, either signal alone reaches a precision of $0.953$ with matched coverage.}
 \label{fig:scope}
 \end{figure*}
 
 \begin{abstract}
 \boldmath
 \linespread{1}\selectfont
-Document-AI systems frequently extract itemized fields from receipts, where the ``total'' field serves as the highest-value target. Errors in extracting this specific field can severely propagate into downstream processes like tax filings, expense reports, and financial audits. In standard practice, the softmax layers in Document-AI models often output miscalibrated predictions~\cite{guo2017calibration}, failing to detect these errors in isolation. To remedy this issue, we study the \emph{sigma-verifier}: a validation layer that runs outside the model and asks whether any subset of the itemized lines on a receipt adds up to the predicted total. We answer that question exactly, as a 0/1-knapsack problem over the amounts the receipt itself prints. We evaluated the sigma-verifier on receipt-parsing systems built from two prominent architectures, Donut~\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3}, across three public benchmarks. Arithmetic cross-checking of this kind is long-standing industrial practice and we claim no novelty for the check itself; what we did not find published is a measurement of it as a signal orthogonal to the model's own confidence, which is what this paper provides. The headline result is a fourfold cut in silent wrong totals. Pooled across three corpora, requiring both the sigma-verifier and softmax reduces the silent-wrong-total rate among accepted receipts from 4.7\% to 1.1\%, a 77\% relative reduction (55--81\% per corpus). The cost is coverage: 18\% of receipts accepted rather than 38\%.
+Document-AI systems often extract itemized fields from receipts, with the ``total'' field being the most critical target. Errors in this field can cause major problems in downstream processes like tax filings, expense reports, and financial audits. The softmax layers in Document-AI models often produce miscalibrated predictions\cite{guo2017calibration} and fail to identify these errors in isolation. To address this, we explore the \emph{sigma-verifier}: a validation layer operating outside the model that checks if any subset of itemized lines on a receipt sums to the predicted total. We frame this as a 0/1-knapsack problem using the amounts printed on the receipt. We assessed the sigma-verifier on receipt-parsing systems based on two leading architectures, Donut\cite{kim2022donut} and LayoutLMv3~\cite{huang2022layoutlmv3}, across three public benchmarks. The arithmetic cross-checking we employed is a well-established industrial practice, and we claim no novelty in the check itself. However, we present a measurement of this check as a signal independent of the model's own confidence, which this paper offers. The key finding is a fourfold reduction in silent wrong totals. When combining the sigma-verifier with softmax across three corpora, we lower the silent-wrong-total rate among accepted receipts from 4.7% to 1.1%, achieving a 77% relative reduction (55--81% per corpus). The trade-off is coverage: acceptance drops from 38% to 18% of receipts.
 \end{abstract}
 
 \vspace{\dimexpr 10pt-\parskip\relax}
@@ -328,22 +325,19 @@ amounts. The verifier is a textbook $0/1$-knapsack dynamic program (DP),
 with measured sub-millisecond $p_{99}$ latency
 (Section~\ref{sec:results-robust}).
 
-\noindent\textbf{Why this matters operationally.} Silent failures are the
-expensive mode: a plausible wrong total is filed unchallenged and propagates
-for weeks before audit. Deferring therefore has to be selective, because human
+\noindent\textbf{The significance of this issue.} Silent failures are the
+expensive part of the problem: a possible wrong total is filed unchallenged and propagates downstream for weeks before audit. Deferring therefore has to be selective, because human
 review is orders of magnitude costlier than an inference pass
 (Section~\ref{sec:results-headline}). Regulation (EU AI Act,
 financial-services model-risk rules) increasingly mandates documented
 per-prediction trust signals, and $\sigma$ is computed on the document rather
 than the model, so it produces a separate audit trail.
 
-\noindent\textbf{The general principle.} \emph{When a task's output admits a
-checkable structural constraint, a deterministic verifier of that constraint is
-a confidence signal statistically orthogonal to the model's own softmax,
-because its errors are governed by document structure rather than decoder
-logits.} Receipts are a clean instantiation; the construction applies to
-balancing tables, schemas with referential constraints, code with type checks,
-and logic with a solver.
+\noindent\textbf{The Principle of Sigma Verifier.} \emph{When a task's output meets a verifiable structural rule, a deterministic verifier acts as a confidence signal. This signal is statistically orthogonal to the model's softmax, as its errors arise from the document's structure, not from decoder logits.} Receipts clearly illustrate this concept; the framework also applies to:
+
+\begin{itemize} \item Balancing tables \item Schemas with referential constraints \item Code with type checks \item Logic involving a solver\end{itemize}
+
+\textit{Throughout, $\sigma$ denotes the verifier defined below, not the standard-deviation symbol.}
 
 \noindent\textbf{Contributions.} (i)~A measurement of $\sigma$ as a
 selective-prediction signal on receipts (Section~\ref{sec:method}). The check
@@ -444,38 +438,11 @@ predicted $24.90$, the nearest reachable total would be $24.70$ and $\sigma$
 would defer.
 \end{steps}
 
-\noindent\textbf{Cardinality guard.} The right $k_{\min}$ depends on whether the total
-appears on the receipt as a labeled line. Where amounts are labeled, that
-line is already in $M$ and a singleton witness $\pi{=}m_j$ is a coincidence
-rather than the intended structural match, so $k_{\min}{=}2$ excludes it; on
-OCR-derived corpora the labeled total is often surfaced by OCR, the singleton
-is legitimate, and $k_{\min}{=}1$ helps on both axes
-(Table~\ref{tab:guard}). We use $k_{\min}{=}2$ on CORD and WildReceipt,
-$k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ iff
-the extractor surfaces a single amount equal to $\pi$ on more than a fraction
-$\theta$ of receipts, a computable property of the $(\pi,M)$ stream alone. The
-corpora separate cleanly ($0.07/0.05/0.41$), so the rule is insensitive to
-$\theta$ over $[0.1,0.4]$. It is a deployment-time rule, not a hyperparameter
-tuned on labels.
+\noindent\textbf{Cardinality guard.} The correct $k_{\min}$ hinges on whether the total appears on the receipt as a labeled line. When amounts are labeled, that line is included in $M$, making a singleton witness $\pi{=}m_j$ a coincidence rather than the intended structural match. Thus, $k_{\min}{=}2$ excludes it. In OCR-derived corpora, the labeled total is often surfaced by OCR, rendering the singleton legitimate. Here, $k_{\min}{=}1$ is beneficial on both axes (Table~\ref{tab:guard}). We apply $k_{\min}{=}2$ on CORD and WildReceipt, while $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ if the extractor identifies a single amount equal to $\pi$ on more than a fraction $\theta$ of receipts, which is a computable property of the $(\pi,M)$ stream alone. The corpora separate cleanly ($0.07/0.05/0.41$), indicating the rule is insensitive to $\theta$ over $[0.1,0.4]$. This is a deployment-time rule, not a hyperparameter adjusted on labels.
 
-\noindent\textbf{The extractor $\tau$.} $\tau$ is the procedure that produces
-$M$ from $x$, and it is the only part of $\sigma$ that is corpus-specific. On
-labeled-amount corpora (CORD), $M$ comes directly from the per-field JSON. On
-OCR-derived corpora (SROIE), $\tau$ is a multi-candidate extractor over the
-OCR text: when a line is ambiguous (e.g.\ tax rate vs.\ tax amount), it keeps
-both readings as candidates $M_k$ and accepts $\pi$ if any candidate yields a
-witness ($3.12$ candidates per receipt on average). On WildReceipt
-(encoder-only), $M$ comes from the per-token Prod_price_value
-annotations.
+\noindent\textbf{The extractor $\tau$.} $\tau$ is the method that generates $M$ from $x$, and it is the sole part of $\sigma$ that is corpus-specific. In labeled-amount corpora (CORD), $M$ is derived directly from the per-field JSON. In OCR-derived corpora (SROIE), $\tau$ functions as a multi-candidate extractor over the OCR text: when a line is ambiguous (e.g., tax rate vs. tax amount), it retains both interpretations as candidates $M_k$ and accepts $\pi$ if any candidate produces a witness (averaging $3.12$ candidates per receipt). On WildReceipt (encoder-only), $M$ is obtained from the per-token Prod_price_value annotations.
 
-\noindent\textbf{Composition with softmax.} Let $s(x)$ be the softmax
-confidence. For a coverage budget $c$, the softmax decision rule accepts the
-top-$c$ fraction of receipts by $s$. We compose at per-corpus matched
-coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, so the two
-rules are compared at the same operating point rather than at the same
-threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts iff both
-accept.
-
+\noindent\textbf{Composition with softmax.} Let $s(x)$ denote the softmax confidence. For a coverage budget $c$, the softmax decision rule accepts the top-$c$ fraction of receipts based on $s$. We compose at per-corpus matched coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, ensuring the two rules are compared at the same operating point rather than at the same threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts if and only if both accept.
 \section{Experimental Setup}
 \label{sec:setup}
 
