@@ -12,6 +12,7 @@
 \usepackage{booktabs}
 \usepackage{underscore}
 \usepackage{tikz}
+\usepackage{needspace}
 \usepackage{flafter} % a float never precedes the paragraph that introduces it
 \usepackage{hyperref}
 % IEEE style: no colored link borders/boxes around citation and ref
@@ -337,11 +338,10 @@ financial-services model-risk rules) increasingly mandates documented
 per-prediction trust signals, and $\sigma$ is computed on the document rather
 than the model, so it produces a separate audit trail.
 
-\noindent The principle generalises beyond receipts. \emph{When a
-task's output meets a verifiable structural rule, a deterministic verifier
-acts as a confidence signal, statistically orthogonal to the model's softmax
-because its errors arise from the document's structure rather than from
-decoder logits.} The construction applies wherever a structural invariant is
+\noindent The principle generalises beyond receipts. \emph{When a task's output
+meets a verifiable structural rule, a deterministic verifier acts as a
+confidence signal, statistically orthogonal to softmax because its errors arise
+from document structure, not decoder logits.} The construction applies wherever a structural invariant is
 checkable: balancing tables, schemas with referential constraints, code with
 type checks, and logic with a solver.
 
@@ -352,7 +352,7 @@ novelty for it; the contribution is the measurement, with the paired
 statistics such a claim requires (Section~\ref{sec:related}). (ii)~Empirical validation on a pooled
 three-corpus benchmark of $n{=}1019$ receipts spanning two backbones
 (Donut generative, LayoutLMv3 encoder-only) and three regimes (CORD
-labeled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
+labelled, SROIE OCR, WildReceipt encoder-only) with Wilson 95\%
 precision lower bounds for every cell (Section~\ref{sec:results-headline}).
 (iii)~Statistical orthogonality via paired McNemar tests
 (Section~\ref{sec:results-mcnemar}); a regime-mechanistic explanation of
@@ -403,7 +403,7 @@ $\sigma$ verifies one prediction against the document's own arithmetic.
 \section{Method}
 \label{sec:method}
 
-\noindent Given a receipt image $x$, the KIE model emits a predicted
+\noindent\textbf{Problem and notation.} Given a receipt image $x$, the KIE model emits a predicted
 total, written $\pi(x)$, a non-negative rational number of currency
 units; write $y(x)$ for the gold total. A \emph{selective predictor} is a rule
 $g$ that makes one of two calls on every receipt: \emph{accept} the predicted
@@ -428,6 +428,9 @@ T(M)=\Big\{\textstyle\sum_{i\in S}m_i\,\Big|\,
 The rule then runs in three steps, shown here on a receipt printing
 $\{12.50,\,8.00,\,4.20,\,3.20\}$ for which the model predicts $\pi{=}24.70$.
 
+% Keeps the three-step procedure in one column; with the natural break
+% step 1 was stranded alone at the foot of the previous column.
+\Needspace*{8\baselineskip}
 \begin{steps}
 \item \textbf{Collect.} Extract every monetary amount printed on the receipt
 into $M(x)$; here $n{=}4$.
@@ -443,38 +446,38 @@ predicted $24.90$, the nearest reachable total would be $24.70$ and $\sigma$
 would defer.
 \end{steps}
 
-\noindent The correct $k_{\min}$ hinges on whether the total appears on the receipt as a labeled line. When amounts are labeled, that line is included in $M$, making a singleton witness $\pi{=}m_j$ a coincidence rather than the intended structural match. Thus, $k_{\min}{=}2$ excludes it. In OCR-derived corpora, the labeled total is often surfaced by OCR, rendering the singleton legitimate. Here, $k_{\min}{=}1$ is beneficial on both axes (Table~\ref{tab:guard}). We apply $k_{\min}{=}2$ on CORD and WildReceipt, while $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ if the extractor identifies a single amount equal to $\pi$ on more than a fraction $\theta$ of receipts, which is a computable property of the $(\pi,M)$ stream alone. The corpora separate cleanly ($0.07/0.05/0.41$), indicating the rule is insensitive to $\theta$ over $[0.1,0.4]$. This is a deployment-time rule, not a hyperparameter adjusted on labels.
+\noindent\textbf{Cardinality guard.} The correct $k_{\min}$ hinges on whether the total appears on the receipt as a labelled line. When amounts are labelled, that line is included in $M$, making a singleton witness $\pi{=}m_j$ a coincidence rather than the intended structural match. Thus, $k_{\min}{=}2$ excludes it. In OCR-derived corpora, the labelled total is often surfaced by OCR, rendering the singleton legitimate. Here, $k_{\min}{=}1$ is beneficial on both axes (Table~\ref{tab:guard}). We apply $k_{\min}{=}2$ on CORD and WildReceipt, while $k_{\min}{=}1$ on SROIE, selected \emph{without labels}: $k_{\min}{=}1$ if the extractor identifies a single amount equal to $\pi$ on more than a fraction $\theta$ of receipts, which is a computable property of the $(\pi,M)$ stream alone. The corpora separate cleanly ($0.07/0.05/0.41$), indicating the rule is insensitive to $\theta$ over $[0.1,0.4]$. This is a deployment-time rule, not a hyperparameter adjusted on labels.
 
-\noindent The extractor $\tau$ is the sole part of $\sigma$ that is corpus-specific. It is the method that generates $M$ from $x$. In labeled-amount corpora (CORD), $M$ is derived directly from the per-field JSON. In OCR-derived corpora (SROIE), $\tau$ functions as a multi-candidate extractor over the OCR text: when a line is ambiguous (e.g., tax rate vs. tax amount), it retains both interpretations as candidates $M_k$ and accepts $\pi$ if any candidate produces a witness (averaging $3.12$ candidates per receipt). On WildReceipt (encoder-only), $M$ is obtained from the per-token Prod_price_value annotations.
+\noindent\textbf{Amount extraction.} The extractor $\tau$ is the sole part of $\sigma$ that is corpus-specific. It is the method that generates $M$ from $x$. In labelled-amount corpora (CORD), $M$ is derived directly from the per-field JSON. In OCR-derived corpora (SROIE), $\tau$ functions as a multi-candidate extractor over the OCR text: when a line is ambiguous (e.g., tax rate vs. tax amount), it retains both interpretations as candidates $M_k$ and accepts $\pi$ if any candidate produces a witness (averaging $3.12$ candidates per receipt). On WildReceipt (encoder-only), $M$ is obtained from the per-token Prod_price_value annotations.
 
-\noindent We compose the two rules at matched coverage. Let $s(x)$ denote the softmax confidence. For a coverage budget $c$, the softmax decision rule accepts the top-$c$ fraction of receipts based on $s$. We compose at per-corpus matched coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, ensuring the two rules are compared at the same operating point rather than at the same threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts if and only if both accept.
+\noindent\textbf{Composition with softmax.} We compose the two rules at matched coverage. Let $s(x)$ denote the softmax confidence. For a coverage budget $c$, the softmax decision rule accepts the top-$c$ fraction of receipts based on $s$. We compose at per-corpus matched coverage, setting $c$ equal to $\sigma$'s coverage on that corpus, ensuring the two rules are compared at the same operating point rather than at the same threshold. Their combination $\sigma\sqcap\text{softmax}$ accepts if and only if both accept.
 \section{Experimental Setup}
 \label{sec:setup}
 
-\noindent We use three public receipt benchmarks, chosen to span the labeling regimes that matter in practice.
+\noindent\textbf{Datasets.} We use three public receipt benchmarks, chosen to span the labelling regimes that matter in practice.
 CORD-v2~\cite{park2019cord} test+validation ($n{=}200$,
-labeled per-field amounts; CORD-v2 \emph{train} is the Donut
+labelled per-field amounts; CORD-v2 \emph{train} is the Donut
 fine-tuning split and is excluded to keep the evaluation
 leakage-free); SROIE Task-3~\cite{huang2019sroie} canonical
 ($n{=}347$, OCR-derived amounts); WildReceipt
 \cite{sun2021wildreceipt} test ($n{=}472$, per-token annotations).
 Pooled $n{=}\poolN{}$.
 
-\noindent Both backbones are off-the-shelf and inference-only: Donut~\cite{kim2022donut} fine-tuned on CORD-v2 and on SROIE, and
+\noindent\textbf{Models.} Both backbones are off-the-shelf and inference-only: Donut~\cite{kim2022donut} fine-tuned on CORD-v2 and on SROIE, and
 LayoutLMv3~\cite{huang2022layoutlmv3} fine-tuned on WildReceipt.
 
-\noindent We set $\varepsilon{=}0.02$ throughout, and $k_{\min}$ follows the label-free cardinality-guard rule of
+\noindent\textbf{Settings.} We set $\varepsilon{=}0.02$ throughout, and $k_{\min}$ follows the label-free cardinality-guard rule of
 Section~\ref{sec:method} ($k_{\min}{=}2$ on CORD and WildReceipt,
 $k_{\min}{=}1$ on SROIE). The fixed-$k_{\min}$ sweep of
 Table~\ref{tab:guard} is the only departure, and is explicitly an
 ablation of that rule.
 
-\noindent Per-cell precision carries Wilson 95\% confidence
+\noindent\textbf{Statistics.} Per-cell precision carries Wilson 95\% confidence
 intervals~\cite{wilson1927ci}, and agreement
 between the two decision rules is tested with paired
 McNemar~\cite{mcnemar1947note} ($\chi^2$ with continuity correction).
 
-\noindent Softmax means a different object on each architecture. For Donut
+\noindent\textbf{Softmax across architectures.} Softmax means a different object on each architecture. For Donut
 the softmax score is the geometric mean of per-token probabilities
 over the predicted total_value span in the decoder's
 autoregressive output; for LayoutLMv3, the geometric mean of the
@@ -483,7 +486,7 @@ model's self-assessed probability of its emitted total-value tokens, so we
 treat them as the architecture-appropriate ``model self-confidence'' but not
 as numerically interchangeable.
 
-\noindent Two extractor settings appear in this paper. The multi-candidate
+\noindent\textbf{Extractor per experiment.} Two extractor settings appear in this paper. The multi-candidate
 extractor $\tau$ of Section~\ref{sec:method} is the default and produces every
 headline result; a fixed single-candidate extractor is used only in the two
 ablations (Tables~\ref{tab:guard} and~\ref{tab:robust}), where holding $\tau$
@@ -494,7 +497,7 @@ different extractor, not a conflicting result.
 \section{Results}
 \label{sec:results}
 
-\subsection{Does Requiring Both Signals Clear the 0.95 Precision Floor?}
+\subsection{Does the Combination Beat Either Signal Alone?}
 \label{sec:results-headline}
 
 \begin{table}[t]
@@ -581,7 +584,7 @@ WildReceipt & LayoutLMv3  & 472 & 114 & 113 & [0.952, 0.998] \\
 \end{table}
 
 \noindent Table~\ref{tab:headline-pooled} reports pooled results across all
-$1{,}019$ receipts. the combination of $\sigma$ and softmax is the only
+$1{,}019$ receipts. The combination of $\sigma$ and softmax is the only
 configuration that clears the $0.95$ precision floor required for fully
 automated processing, achieving a Wilson 95\% lower bound
 of $0.961$; neither rule alone reaches it ($0.918$ and $0.927$).
@@ -597,8 +600,8 @@ universal claim. It holds in high-stakes financial pipelines and not in
 low-stakes bulk capture, where matched-coverage softmax is the better choice.
 
 \noindent The finding survives splitting. Table~\ref{tab:headline-percorpus}
-breaks the combination down per dataset, to check that the pooled finding is
-not an artifact of merging three datasets into one number. At matched coverage
+breaks the combination down per dataset, testing whether the pooled finding is
+an artefact of merging three. At matched coverage
 the combination beats the softmax rule on all three; CORD is the exception only
 against $\sigma$-alone, and Fig.~\ref{fig:overview} sets out why. WildReceipt
 on LayoutLMv3 is the strongest cell and SROIE on Donut the weakest, and the
@@ -610,7 +613,7 @@ weighted at $200/347/472$ and carried by WildReceipt, the per-corpus table
 rather than the pool is the headline; Fig.~\ref{fig:wildreceipt} singles out
 the WildReceipt case.
 
-\subsection{Do \texorpdfstring{$\sigma$}{sigma} and Softmax Fail on the Same Receipts?}
+\subsection{Do the Two Signals Fail on the Same Receipts?}
 \label{sec:results-mcnemar}
 
 \begin{table}[t]
@@ -638,8 +641,7 @@ $b$ counts receipts where $\sigma$ is correct but softmax is not,
 mistakes that $\sigma$ catches but softmax misses. $c$ counts the
 reverse, receipts where softmax is correct but $\sigma$ is not. If
 $b$ and $c$ are roughly equal, neither signal is consistently better
-than the other; they are simply catching different mistakes, which
-is precisely what makes combining them powerful.
+than the other; they are catching different mistakes.
 
 \noindent The counts are balanced. On WildReceipt, $b$ and $c$ are
 exactly equal at $91$: $\sigma$ and softmax each rescue an identical number of
@@ -652,13 +654,13 @@ than positive evidence of error-decorrelation; the direct
 correlation-on-errors test (Section~\ref{sec:results-control})
 supplies the latter.
 
-\subsection{Is the Precision Gain Larger Than Coverage Shrink Predicts?}
+\subsection{Is the Gain Genuine or Just Coverage Shrink?}
 \label{sec:results-control}
 
 \noindent The obvious objection is that combining any two
 better-than-random decision rules with imperfectly correlated errors raises
 precision and lowers coverage, so the headline may be nothing more than that
-generic effect. We re-analyze the same per-receipt accept/correct vectors, with
+generic effect. We re-analyse the same per-receipt accept/correct vectors, with
 no new inference.
 Define the lift $L=P(\sigma\sqcap\text{softmax})-P(\text{softmax at matched
 coverage})$ and compare it at identical coverage against two controls: (A)~a
@@ -681,15 +683,13 @@ $p{=}\orthPhiP$). That is positive evidence of
 orthogonality with no coverage-shrink confound, which the paired-McNemar result
 of Section~\ref{sec:results-mcnemar} only implies indirectly.
 
-\noindent Two caveats bound the claim. The verdict is \orthEarned, but the
-pooled effect is \emph{small} ($\orthDrand$/$\orthDcorr$ precision lift), and
-it does \emph{not} hold per corpus
-(Section~\ref{sec:results-percorpus-rigor}). We therefore claim a
-\emph{small, pooled, statistically-significant} orthogonality, and explicitly
-not a per-corpus or a large one.
+\noindent The orthogonality is supported, but we claim it narrowly: the pooled
+effect is \emph{small} ($\orthDrand$/$\orthDcorr$ precision lift) and does
+\emph{not} hold corpus by corpus, so the claim is pooled and statistically
+significant, not per-corpus and not large.
 
 \smallskip
-\label{sec:results-percorpus-rigor}
+\label{sec:results-percorpus-rigour}
 \noindent Per-corpus, the picture is weaker. Exact small-sample analysis of
 the leakage-free combination cells (CORD $54/55$, SROIE $15/15$,
 WildReceipt $113/114$). Lower bounds agree across estimators
@@ -706,7 +706,7 @@ gives combined Stouffer $p=\rgAFiveStouffer$ and Fisher
 $p=\rgAFiveFisher$: decorrelation holds within every corpus, not
 only pooled.
 
-\subsection{Does \texorpdfstring{$\sigma$}{sigma} Lower Area Under the Risk-Coverage Curve?}
+\subsection{Does Sigma Lower Risk at Matched Coverage?}
 \label{sec:results-riskcov}
 
 \noindent Statistical orthogonality is necessary but not sufficient for
@@ -716,10 +716,11 @@ to an AURC~\cite{geifman2019aurc} (lower better). Pooled, AURC is
 $\rcAURCsoft$ for softmax-alone against $\rcAURCsig$ for the $\sigma$ rule, a
 paired-bootstrap difference of $\rcAURCd$ (95\,\% CI
 $[\rcAURCdLo,\rcAURCdHi]$, one-sided $p{=}\rcAURCp$); the interval excludes
-zero, verdict \rcEarned. We do not over-read it: the absolute difference is
+zero, so the $\sigma$ rule lowers AURC at matched coverage. We do not
+over-read it: the absolute difference is
 small and the lift costs coverage, so the operational gain is modest.
 
-\subsection{Which Labeling Regimes Favor \texorpdfstring{$\sigma$}{sigma} Over Softmax?}
+\subsection{When Does Each Signal Win, and Why?}
 \label{sec:results-regime}
 
 \noindent Each signal owns a regime. On CORD (clean per-field labels) $\sigma$
@@ -736,10 +737,14 @@ many amounts OCR puts on the page, not how many ways each line is read. With
 $10$ false accepts this supports the account rather than settling it; a
 hand-corrected subsample test is future work.
 
-\subsection{Is \texorpdfstring{$\sigma$}{sigma} Robust to Injected Noise and Fast Enough to Deploy?}
+\subsection{Is Sigma Robust and Fast Enough to Deploy?}
 \label{sec:results-robust}
 
-\begin{table}[t]
+% [b] not [t]: flafter forbids a float before its reference, so with [t]
+% these three landed at the top of the next page and split the limitation
+% list in Sec. VI in half. At the bottom of the column they sit on the same
+% page as the Sec. V-F text that introduces them.
+\begin{table}[b]
 \centering\small
 \caption{Cardinality-guard ablation on SROIE ($n{=}347$)}
 \label{tab:guard}
@@ -753,7 +758,7 @@ $k_{\min}{=}2$ (guard on)  & 0.029 & 0.900 \\
 \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[b]
 \centering\small
 \caption{Injected money-line noise on CORD (10 seeds)}
 \label{tab:robust}
@@ -769,7 +774,7 @@ CORD noise rate $r$ & Coverage & Precision & 95\% CI \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[b]
 \centering
 \begin{tikzpicture}[scale=0.58,every node/.style={font=\scriptsize}]
 \draw[->,thick] (0,0) -- (8.6,0)
@@ -793,7 +798,7 @@ measured in microseconds on a single-thread CPU across 819 receipts.}
 
 \noindent Table~\ref{tab:guard} isolates
 the cardinality guard on SROIE, where OCR often surfaces the total as a clean
-labeled line. Turning it off is better on both axes: coverage rises from $2.9\%$
+labelled line. Turning it off is better on both axes: coverage rises from $2.9\%$
 to $16.1\%$ and precision from $0.900$ to $0.929$, because on OCR-derived data
 the singleton match is legitimate rather than coincidental, and forcing two
 items rejects valid receipts for nothing. Like Table~\ref{tab:robust}, this
@@ -821,17 +826,17 @@ on this CPU-only host.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-\noindent Combining helps because orthogonality needs only errors on
+\noindent\textbf{Where $\sigma$ works.} Combining helps because orthogonality needs only errors on
 different inputs, not dominance. The gain survives swapping Donut for
 LayoutLMv3, so $\sigma$ is signal-orthogonal to softmax across architectures.
 Six limits bound that claim.
 
-\noindent\textbf{The limits of the construction.} (i)~$\sigma$ requires
+\noindent\textbf{What $\sigma$ cannot do.} (i)~$\sigma$ requires
 arithmetic closure of the target field; totals, subtotals, and taxes,
 not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
 integer-cent inputs; fractional-cent rounding jurisdictions may need
 a different sweep. (iii)~$\sigma$ assumes $\pi$ is a parsed numeric
-scalar; format-hallucinated outputs require an upstream normalizer we
+scalar; format-hallucinated outputs require an upstream normaliser we
 do not benchmark. (iv)~In the OCR-derived regime $\sigma$ is valuable
 only in combination, not as a single decision rule
 (Section~\ref{sec:results-regime}). (v)~We compare against softmax only; the
