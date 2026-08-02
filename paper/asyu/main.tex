@@ -297,8 +297,7 @@ reliably handle. That substitutes one problem for another. Every deployment
 now needs a \emph{signal} on which to base the accept-or-defer call, and
 which signal that should be is the question this paper takes up.
 
-\noindent\textbf{The longstanding default and its flaw.} The default signal is
-softmax confidence, the model's own estimate of how sure it is, computed as the geometric mean of the
+\noindent The longstanding default is softmax confidence, the model's own estimate of how sure it is, computed as the geometric mean of the
 probabilities it assigned to the tokens it actually
 emitted~\cite{malinin2021uncertainty,vashurin2025benchmark,fadeeva2023polygraph}.
 Its flaw is structural rather than a matter of calibration: softmax is a
@@ -480,7 +479,7 @@ model's self-assessed probability of its emitted total-value tokens, so we
 treat them as the architecture-appropriate ``model self-confidence'' but not
 as numerically interchangeable.
 
-\noindent\textbf{Extractor per experiment.} Two extractor settings appear in this paper. The multi-candidate
+\noindent Two extractor settings appear in this paper. The multi-candidate
 extractor $\tau$ of Section~\ref{sec:method} is the default and produces every
 headline result; a fixed single-candidate extractor is used only in the two
 ablations (Tables~\ref{tab:guard} and~\ref{tab:robust}), where holding $\tau$
