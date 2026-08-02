@@ -4,7 +4,9 @@
   1. Abstract and Keywords at line spacing 1.
   2. 10 nk between Abstract and Keywords.
   3. 6 nk after every paragraph.
-  4. A period after the table label: "TABLE I."
+  4. The table label. The editor asked for a period ("TABLE I."); the
+     authors chose the IEEEtran default ("TABLE I") instead, so this
+     now checks that the period is absent. See the CHECKS entry.
 
 Source-level only. Items 1-3 are vertical metrics and item 4 is a caption
 label: NONE of them is proven here. They are proven on the rendered PDF, and
@@ -45,6 +47,12 @@ def check_ten_nk(src):
     return False
 
 
+def check_no_table_period(src):
+    """True when \\fnum@table is left alone, so IEEEtran prints "TABLE I"."""
+    import re as _re
+    return not _re.search(r'\\def\\fnum@table', src)
+
+
 def check_no_body_linespread(src):
     """True when the body is NOT overridden away from the class default."""
     import re as _re
@@ -72,8 +80,16 @@ CHECKS = [
      check_ten_nk),
     ("3 ", "6 nk after every paragraph",
      r'\\setlength\{\\parskip\}\{6pt'),
-    ("4 ", "period after the table label (TABLE I.)",
-     r'\\def\\fnum@table\{\\tablename\\nobreakspace\\thetable\.\}'),
+    # Item 4 of the editor's e-mail asked for a period after the table label
+    # ("Cizelge etiketlerinden sonra . (nokta) kullaniniz"), and this check
+    # required the \fnum@table redefinition that produces it. The authors have
+    # since decided to follow the IEEEtran template instead, which renders
+    # "TABLE I" with no period. That is a deliberate override of the editor,
+    # not a regression, so the check is inverted rather than deleted: it now
+    # fails if the redefinition comes back, and the entry keeps the editor's
+    # request on the record so nobody re-adds the period by accident.
+    ("4 ", "table label left at the IEEEtran default (TABLE I, no period)",
+     check_no_table_period),
 ]
 
 
@@ -117,7 +133,7 @@ def main(argv):
     print()
     print("  Verify on the RENDERED pdf -- none of the above proves the output:")
     print(r"    pdftotext main.pdf - | grep -oE 'TABLE [IVX]+\.?' | sort -u")
-    print("      want 'TABLE I.' with the period, on every table")
+    print("      want 'TABLE I' at the IEEEtran default, no period")
     print("    pdfinfo main.pdf | grep Pages          # must be 6")
     return fail
 

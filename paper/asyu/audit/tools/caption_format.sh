@@ -56,10 +56,16 @@ if bad:
 if not fig and not tab:
     print('FAIL: no captions found at all -- wrong PDF?')
     sys.exit(2)
-missing = [x for x in tab if not x.rstrip().endswith('.')]
-if missing:
-    print('FAIL: table label without the period the editor asked for:',
-          ' '.join(missing))
+# The editor's e-mail asked for a period after the table label and this
+# check enforced it. The authors have since chosen the IEEEtran default,
+# "TABLE I" with no period, overriding that request deliberately. The check
+# is inverted rather than dropped so the decision stays enforced in one
+# direction and nobody reintroduces the period by accident.
+stray = [x for x in tab if x.rstrip().endswith('.')]
+if stray:
+    print('FAIL: table label carries a period; the paper follows the IEEEtran')
+    print('      default "TABLE I". Look for \\def\\fnum@table in the preamble:',
+          ' '.join(stray))
     sys.exit(1)
-print('OK: no colons; every table label carries its period')
+print('OK: no colons; every table label at the IEEEtran default (no period)')
 EOF
