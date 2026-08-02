@@ -293,7 +293,7 @@ the \emph{total}. Those outputs flow straight into tax filings, expense
 pipelines, audit logs, and bookkeeping, and a silently wrong total is not
 recoverable downstream. Commercial vendors (Expensify, QuickBooks, SAP
 Concur) process millions of receipts per day, so an undetected wrong total at
-that scale is a systematic failure rather than an isolated one. No extractor
+that scale is a systematic failure, not an isolated one. No extractor
 is accurate enough to remove that risk, which is why the standard mitigation
 is not a better extractor but \emph{selective
 prediction}~\cite{geifman2017selectivenet,elyaniv2010foundations}: letting
@@ -302,8 +302,8 @@ reliably handle. That substitutes one problem for another. Every deployment
 now needs a \emph{signal} on which to base the accept-or-defer call, and
 which signal that should be is the question this paper takes up.
 
-\noindent The longstanding default is softmax confidence, the model's
-own estimate of how sure it is, computed as the geometric mean of the
+\noindent\textbf{The longstanding default and its flaw.} The default signal is
+softmax confidence, the model's own estimate of how sure it is, computed as the geometric mean of the
 probabilities it assigned to the tokens it actually
 emitted~\cite{malinin2021uncertainty,vashurin2025benchmark,fadeeva2023polygraph}.
 Its flaw is structural rather than a matter of calibration: softmax is a
@@ -414,8 +414,7 @@ $P(g)=\Pr(\pi{=}y\mid g{=}\text{accept})$ is how often it is right when it
 does answer. Raising one normally lowers the other, and this paper is about
 buying precision at an acceptable price in coverage.
 
-\noindent The $\sigma$ decision rule works from the amounts the receipt
-prints. Let $M(x)=\{m_1,\dots,m_n\}$ be the multiset of monetary amounts recovered from $x$ by an extractor $\tau$
+\noindent\textbf{The $\sigma$ decision rule.} Let $M(x)=\{m_1,\dots,m_n\}$ be the multiset of monetary amounts recovered from $x$ by an extractor $\tau$
 (defined per corpus below). Fix a tolerance $\varepsilon\geq0$ in currency
 units and a minimum witness size $k_{\min}\in\{1,2\}$, the smallest subset we
 accept as evidence; without it a single line item that happens to equal the
@@ -495,7 +494,7 @@ different extractor, not a conflicting result.
 \section{Results}
 \label{sec:results}
 
-\subsection{Does Combining Beat Either Signal Alone?}
+\subsection{Does Requiring Both Signals Clear the 0.95 Precision Floor?}
 \label{sec:results-headline}
 
 \begin{table}[t]
@@ -611,7 +610,7 @@ weighted at $200/347/472$ and carried by WildReceipt, the per-corpus table
 rather than the pool is the headline; Fig.~\ref{fig:wildreceipt} singles out
 the WildReceipt case.
 
-\subsection{Do the Two Signals Fail on the Same Receipts?}
+\subsection{Do \texorpdfstring{$\sigma$}{sigma} and Softmax Fail on the Same Receipts?}
 \label{sec:results-mcnemar}
 
 \begin{table}[t]
@@ -653,13 +652,14 @@ than positive evidence of error-decorrelation; the direct
 correlation-on-errors test (Section~\ref{sec:results-control})
 supplies the latter.
 
-\subsection{Is the Gain Genuine, or Generic Coverage Shrink?}
+\subsection{Is the Precision Gain Larger Than Coverage Shrink Predicts?}
 \label{sec:results-control}
 
 \noindent The obvious objection is that combining any two
 better-than-random decision rules with imperfectly correlated errors raises
-precision and lowers coverage. Is the headline just that generic effect? We
-re-analyze the same per-receipt accept/correct vectors, with no new inference.
+precision and lowers coverage, so the headline may be nothing more than that
+generic effect. We re-analyze the same per-receipt accept/correct vectors, with
+no new inference.
 Define the lift $L=P(\sigma\sqcap\text{softmax})-P(\text{softmax at matched
 coverage})$ and compare it at identical coverage against two controls: (A)~a
 \emph{random} decision rule accepting a uniform random subset of size
@@ -706,12 +706,12 @@ gives combined Stouffer $p=\rgAFiveStouffer$ and Fisher
 $p=\rgAFiveFisher$: decorrelation holds within every corpus, not
 only pooled.
 
-\subsection{Does It Beat Matched-Coverage Softmax?}
+\subsection{Does \texorpdfstring{$\sigma$}{sigma} Lower Area Under the Risk-Coverage Curve?}
 \label{sec:results-riskcov}
 
 \noindent Statistical orthogonality is necessary but not sufficient for
-deployment value: does the $\sigma$ decision rule beat simply
-thresholding softmax? We compare risk--coverage at matched coverage, integrated
+deployment value, which turns on whether the $\sigma$ decision rule beats simply
+thresholding softmax. We compare risk--coverage at matched coverage, integrated
 to an AURC~\cite{geifman2019aurc} (lower better). Pooled, AURC is
 $\rcAURCsoft$ for softmax-alone against $\rcAURCsig$ for the $\sigma$ rule, a
 paired-bootstrap difference of $\rcAURCd$ (95\,\% CI
@@ -719,7 +719,7 @@ $[\rcAURCdLo,\rcAURCdHi]$, one-sided $p{=}\rcAURCp$); the interval excludes
 zero, verdict \rcEarned. We do not over-read it: the absolute difference is
 small and the lift costs coverage, so the operational gain is modest.
 
-\subsection{When Does Each Signal Win, and Why?}
+\subsection{Which Labeling Regimes Favor \texorpdfstring{$\sigma$}{sigma} Over Softmax?}
 \label{sec:results-regime}
 
 \noindent Each signal owns a regime. On CORD (clean per-field labels) $\sigma$
@@ -736,7 +736,7 @@ many amounts OCR puts on the page, not how many ways each line is read. With
 $10$ false accepts this supports the account rather than settling it; a
 hand-corrected subsample test is future work.
 
-\subsection{Is It Robust and Fast Enough to Deploy?}
+\subsection{Is \texorpdfstring{$\sigma$}{sigma} Robust to Injected Noise and Fast Enough to Deploy?}
 \label{sec:results-robust}
 
 \begin{table}[t]
@@ -800,11 +800,11 @@ items rejects valid receipts for nothing. Like Table~\ref{tab:robust}, this
 ablation holds $\tau$ at its single-candidate setting
 (Section~\ref{sec:setup}).
 
-\noindent The check degrades rather than collapses. We corrupt the data deliberately,
+\noindent The check degrades gracefully under corruption. We corrupt the data deliberately,
 injecting from $0\%$ to $40\%$ false line-item amounts over $10$ seeds.
 Table~\ref{tab:robust} shows coverage falling steadily ($26.7\%$ to $9.1\%$)
 while precision stays between $0.949$ and $0.980$ at every level: under noise
-the check becomes more selective rather than less reliable. The tolerance
+the check becomes more selective, not less reliable. The tolerance
 sweep $\varepsilon\in\{0.01,0.02,\dots,5.0\}$
 on CORD returns identical coverage and precision at every value, reflecting
 sparsity of the reachable set: adjacent subset sums on CORD are spaced by more
@@ -826,7 +826,7 @@ different inputs, not dominance. The gain survives swapping Donut for
 LayoutLMv3, so $\sigma$ is signal-orthogonal to softmax across architectures.
 Six limits bound that claim.
 
-\noindent (i)~$\sigma$ requires
+\noindent\textbf{The limits of the construction.} (i)~$\sigma$ requires
 arithmetic closure of the target field; totals, subtotals, and taxes,
 not vendor/date/address. (ii)~$\varepsilon{=}0.02$ assumes
 integer-cent inputs; fractional-cent rounding jurisdictions may need
