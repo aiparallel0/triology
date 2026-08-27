@@ -31,6 +31,8 @@ commit hash. Nothing is hypothetical.
 | [03-LIFECYCLE.md](03-LIFECYCLE.md) | The 20 stages the work actually went through, what each out-of-order transition cost, and the order to use instead |
 | [04-WORKED-EXAMPLES.md](04-WORKED-EXAMPLES.md) | Three defects traced end to end, with the fork points where a careless agent goes wrong |
 | [05-AUDIT-KIT.md](05-AUDIT-KIT.md) | Runnable checks, and an honest account of what cannot be automated |
+| [06-INSTRUMENTS-ARTIFACTS-GROUND.md](06-INSTRUMENTS-ARTIFACTS-GROUND.md) | The checker, the rendered artifact, and the repository state: 19 classes of failure in the things you verify *with* rather than the things you verify |
+| [07-EXTERNAL-VERIFIER-SIGNALS.md](07-EXTERNAL-VERIFIER-SIGNALS.md) | Domain patterns for external verifiers as selective-prediction signals, generalised from the receipt-arithmetic study to any checkable structural invariant |
 | [tools/](tools/) | `claim_strength.py`, `number_provenance.py`, `run_research_audit.py` |
 
 ## The one-paragraph version
@@ -57,6 +59,14 @@ Two playbooks, one boundary, no overlap:
 | benchmarks, leakage, power, claims, provenance, pipeline reliability, scope | templates, captions, float references, page limits, headings |
 | *is the number real, and is the sentence about it true?* | *does the rendered artifact conform?* |
 | Phases 0–4 | Phases 5–8 |
+
+Files 06 and 07 were added after both of the above were in place, and cover
+what neither did. 06 asks a third question — *is the instrument that checks
+this trustworthy, and is the ground it runs on the ground I think it is?* —
+because a defective check converts "unverified" into "verified" without passing
+through "wrong". 07 is the only topic-scoped file in the set: it generalises the
+σ-verifier study into the class of external structural verifiers, for reuse on a
+different task.
 
 Run this one **first**. Formatting is a function of content, and content is a
 function of results; reformatting after every result change was the single
