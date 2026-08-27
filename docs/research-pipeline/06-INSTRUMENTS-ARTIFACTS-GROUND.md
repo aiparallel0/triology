@@ -2,14 +2,18 @@
 
 **What this adds.** `01-FAILURE-CATALOG.md` is about the number and the sentence
 about it. `paper/asyu/audit/` is about whether the rendered artifact conforms.
-Neither covers the three things that failed most often once both of those were
+Neither covers the five things that failed most often once both of those were
 in place:
 
 - the **instrument** that does the checking, which can be wrong in ways that
   look exactly like passing;
 - the **artifact**, which is not the source and fails differently from it;
-- the **ground** — repository state, toolchain, remote, working tree — which
-  is not stable and does not announce when it moves.
+- the **ground**: repository state, toolchain, remote, working tree, none of
+  which is stable and none of which announces when it moves;
+- the **instruction**, which can be internally inconsistent, already stale, or
+  in conflict with a standing commitment nobody restated;
+- the **budget**, because a deliverable with a fixed size turns every
+  improvement into a trade, and a fix that is correct can still be unaffordable.
 
 Every entry is a class. The instance that produced it is named only where it
 makes the mechanism legible. Nothing here is hypothetical.
@@ -296,7 +300,83 @@ named explicitly rather than quietly fixed.
 
 ---
 
-## E. The rules, compressed
+## E. Fixing has a budget
+
+A deliverable with a fixed size (a page limit, a latency ceiling, a payload cap)
+converts every improvement into a trade. Work that ignores this produces changes
+that are individually correct and collectively impossible.
+
+### E1 — Every addition is paid for, and the payment is usually already in the text
+
+**Mechanism.** Reviewers ask for additions. Each is reasonable. Together they
+exceed the budget, and the reflex is to cut something else the reviewers liked.
+
+**The reframe that works.** Most of what reviewers ask for is often *already
+present and merely invisible*: the answer exists inside a sentence that does not
+announce it. Folding the answer into the sentence that already carried the point
+recovers most of the length at no cost to content. On this project that
+accounted for the large majority of requested additions.
+
+**Rule.** Before cutting anything, check whether the requested content already
+exists unmarked. **A request is frequently a visibility defect rather than a
+content defect**, and the two have entirely different prices.
+
+### E2 — Two fixes for one defect can differ by a whole unit of budget
+
+**Mechanism.** A defect has more than one remedy. The first one found works, so
+it ships, and its cost is never compared against the alternatives.
+
+**Cost when skipped.** Here, one defect had two fixes: forcing a block to stay
+together cost **a full page**, while changing where an adjacent element was
+allowed to sit fixed the same defect for **nothing**. The expensive fix was the
+obvious one and was found first.
+
+**Rule.** When budget is binding, **enumerate candidate fixes and measure each**
+before choosing. The intuitive remedy is often the one that pays the renderer's
+price rather than working with it.
+
+### E3 — Layout is a search, not a deduction
+
+**Mechanism.** Predicting how a renderer places things (floats, breaks, widows)
+from its documented rules is slow and unreliable, because placement depends on
+global state you do not hold.
+
+**Rule.** When a renderer is available, **treat it as an oracle**: generate
+candidate configurations, render each, measure the outcome. Reason only about
+which candidates are worth trying. Corollary of `C4`: sweep on disposable
+copies, never on the source, and have the sweep report the configuration it
+actually produced.
+
+### E4 — The same knob reversed several times
+
+**Mechanism.** Over a long engagement the same decision is revisited as new
+reviewers, editors, and collaborators weigh in. A parameter is set, unset, and
+set again. Each individual instruction is legitimate.
+
+**What goes wrong.** The artifact and the machinery enforcing it drift apart,
+because a reversal updates the artifact and forgets the check, the comment, or
+the sibling document that encoded the old state.
+
+**Rule.** Treat every reversal as **three edits, not one**: the artifact, the
+thing that enforces it (`A5`), and the record of why. Keep a running list of
+decisions that have flipped, with who asked and when, because the next person to
+raise it will not know it has already been settled twice.
+
+### E5 — Which build is under review
+
+**Mechanism.** Reviews, critiques, and task lists are written against a specific
+build. By the time they arrive, that build is history. Items already fixed sit
+beside items still live, and nothing distinguishes them.
+
+**Rule.** **Identify the reviewed artifact before acting on the review.** Where
+the reviewer supplies it, diff it against current; where they do not, check each
+reported defect against the current build. Then report which items were already
+resolved. Acting blind on a stale list re-introduces work and can undo the fix
+that resolved the complaint.
+
+---
+
+## F. The rules, compressed
 
 1. Assert the property, never the workaround that currently satisfies it.
 2. Every check has three outcomes; could-not-run is not a pass.
@@ -317,3 +397,37 @@ named explicitly rather than quietly fixed.
 17. Resolve a false choice with evidence rather than answering both halves.
 18. Report a shortfall inside scope rather than widening scope.
 19. Correct a belief-changing error explicitly, once.
+20. Check whether requested content already exists unmarked before cutting to
+    make room; a visibility defect is cheaper than a content defect.
+21. Enumerate candidate fixes and measure each when budget binds.
+22. Use the renderer as an oracle; do not deduce its layout decisions.
+23. A reversal is three edits: the artifact, its enforcement, and the record.
+24. Identify which build a review was written against before acting on it.
+
+---
+
+## Appendix — decisions that reversed
+
+Instances, not classes, kept here because `E4` is only actionable with an
+example of what a reversal record looks like. Each row is a decision that was
+made, enforced, and then made differently. None was a mistake; each was a
+judgement that changed when someone new looked at it. The column that matters is
+the last one, because a reversal that does not update its enforcement leaves the
+check defending a state the artifact no longer has.
+
+| Decision | First state | Reversed to | Why | Enforcement updated |
+|---|---|---|---|---|
+| Table label punctuation | period after the label, per the venue editor's written request | template default, no period | authors chose template conformance over the editor's request | two checks **inverted**, not deleted; both now fail if the period returns, and both keep the editor's request in a comment |
+| Spelling variety | American, per the publisher's house style | British, per an earlier approved draft | author preference | none needed; consistency check is variety-agnostic |
+| Spelling variety (again) | British | American | authors chose house style after seeing the trade named | same |
+| Bold run-in headings | many, one per paragraph | zero in body prose | read as machine-generated | none |
+| Bold run-in headings (again) | zero | a small number, as noun phrases | needed for skimming | none |
+| Bold run-in headings (third time) | present on page one | none on page one, restricted elsewhere to labels the original draft used | author preference | none |
+| Research-question labels in headings | `RQ1:` prefixes | removed | the class already numbers subsections, so the prefix was a second numbering scheme | cross-references were checked to confirm none depended on the prefix |
+| Novelty framing | methodological novelty claimed | narrower claim: novelty of the measurement | a reviewer rejected the broader claim | the disclaimer was consolidated from four occurrences to one |
+
+**What this table is for.** Two of these reversed twice, and one three times.
+Without the record, the third request looks like a new idea rather than a return
+to a state that was already tried. Anyone maintaining the artifact should be able
+to answer "has this been decided before, and what happened?" without reading the
+history.

@@ -282,7 +282,44 @@ noise is deployable; one that stays confident is not.
 
 ---
 
-## E. Transfer conditions
+## E. Responding to review
+
+### E1 — When the framing is rejected, adopt the framing the evidence supports
+
+**Class.** A reviewer rejects the paper's positioning rather than its results.
+The instinct is to defend the positioning. It is usually the wrong move, because
+the positioning was chosen before the evidence was in and the evidence has since
+moved.
+
+**What works.** Re-read what the reviewer said the paper *is*, and check whether
+that description fits the evidence better than yours does. Where it does, adopt
+it, in their vocabulary. A paper repositioned as an evaluation of a known
+technique can be strong; the same paper insisting on methodological novelty it
+cannot support is weak in exactly the place the reviewer is looking.
+
+**What this is not.** Not capitulation. The results do not change and the
+contribution does not shrink; only the sentence describing it does. Separate the
+claim you must give up from the claim you can still make, and keep the narrower
+one intact rather than losing both.
+
+### E2 — Repetition of a defence is a diagnostic
+
+**Class.** When the same disclaimer, hedge, or defence appears three or four
+times across a paper, the repetition is not a stylistic defect. It is a symptom.
+Each instance was added in response to a separate challenge, and the underlying
+claim was never resolved.
+
+**Tell.** A sentence you cannot bring yourself to state only once.
+
+**Rule.** When you find a repeated defence, **do not just delete the copies.**
+Ask what claim the repetition is protecting, decide whether the evidence
+supports it, and resolve it. Then state the resolution once, in the section that
+owns it. Deleting the duplicates without resolving the claim leaves the paper
+undefended in the one place it needed the sentence.
+
+---
+
+## F. Transfer conditions
 
 Before reaching for this construction on a new task, all four must hold:
 
