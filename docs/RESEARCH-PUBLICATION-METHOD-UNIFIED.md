@@ -7,11 +7,36 @@ win. Examples are given in field-neutral form.
 In a hurry: start with the checklists in Section 14, or the ready-to-use prompts
 in Sections 21 and 22.
 
-This unified edition merges four sources: the comprehensive method handbook, the condensed lessons edition, a project whose lessons are Sections 24 to 26, and a venue-paper project whose lessons are Section 28. The handbook is the spine; the lessons edition's publication-strategy lessons (Sections 13.11 to 12.13) and its distinctive prompts (Section 21.17) are folded in, broken source tables are repaired, and the prompt-section numbering is corrected. A crosswalk from the condensed edition is in Section 23.
+This unified edition merges four sources: the comprehensive method handbook,
+the condensed lessons edition, a project whose lessons are Sections 24 to 27,
+and a venue-paper project whose lessons are Section 28. The handbook is the
+spine; the lessons edition's publication-strategy lessons (Sections 13.11 to
+13.13) and its distinctive prompts (Section 21.17) are folded in, broken
+source tables are repaired, and the prompt-section numbering is corrected. A
+crosswalk from the condensed edition is in Section 23.
 
-Sections 24 to 26 come from a project in which every serious defect was silent: three separate checks shipped a false pass, a build reported success on failure, a correction notice was over-read and broke a property it never mentioned, and a format conversion had to be proved lossless rather than inspected. They are appended rather than interleaved so that no existing section number moves (Sections 11.8 and 19.11 explain why that matters). Where they overlap an existing lesson they cross-refer to it instead of restating it, per Section 11.15.
+Section 6 was added later still, from a project in which a promising effect
+turned out to be leakage and a null was reported without the power to support
+it; it is interleaved rather than appended because evidence integrity belongs
+before debugging, and every later chapter number moved by one accordingly.
 
-Section 28 comes from taking a venue paper through review, revision and camera-ready. It is likewise appended rather than interleaved, and the sections it touches elsewhere are 9.11, 10.16, 11.8, 12.15, 13.7 and 13.8. It reaches Sections 24 and 26 from a different direction: those chapters ask what a check must do to be trusted, while Section 28 asks what the instrument, the rendered artifact and the repository ground each contribute to a claim. Where the two meet, in particular Sections 24.1 and 28.2, 23.4 and 27.3, and 25.3 and 27.3, both statements are kept because each carries its own evidence.
+Sections 24 to 27 come from a project in which every serious defect was
+silent: three separate checks shipped a false pass, a build reported success
+on failure, a correction notice was over-read and broke a property it never
+mentioned, and a format conversion had to be proved lossless rather than
+inspected. They are appended rather than interleaved so that no existing
+section number moves (Sections 11.8 and 19.11 explain why that matters). Where
+they overlap an existing lesson they cross-refer to it instead of restating
+it, per Section 11.15.
+
+Section 28 comes from taking a venue paper through review, revision and
+camera-ready. It is likewise appended rather than interleaved, and the
+sections it touches elsewhere are 10.11, 11.16, 12.8, 13.15, 14.7 and 14.8. It
+reaches Sections 24 and 26 from a different direction: those chapters ask what
+a check must do to be trusted, while Section 28 asks what the instrument, the
+rendered artifact and the repository ground each contribute to a claim. Where
+the two meet, in particular Sections 24.1 and 28.2, 24.4 and 28.3, and 26.3
+and 28.3, both statements are kept because each carries its own evidence.
 
 ## Contents
 
@@ -51,7 +76,8 @@ Section 28 comes from taking a venue paper through review, revision and camera-r
 
 ## HOUSE RULES
 
-Paste this block once at the top of a session. Every prompt in this document refers to it.
+Most prompts below say "Apply HOUSE RULES". Paste this block once at the top of
+a session, or inline it when you need it.
 
 ```
 HOUSE RULES
@@ -60,12 +86,8 @@ HOUSE RULES
   Caption width must not exceed the width of the object it belongs to.
 - Plain competent prose. No selling, no hype, no throat-clearing, no adjectives
   doing work that evidence should do. State the result and move on.
-- Every number traceable to a script or a source. Mark invented values TODO,
-  and check the marker does not render into the artifact.
-- Never evaluate on a split the released model or resource was trained on.
-  If everything improved at once, ask what started being included.
-- Figures: vector only, body font, units on axes, never colour-only encoding
-  (add hatch or texture).
+- Every number traceable to a script or a source. Mark invented values TODO.
+- Figures: vector only, body font, units on axes, never colour-only encoding.
 - Say what you did not do, and why, rather than leaving it implicit.
 - A check is trusted only after the defect it names has been injected and
   the check has been seen to fail on it.
@@ -961,7 +983,7 @@ specific traps. An unescaped metacharacter can discard the rest of a region
 while the build reports success, so verify that the *last* sentence of each
 region reached the page, not the first. And a fit measurement taken while layout
 defects are present is not a measurement of the fixed document: repair first,
-then measure. Section 28.6 to 27.9 covers the family.
+then measure. Section 28.6 to 28.9 covers the family.
 
 # 12. TOOLING
 
@@ -1189,7 +1211,7 @@ does not happen.
 
 ## 13.14 Shift the weight instead of rewriting
 
-Venue selection (12.5) says pick the audience. This is the move after that:
+Venue selection (13.5) says pick the audience. This is the move after that:
 instead of rewriting the same paper for a different venue, SHIFT its weight.
 
 ```
@@ -1199,7 +1221,7 @@ Venue B: "here is our framework, calibrated by these findings" (framework headli
 
 The second framing is immune to concurrent finding work: others produce
 findings, you provide the tool. The same evidence base serves both; only the
-headline moves. This is why the split decision (12.3, 12.4) can be deferred: you
+headline moves. This is why the split decision (13.3, 13.4) can be deferred: you
 do not need two papers to reach two audiences, you need two framings of one.
 
 > **Prompt:** If this paper could go to two venue types, can its weight be shifted
@@ -1208,21 +1230,12 @@ do not need two papers to reach two audiences, you need two framings of one.
 
 ## 13.15 A fixed size makes every addition a trade
 
-A page limit converts every improvement into an exchange. Reviewers ask for
-additions, each reasonable, together unaffordable, and the reflex is to cut
-something the reviewers liked.
-
-Check first whether the requested content already exists unmarked. Much of what
-reviewers ask for is present and merely invisible, sitting inside a sentence
-that does not announce it; folding the answer into that sentence recovers most
-of the length at no cost to content. A request is frequently a visibility defect
-rather than a content defect, and the two have entirely different prices.
-
-When budget binds, enumerate candidate fixes and measure each rather than taking
-the first that works: two remedies for one defect can differ by a whole page,
-and the expensive one is often the obvious one. Treat layout as a search with
-the renderer as oracle, not as a deduction from its rules. Sections 28.13 to
-27.15.
+A page limit converts every improvement into an exchange, and the first move is
+not to cut but to check whether the requested content is already present and
+merely invisible. Sections 28.13 to 28.15 carry this in full, with the two
+companion rules: enumerate candidate fixes before choosing one, because two
+remedies for the same defect can differ by a whole page, and treat layout as a
+search with the renderer as oracle rather than a deduction from its rules.
 
 # 14. CHECKLISTS
 
@@ -3134,18 +3147,18 @@ to the sections here.
 | Condensed edition (lessons) | This document |
 |---|---|
 | HOUSE RULES | HOUSE RULES (top), Section 22 |
-| Part 1 Experiment design | Sections 2, 3, 4, 5, 7 |
-| Part 2 Source reading and verification | Sections 1, 9, 16 |
-| Part 3 Macro system and consistency | Sections 11, 16 |
-| Part 4 Revision management | Sections 11, 16 |
+| Part 1 Experiment design | Sections 2, 3, 4, 5, 8 |
+| Part 2 Source reading and verification | Sections 1, 10, 17 |
+| Part 3 Macro system and consistency | Sections 11, 17 |
+| Part 4 Revision management | Sections 11, 17 |
 | Part 5 Literature positioning | Section 9 |
-| Part 6 Publication strategy | Section 13 (incl. 12.11 to 12.13) |
-| Part 7 Feedback loops | Sections 5, 9, 18 |
+| Part 6 Publication strategy | Section 13 (incl. 13.11 to 13.13) |
+| Part 7 Feedback loops | Sections 5, 10, 19 |
 | Part 8 Checklist before submission | Section 14 |
-| Part 9 Style and formatting | Sections 15, 19 |
+| Part 9 Style and formatting | Sections 15, 20 |
 | Part 10 Background principles | Section 16 |
-| Part 11 Deep principles | Sections 17, 17 |
-| Part 12 Article building and editing prompts | Sections 21, 21 (incl. 20.17) |
+| Part 11 Deep principles | Sections 17, 18 |
+| Part 12 Article building and editing prompts | Sections 21, 22 (incl. 21.17) |
 
 The third source, a later project, maps as follows.
 
@@ -3154,9 +3167,9 @@ The third source, a later project, maps as follows.
 | Verification code as an object requiring verification | Section 24 |
 | Build gates, exit status, staleness, warning classes | Section 24.9 |
 | Fallbacks that publish the wrong thing | Section 24.10 |
-| Reading a correction notice without over-reading it | Sections 25.1, 24.2 |
-| Conflicting authorities, stored definition versus rendering | Sections 25.3, 24.4 |
-| Rules leaking between venues; requirements that reverse | Sections 25.5, 24.6 |
+| Reading a correction notice without over-reading it | Sections 25.1, 25.2 |
+| Conflicting authorities, stored definition versus rendering | Sections 25.3, 25.4 |
+| Rules leaking between venues; requirements that reverse | Sections 25.5, 25.6 |
 | Acting on a review you received | Section 25.7 |
 | Anonymity and other "must not contain" constraints | Section 25.8 |
 | Parameter interaction and compensated constants | Section 25.9 |
@@ -3847,7 +3860,7 @@ paragraphs had no line rule and the wrong indent, and one caption style was
 justified where the item required centring. Each had to be overridden explicitly.
 
 Nobody would have looked, because the primary artifact passed. This is Section
-25.5.
+26.5.
 
 ## 27.5 Generated labels beat typed ones
 
@@ -3882,7 +3895,7 @@ Section 24.1 in general; for templates specifically, three controls are cheap an
 worth keeping:
 
 ```
-the pre-fix build     rebuilt from a commit, not stored as a file (23.12)
+the pre-fix build     rebuilt from a commit, not stored as a file (24.12)
 the bare template     a good suite fails the venue's OWN sample on the items
                       where the sample and the written list disagree
 an empty document     must report nothing-measured, never a pass
