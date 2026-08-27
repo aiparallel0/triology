@@ -31,7 +31,7 @@ commit hash. Nothing is hypothetical.
 | [03-LIFECYCLE.md](03-LIFECYCLE.md) | The 20 stages the work actually went through, what each out-of-order transition cost, and the order to use instead |
 | [04-WORKED-EXAMPLES.md](04-WORKED-EXAMPLES.md) | Three defects traced end to end, with the fork points where a careless agent goes wrong |
 | [05-AUDIT-KIT.md](05-AUDIT-KIT.md) | Runnable checks, and an honest account of what cannot be automated |
-| [06-INSTRUMENTS-ARTIFACTS-GROUND.md](06-INSTRUMENTS-ARTIFACTS-GROUND.md) | The checker, the rendered artifact, and the repository state: 19 classes of failure in the things you verify *with* rather than the things you verify |
+| [06-INSTRUMENTS-ARTIFACTS-GROUND.md](06-INSTRUMENTS-ARTIFACTS-GROUND.md) | The checker, the rendered artifact, and the repository state: 20 classes of failure in the things you verify *with* rather than the things you verify, compressed to 19 rules |
 | [07-EXTERNAL-VERIFIER-SIGNALS.md](07-EXTERNAL-VERIFIER-SIGNALS.md) | Domain patterns for external verifiers as selective-prediction signals, generalised from the receipt-arithmetic study to any checkable structural invariant |
 | [tools/](tools/) | `claim_strength.py`, `number_provenance.py`, `run_research_audit.py` |
 
