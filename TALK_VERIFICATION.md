@@ -157,7 +157,8 @@ point. The paper's `[0.957, 0.957]` is therefore reproduced in kind.
 Q was run under `datasets` 5.0.1 and again under 2.19.0 and produced **identical
 numbers** both times. Artifact written: `runs/Q_money_noise_cord.json`.
 
-Neither artifact has been committed; both are new files in `runs/`.
+Both are new files in `runs/`, committed alongside this report so the two
+tables can be re-checked without a rerun.
 
 ---
 
@@ -400,7 +401,8 @@ is **not applicable**: `runs/B_donut_cord_on_cord.json`,
 are byte-identical to their committed state and were only read.
 
 Two artifacts were **created** by running committed scripts with default
-arguments: `runs/G_robustness.json` and `runs/Q_money_noise_cord.json`. Neither
-is committed. One artifact was **deleted before commit**: the zeroed
+arguments: `runs/G_robustness.json` and `runs/Q_money_noise_cord.json`. Both are
+committed as new files; neither replaces an existing one, since `runs/` carried
+no prior G or Q artifact. One artifact was **deleted before commit**: the zeroed
 `runs/G_robustness.json` produced under `datasets` 5.0.1, which was invalid for
 the reason in D7.

@@ -1,0 +1,66 @@
+{
+  "tau_extraction": "v10",
+  "tau_cap_fires": 0,
+  "cardinality_guard_ablation": {
+    "kmin_1_no_guard": {
+      "n": 347,
+      "coverage_sigma": 0.15561959654178675,
+      "sigma_precision": 0.9259259259259259,
+      "T_size_mean": 49.61959654178674,
+      "T_size_p95": 181
+    },
+    "kmin_2_with_guard": {
+      "n": 347,
+      "coverage_sigma": 0.02881844380403458,
+      "sigma_precision": 0.9,
+      "T_size_mean": 46.34870317002882,
+      "T_size_p95": 176
+    }
+  },
+  "dp_latency_ms": {
+    "n_receipts": 347,
+    "p50_ms": 0.005026000053476309,
+    "p95_ms": 0.07754399996429129,
+    "p99_ms": 0.5281210000021019,
+    "max_ms": 0.8489220000456044,
+    "mean_ms": 0.021469550429554025
+  },
+  "sigma_by_money_count_bucket": {
+    "2-4": {
+      "n": 200,
+      "coverage_sigma": 0.025,
+      "sigma_precision": 1.0,
+      "T_size_mean": 3.445,
+      "T_size_p95": 11
+    },
+    "5-9": {
+      "n": 104,
+      "coverage_sigma": 0.038461538461538464,
+      "sigma_precision": 1.0,
+      "T_size_mean": 61.10576923076923,
+      "T_size_p95": 246
+    },
+    "1": {
+      "n": 33,
+      "coverage_sigma": 0.0,
+      "sigma_precision": 0.0,
+      "T_size_mean": 0.0,
+      "T_size_p95": 0
+    },
+    ">=10": {
+      "n": 9,
+      "coverage_sigma": 0.1111111111111111,
+      "sigma_precision": 0.0,
+      "T_size_mean": 1004.3333333333334,
+      "T_size_p95": 2012
+    },
+    "0": {
+      "n": 1,
+      "coverage_sigma": 0.0,
+      "sigma_precision": 0.0,
+      "T_size_mean": 0.0,
+      "T_size_p95": 0
+    }
+  },
+  "note": "Ablation: cardinality guard |S|>=2 reduces T_size and trades coverage for precision. Without the guard, every singleton money line trivially witnesses itself \u2014 sigma_precision collapses to base rate. Corpus-dependence: on labeled-amounts corpora (CORD/WildReceipt) the guard's value is unambiguous; on OCR-derived corpora (SROIE) it can invert because pi rarely appears as a clean labeled line."
+}

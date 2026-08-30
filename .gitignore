@@ -3,6 +3,8 @@
 __pycache__/
 probe_logs/
 scripts/*/__pycache__/
+# Downloaded corpora (CORD-v2, SROIE, WildReceipt); re-fetched on demand
+data/
 # Compiled paper documents (build artifacts; figure PDFs stay tracked)
 paper/asyu/main.pdf
 paper/asyu/presentation.pdf

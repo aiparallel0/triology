@@ -1,0 +1,107 @@
+{
+  "corpus": "CORD-v2 test (with synthetic money-line noise)",
+  "noise_rates": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.4
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "n_seeds": 10,
+  "wall_sec": 9.0,
+  "per_rate": {
+    "rate=0.0": {
+      "n": 85,
+      "coverage_mean": 0.27058823529411763,
+      "coverage_std": 0.0,
+      "coverage_bootstrap_95_ci": [
+        0.27058823529411763,
+        0.27058823529411763
+      ],
+      "precision_mean": 0.9565217391304348,
+      "precision_std": 0.0,
+      "precision_bootstrap_95_ci": [
+        0.9565217391304348,
+        0.9565217391304348
+      ],
+      "n_seeds_with_accepts": 10
+    },
+    "rate=0.05": {
+      "n": 85,
+      "coverage_mean": 0.24000000000000005,
+      "coverage_std": 0.022445628268634017,
+      "coverage_bootstrap_95_ci": [
+        0.22470588235294117,
+        0.25176470588235295
+      ],
+      "precision_mean": 0.9552535447644145,
+      "precision_std": 0.01580185700126888,
+      "precision_bootstrap_95_ci": [
+        0.947515449526319,
+        0.9665035447644144
+      ],
+      "n_seeds_with_accepts": 10
+    },
+    "rate=0.1": {
+      "n": 85,
+      "coverage_mean": 0.20823529411764702,
+      "coverage_std": 0.010588235294117648,
+      "coverage_bootstrap_95_ci": [
+        0.2011764705882353,
+        0.21411764705882358
+      ],
+      "precision_mean": 0.9489099587203302,
+      "precision_std": 0.01727534405455373,
+      "precision_bootstrap_95_ci": [
+        0.9417483660130719,
+        0.9613347093223255
+      ],
+      "n_seeds_with_accepts": 10
+    },
+    "rate=0.2": {
+      "n": 85,
+      "coverage_mean": 0.1635294117647059,
+      "coverage_std": 0.025478126856126725,
+      "coverage_bootstrap_95_ci": [
+        0.14823529411764708,
+        0.18
+      ],
+      "precision_mean": 0.9629754559166324,
+      "precision_std": 0.03780908058606219,
+      "precision_bootstrap_95_ci": [
+        0.9391142191142192,
+        0.9856410256410257
+      ],
+      "n_seeds_with_accepts": 10
+    },
+    "rate=0.4": {
+      "n": 85,
+      "coverage_mean": 0.08823529411764705,
+      "coverage_std": 0.02643788829911086,
+      "coverage_bootstrap_95_ci": [
+        0.07176470588235294,
+        0.10588235294117647
+      ],
+      "precision_mean": 0.975,
+      "precision_std": 0.075,
+      "precision_bootstrap_95_ci": [
+        0.925,
+        1.0
+      ],
+      "n_seeds_with_accepts": 10
+    }
+  },
+  "note": "v3: 10 seeds + bootstrap 95% CIs + preloaded receipts (no per-iter ds access). Reports sigma's precision/coverage degradation as a function of synthetic noise applied to CORD's labeled item amounts. Graceful precision degradation (stable above 0.93 across rates 0-0.4) is the headline; coverage drops sharply as noise increases (4x reduction at rate 0.4)."
+}
